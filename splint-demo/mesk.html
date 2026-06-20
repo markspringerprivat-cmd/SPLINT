@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SPLINT One Demo · MeSK Fragebogen</title>
+  <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="assets/css/styles.css">
+  <script defer src="assets/js/app.js"></script>
+</head>
+<body data-page="mesk" data-root="">
+  <a class="skip-link" href="#content">Zum Inhalt springen</a>
+  <header class="topbar">
+    <a class="brand" href="index.html" aria-label="SPLINT One Demo Startseite">
+      <img class="brand-mark" src="assets/img/logo.svg" alt="">
+      <span class="brand-text"><strong>SPLINT One</strong><small>Probelizenz · Demo</small></span>
+    </a>
+    <nav class="nav-actions" aria-label="Hauptnavigation">
+      <a class="install-btn" href="#">Installieren</a>
+      <a class="nav-pill" href="index.html">Hauptseite</a>
+      <a class="nav-pill" href="beobachtung.html">Übersicht</a>
+      <span class="avatar" aria-label="Benutzerkürzel">MS</span>
+    </nav>
+  </header>
+
+  <main class="page page-narrow" id="content">
+    <h1 class="page-title">Beobachtung anlegen</h1>
+
+    <div class="mesk-box">▣ Beobachtung: MeSK-Fragebogen zur Einschätzung emotionaler und sozialer Kompetenzen</div>
+
+    <section class="section">
+      <h2>MeSK Fragebogen anbieten</h2>
+      <p class="muted">Wähle zuerst die Schüler:in und anschließend einen Bereich, der beobachtet werden soll. Die Oberkategorien sind als Einstieg verlinkt.</p>
+      <div class="form-row">
+        <label for="studentSelect">Schüler:in</label>
+        <select id="studentSelect"></select>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="topic-title">
+      <h2 id="topic-title">Beobachtungsbogen starten</h2>
+      <p class="upper">Bereich auswählen</p>
+      <div class="topic-list" id="topicList" aria-live="polite"></div>
+    </section>
+
+    <div class="button-row">
+      <a class="btn" href="schueler-anlegen.html">Schüler:in vorher anlegen</a>
+      <a class="btn btn-secondary" href="index.html">Zur Hauptseite</a>
+    </div>
+  </main>
+</body>
+</html>
