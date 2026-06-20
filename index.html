@@ -35,52 +35,90 @@
     </div>
   </section>
 
-  <main class="page page-wide" id="content">
-    <section class="section" aria-labelledby="actions-title">
-      <h2 id="actions-title">Aktionen</h2>
-      <div class="tile-grid">
-        <a class="tile tile-primary" href="mesk.html">
-          <span class="tile-icon">＋</span>
-          <span>Beobachtung erstellen</span>
-        </a>
-        <a class="tile" href="schueler-anlegen.html">
-          <span class="tile-icon">☻</span>
-          <span>Schüler:in anlegen</span>
-        </a>
-        <a class="tile" href="beobachtung.html">
-          <span class="tile-icon">▥</span>
-          <span>Beobachtungsübersicht öffnen</span>
-        </a>
-      </div>
-    </section>
+  <main class="dashboard-page" id="content">
+    <div class="dashboard-layout">
+      <aside class="dashboard-guide" aria-labelledby="guide-title">
+        <article class="card tutorial-card">
+          <p class="upper tiny">Kurzanleitung</p>
+          <h2 id="guide-title">So nutzt du die Demo</h2>
+          <p>Diese Präsentationsfassung bildet den Ablauf einer SPLINT-One-Beobachtung nach. Alle Daten bleiben lokal im Browser und werden nicht an einen Server übertragen.</p>
 
-    <section class="section" aria-labelledby="overview-title">
-      <h2 id="overview-title">Übersicht</h2>
-      <div class="tile-grid">
-        <article class="card">
-          <h3>Schüler:innen</h3>
-          <p class="page-title" id="statsStudents" aria-live="polite">0</p>
-          <p class="muted">lokal angelegt</p>
+          <ol class="tutorial-steps">
+            <li>
+              <strong>Schüler:in anlegen</strong>
+              <span>Erfasse Name, Lerngruppe, Jahrgangsstufe und weitere Basisdaten. Diese Angaben werden anschließend in Profil, Übersicht und Fallbeispielen genutzt.</span>
+            </li>
+            <li>
+              <strong>Beobachtung erstellen</strong>
+              <span>Wähle den MeSK-Fragebogen und anschließend einen Beobachtungsbereich wie Selbstkompetenz, Sozialkompetenz oder Lernkompetenz.</span>
+            </li>
+            <li>
+              <strong>Bogen ausfüllen</strong>
+              <span>Bewerte die Aussagen zeilenweise. Links im Bogen erscheint ein passendes Fallbeispiel zur ausgewählten Person und Kategorie.</span>
+            </li>
+            <li>
+              <strong>Speichern und prüfen</strong>
+              <span>Gespeicherte Bögen erscheinen auf dieser Hauptseite und im Profil der ausgewählten Schüler:in.</span>
+            </li>
+          </ol>
+
+          <div class="guide-note">
+            <strong>Hinweis für die Präsentation:</strong>
+            <span>Über „Demo-Daten laden“ kannst du sofort mit einem Beispieldatensatz arbeiten.</span>
+          </div>
         </article>
-        <article class="card">
-          <h3>Beobachtungsbögen</h3>
-          <p class="page-title" id="statsObservations" aria-live="polite">0</p>
-          <p class="muted">lokal gespeichert</p>
-        </article>
-      </div>
-    </section>
+      </aside>
 
-    <section class="section" aria-labelledby="students-title">
-      <h2 id="students-title">Angelegte Schüler:innen</h2>
-      <div class="card-list" id="studentList" aria-live="polite"></div>
-    </section>
+      <section class="dashboard-main" aria-label="Aktionen und Kennzahlen">
+        <section class="section" aria-labelledby="actions-title">
+          <h2 id="actions-title">Aktionen</h2>
+          <div class="tile-grid dashboard-actions">
+            <a class="tile tile-primary" href="mesk.html">
+              <span class="tile-icon">＋</span>
+              <span>Beobachtung erstellen</span>
+            </a>
+            <a class="tile" href="schueler-anlegen.html">
+              <span class="tile-icon">☻</span>
+              <span>Schüler:in anlegen</span>
+            </a>
+            <a class="tile" href="beobachtung.html">
+              <span class="tile-icon">▥</span>
+              <span>Beobachtungsübersicht öffnen</span>
+            </a>
+          </div>
+        </section>
 
-    <section class="section" aria-labelledby="observations-title">
-      <h2 id="observations-title">Meine Beobachtungen</h2>
-      <div class="card-list" id="observationList" aria-live="polite"></div>
-    </section>
+        <section class="section" aria-labelledby="overview-title">
+          <h2 id="overview-title">Übersicht</h2>
+          <div class="tile-grid dashboard-stats">
+            <article class="card stat-card">
+              <h3>Schüler:innen</h3>
+              <p class="page-title" id="statsStudents" aria-live="polite">0</p>
+              <p class="muted">lokal angelegt</p>
+            </article>
+            <article class="card stat-card">
+              <h3>Beobachtungsbögen</h3>
+              <p class="page-title" id="statsObservations" aria-live="polite">0</p>
+              <p class="muted">lokal gespeichert</p>
+            </article>
+          </div>
+        </section>
+      </section>
 
-    <p class="footer-note">Hinweis: Diese statische Demo ist für Präsentationszwecke gebaut und nicht mit einem echten SPLINT-System verbunden.</p>
+      <aside class="dashboard-sidebar" aria-label="Gespeicherte Inhalte">
+        <section class="section dashboard-panel" aria-labelledby="students-title">
+          <h2 id="students-title">Angelegte Schüler:innen</h2>
+          <div class="card-list compact-list" id="studentList" aria-live="polite"></div>
+        </section>
+
+        <section class="section dashboard-panel" aria-labelledby="observations-title">
+          <h2 id="observations-title">Meine Beobachtungen</h2>
+          <div class="card-list compact-list" id="observationList" aria-live="polite"></div>
+        </section>
+      </aside>
+    </div>
+
+    <p class="footer-note dashboard-footer">Hinweis: Diese statische Demo ist für Präsentationszwecke gebaut und nicht mit einem echten SPLINT-System verbunden.</p>
   </main>
 </body>
 </html>

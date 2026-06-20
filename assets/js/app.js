@@ -373,6 +373,117 @@
     return `${student.firstName || ''} ${student.lastName || ''}`.trim() || 'Unbenannte:r Schüler:in';
   }
 
+
+  function studentContext(student) {
+    if (!student) {
+      return {
+        name: 'die ausgewählte Person',
+        displayName: 'Nicht zugeordnet',
+        group: '–',
+        grade: '–',
+        birthDate: '–',
+        pronouns: '–',
+        schoolYear: '–',
+        detailLine: 'Bitte zuerst eine:n Schüler:in auswählen oder anlegen.'
+      };
+    }
+    const name = studentName(student);
+    const details = [
+      student.group ? `Lerngruppe ${student.group}` : 'Lerngruppe nicht angegeben',
+      student.grade ? `Jahrgang ${student.grade}` : 'Jahrgang nicht angegeben',
+      student.schoolYear ? `Schulbesuchsjahr ${student.schoolYear}` : 'Schulbesuchsjahr nicht angegeben',
+      `Geburtsdatum ${formatDateGerman(student.birthDate)}`
+    ];
+    return {
+      name,
+      displayName: name,
+      group: student.group || '–',
+      grade: student.grade || '–',
+      birthDate: formatDateGerman(student.birthDate),
+      pronouns: student.pronouns || '–',
+      schoolYear: student.schoolYear || '–',
+      detailLine: details.join(' · ')
+    };
+  }
+
+  function caseCopy(topicKey, ctx) {
+    const name = ctx.name;
+    const examples = {
+      selbstkompetenz: {
+        focus: ['Selbstregulation bei Wut, Angst und Traurigkeit', 'Wahrnehmung eigener Gefühle', 'Verständnis für Gefühle anderer'],
+        paragraphs: [
+          `${name} wird in ${ctx.detailLine} beobachtet. In der Demo-Situation arbeitet die Lerngruppe an einer Aufgabe, bei der Wartezeiten, Rückmeldungen und kleine Misserfolge entstehen. Dabei kann sichtbar werden, wie ${name} eigene emotionale Reaktionen wahrnimmt und ob bereits hilfreiche Strategien zur Regulation genutzt werden.`,
+          `Besonders relevant ist, ob ${name} bei Wut, Angst oder Traurigkeit passende Unterstützung annimmt, eigene Gefühle benennen kann und nach einer kurzen Stabilisierung wieder handlungsfähig wird. Beobachte auch, ob Ursachen für die eigenen Reaktionen erkannt werden oder ob die Reaktion erst mit zeitlichem Abstand eingeordnet werden kann.`,
+          `Für den Bogen kann außerdem notiert werden, ob ${name} emotionale Signale anderer Kinder erkennt. Ein geeignetes Beispiel wäre eine Partnerarbeit, in der ein anderes Kind unsicher, traurig oder verärgert reagiert und ${name} darauf entweder angemessen, verzögert oder gar nicht eingeht.`
+        ]
+      },
+      sozialkompetenz: {
+        focus: ['Hilfsbereitschaft', 'Toleranz und Einigung', 'Gesprächsbeteiligung und Kontaktaufnahme', 'Handlungs- und Lösungsstrategien'],
+        paragraphs: [
+          `${name} wird in ${ctx.detailLine} innerhalb einer kooperativen Unterrichtssituation beobachtet. Die Gruppe erhält eine gemeinsame Aufgabe, bei der Material geteilt, Rollen abgesprochen und unterschiedliche Vorschläge ausgehandelt werden müssen.`,
+          `Achte darauf, ob ${name} wahrnimmt, wenn andere Unterstützung benötigen, und ob Hilfe eigeninitiativ, nach Aufforderung oder nur in stark strukturierten Situationen angeboten wird. Ebenso wichtig ist, wie ${name} auf andere Meinungen reagiert: Werden Kompromisse möglich, werden Beiträge anderer gehört oder dominiert die eigene Sichtweise?`,
+          `Für die Einschätzung sind konkrete Gesprächsanteile hilfreich. Notiere, ob ${name} Kontakt sozial angemessen aufnimmt, Gesprächsregeln einhält, eigene Interessen zeitweise zurückstellen kann und ob aus der Gruppe heraus eigene Lösungsvorschläge entstehen.`
+        ]
+      },
+      konfliktverhalten: {
+        focus: ['Problemlösefähigkeit', 'Hilfe annehmen', 'Konflikte beenden', 'Wiedergutmachung'],
+        paragraphs: [
+          `${name} wird in ${ctx.detailLine} in einer kontrollierten Konfliktsituation beobachtet, zum Beispiel bei einer Uneinigkeit über Material, Reihenfolge, Spielregeln oder Zuständigkeiten in einer Gruppenarbeit.`,
+          `Im Mittelpunkt steht, ob ${name} eigene Anteile am Konflikt erkennen kann und ob angebotene Hilfen angenommen werden. Beobachte, ob verbale Interventionen, vertrauliche Ansprache oder eine klare Struktur dazu führen, dass ${name} aus der Eskalation herausfindet und wieder ansprechbar wird.`,
+          `Für den Bogen ist bedeutsam, wie der Konflikt endet. Hält die Entlastung an, zieht sich ${name} zunächst zurück, entsteht erneute Spannung oder gelingt eine Wiedergutmachung? Formuliere Notizen möglichst konkret, damit die Einschätzung später nachvollziehbar bleibt.`
+        ]
+      },
+      regelverhalten: {
+        focus: ['Klassen- und Schulregeln', 'Einsicht bei Regelverstoß', 'Reaktion auf Konsequenzen'],
+        paragraphs: [
+          `${name} wird in ${ctx.detailLine} während wiederkehrender Unterrichtsabläufe beobachtet. Geeignet sind Situationen wie Arbeitsbeginn, Übergänge, Partnerarbeit, Pausenrückkehr oder der Umgang mit vereinbarten Gesprächs- und Bewegungsregeln.`,
+          `Achte darauf, ob ${name} Regeln aus eigener Orientierung einhält oder ob klare Erinnerung, persönliche Ansprache, Belohnungsaussicht oder eindeutige Konsequenzen nötig sind. Entscheidend ist nicht nur der Regelverstoß selbst, sondern auch die Einsicht danach.`,
+          `Für eine aussagekräftige Beobachtung sollte festgehalten werden, ob ${name} Fehlverhalten erkennt, Verantwortung übernimmt und das Verhalten anschließend anpasst. Die Demo zeigt damit, wie Regelakzeptanz und Reflexionsfähigkeit systematisch dokumentiert werden können.`
+        ]
+      },
+      lernkompetenz: {
+        focus: ['Motivation zur eigenständigen Arbeit', 'Erledigung schulischer Anforderungen', 'Durchhaltevermögen', 'Aufmerksamkeit und Materialumgang'],
+        paragraphs: [
+          `${name} wird in ${ctx.detailLine} während einer schulischen Arbeitsphase beobachtet. Die Aufgabe sollte einen klaren Arbeitsauftrag, Materialnutzung, eine Bearbeitungszeit und mindestens eine schwierigere Anforderung enthalten.`,
+          `Beobachte, ob ${name} von sich aus beginnt, ob Motivation durch Interessen, Ermutigung oder intensive Begleitung entsteht und wie lange die Aufmerksamkeit aufrechterhalten wird. Relevant ist auch, ob Aufgaben vollständig, zügig und den Anforderungen entsprechend bearbeitet werden.`,
+          `Für die Notizen eignen sich konkrete Hinweise zum Arbeitsprozess: Wie geht ${name} mit Unterbrechungen um? Werden Materialien sorgfältig genutzt? Werden schwierige Aufgaben fortgesetzt oder abgebrochen? Dadurch lässt sich die Lernkompetenz differenziert und präsentationsnah darstellen.`
+        ]
+      }
+    };
+    return examples[topicKey] || {
+      focus: ['Beobachtungsinhalt', 'Situation', 'Dokumentation'],
+      paragraphs: [`Für ${name} wird ein passendes Fallbeispiel zur ausgewählten Kategorie angezeigt.`]
+    };
+  }
+
+  function renderCaseExample(topicKey, student) {
+    const container = $('#caseExample');
+    if (!container) return;
+    const ctx = studentContext(student);
+    const copy = caseCopy(topicKey, ctx);
+    container.innerHTML = `
+      <p class="upper tiny">Automatisch aus Schülerdaten generiert</p>
+      <h2 id="case-title">Fallbeispiel: ${escapeHtml(TOPICS[topicKey]?.title || 'Beobachtung')}</h2>
+      <dl class="case-meta-grid">
+        <div><dt>Schüler:in</dt><dd>${escapeHtml(ctx.displayName)}</dd></div>
+        <div><dt>Lerngruppe</dt><dd>${escapeHtml(ctx.group)}</dd></div>
+        <div><dt>Jahrgang</dt><dd>${escapeHtml(ctx.grade)}</dd></div>
+        <div><dt>Schulbesuchsjahr</dt><dd>${escapeHtml(ctx.schoolYear)}</dd></div>
+        <div><dt>Geburtsdatum</dt><dd>${escapeHtml(ctx.birthDate)}</dd></div>
+        <div><dt>Pronomen</dt><dd>${escapeHtml(ctx.pronouns)}</dd></div>
+      </dl>
+      <div class="case-copy">
+        ${copy.paragraphs.map(paragraph => `<p>${escapeHtml(paragraph)}</p>`).join('')}
+      </div>
+      <div class="case-focus">
+        <strong>Im Bogen besonders prüfen:</strong>
+        <ul>
+          ${copy.focus.map(item => `<li>${escapeHtml(item)}</li>`).join('')}
+        </ul>
+      </div>
+    `;
+  }
+
   function activeStudentId() {
     const params = new URLSearchParams(window.location.search);
     const fromUrl = params.get('studentId');
@@ -690,13 +801,17 @@
     if (select) {
       select.addEventListener('change', () => {
         localStorage.setItem(ACTIVE_STUDENT_KEY, select.value);
+        const selectedStudent = getStudentById(select.value);
         const label = $('#selectedStudentName');
-        if (label) label.textContent = studentName(getStudentById(select.value));
+        if (label) label.textContent = studentName(selectedStudent);
+        renderCaseExample(topicKey, selectedStudent);
       });
     }
 
+    const selectedStudent = getStudentById(selectedId);
     const studentNameField = $('#selectedStudentName');
-    if (studentNameField) studentNameField.textContent = studentName(getStudentById(selectedId));
+    if (studentNameField) studentNameField.textContent = studentName(selectedStudent);
+    renderCaseExample(topicKey, selectedStudent);
 
     const form = $('#topicForm');
     const container = $('#questionContainer');
@@ -711,12 +826,12 @@
               ${subtopic.questions.map((question, questionIndex) => {
                 const name = `q_${subIndex}_${questionIndex}`;
                 return `
-                  <fieldset class="rubric-row">
-                    <legend>
+                  <div class="rubric-row" role="group" aria-labelledby="${name}_statement">
+                    <div class="rubric-statement" id="${name}_statement">
                       <span class="rubric-blur" aria-hidden="true"></span>
-                      <span>${escapeHtml(question)}</span>
-                    </legend>
-                    <div class="rubric-scale" role="radiogroup" aria-label="Einschätzung">
+                      <span class="rubric-question">${escapeHtml(question)}</span>
+                    </div>
+                    <div class="rubric-scale" role="radiogroup" aria-label="Einschätzung zu: ${escapeHtml(question)}">
                       ${SCALE.map(item => `
                         <label class="rubric-choice">
                           <input type="radio" name="${name}" value="${item.value}" data-label="${escapeHtml(item.label)}">
@@ -724,7 +839,7 @@
                         </label>
                       `).join('')}
                     </div>
-                  </fieldset>
+                  </div>
                 `;
               }).join('')}
             </div>

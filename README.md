@@ -1,40 +1,38 @@
-# SPLINT One Demo-Webseitenadaption
+# SPLINT One Demo
 
-Statische Demo zur Präsentation eines SPLINT-ähnlichen Workflows. Die Demo besteht aus HTML, CSS und JavaScript und kann direkt in ein GitHub-Repository gelegt und über GitHub Pages veröffentlicht werden.
+Statische Präsentationsdemo für eine SPLINT-One-Webseitenadaption mit HTML, CSS und JavaScript.
 
 ## Enthaltene Seiten
 
-- `index.html` – Hauptseite mit Kacheln, Schüler:innenliste und gespeicherten Beobachtungen
-- `schueler-anlegen.html` – Formular „Schüler:in erstellen“ nach Screenshot-Vorlage
-- `beobachtung.html` – Profil-/Übersichtsseite mit Beobachtungsbogen-Kachel
-- `mesk.html` – MeSK-Auswahlseite mit Oberkategorien
+- `index.html` – Hauptseite mit dreispaltigem Layout:
+  - links: Kurzanleitung/Tutorial
+  - Mitte: Aktionen und Übersichtskacheln
+  - rechts: angelegte Schüler:innen und gespeicherte Beobachtungen
+- `schueler-anlegen.html` – Schüler:in anlegen
+- `beobachtung.html` – Profil- und Beobachtungsübersicht
+- `mesk.html` – Auswahl der MeSK-Oberkategorien
 - `themen/selbstkompetenz.html`
 - `themen/sozialkompetenz.html`
 - `themen/konfliktverhalten.html`
 - `themen/regelverhalten.html`
 - `themen/lernkompetenz.html`
 
-## Speicherung
+## Funktionen
 
-Die Demo speichert angelegte Schüler:innen und ausgefüllte Beobachtungsbögen lokal im Browser über `localStorage`.
-Es gibt keinen Server, keine Datenbank und keine externe API. Dadurch ist die Demo für Präsentationen und GitHub Pages geeignet.
+- lokale Speicherung von Schüler:innen über `localStorage`
+- lokale Speicherung ausgefüllter Beobachtungsbögen über `localStorage`
+- responsive Layouts für Desktop, iPad/Tablet und Smartphone
+- MeSK-Bögen mit sauber ausgerichteten Rubrik-Zeilen
+- pro Oberkategorie ein automatisch generiertes Fallbeispiel auf Basis der ausgewählten Schülerdaten
+- Demo-Daten per Button auf der Hauptseite ladbar
 
-## Start
+## Nutzung auf GitHub Pages
 
-1. ZIP entpacken.
-2. Dateien in ein GitHub-Repository kopieren.
-3. `index.html` im Browser öffnen oder GitHub Pages für das Repository aktivieren.
-
-## Anpassung
-
-- Farben und Layout: `assets/css/styles.css`
-- Logik, Demo-Daten und MeSK-Themen: `assets/js/app.js`
-- Logo/Favicon: `assets/img/logo.svg` und `assets/img/favicon.svg`
+1. Repository erstellen.
+2. Alle Dateien aus diesem Ordner in das Repository kopieren.
+3. GitHub Pages für den Branch aktivieren.
+4. `index.html` ist der Einstiegspunkt.
 
 ## Hinweis
 
-Dies ist eine eigenständige Demo-Adaption für Präsentationszwecke und keine offizielle SPLINT-Anwendung. Die enthaltenen Fragebogen-Items sind als Demo-Rubrik aus den bereitgestellten Screenshots nachgebildet. Für eine echte Nutzung sollten Formulierungen, Datenschutz und fachliche Kriterien geprüft werden.
-
-## Aktuelle Ergänzung
-
-- Lernkompetenz nach Screenshot ergänzt: Motivation zur eigenständigen Arbeit, Erledigung schulischer Anforderungen, Durchhaltevermögen bei schwierigen Aufgaben, Aufmerksamkeit auf Aufgaben, Erledigen von Aufgaben und Umgang mit Materialien.
+Diese Demo ist eine statische Präsentationsfassung. Sie ist nicht mit dem echten SPLINT-System verbunden und speichert keine Daten auf einem Server.
