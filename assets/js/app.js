@@ -13,6 +13,14 @@
     { value: '4', label: 'sicher' }
   ];
 
+  const DEMO_STUDENT_PRESETS = [
+    { firstName: 'Mika', lastName: 'Schneider', birthDate: '20.06.2016', pronouns: 'Xier / Xies', group: '4a', grade: '4', schoolYear: '5', note: 'Ausgewogener Demo-Fall für alle MeSK-Bereiche.' },
+    { firstName: 'Lea', lastName: 'Kramer', birthDate: '14.03.2015', pronouns: 'Sie / Ihr', group: '5b', grade: '5', schoolYear: '6', note: 'Geeignet für Sozialkompetenz und Gesprächssituationen.' },
+    { firstName: 'Noah', lastName: 'Becker', birthDate: '02.11.2016', pronouns: 'Er / Ihm', group: '4c', grade: '4', schoolYear: '5', note: 'Geeignet für Lernkompetenz und Arbeitsphasen.' },
+    { firstName: 'Sam', lastName: 'Yilmaz', birthDate: '08.09.2014', pronouns: 'Keine Angabe', group: '6a', grade: '6', schoolYear: '7', note: 'Geeignet für Konfliktverhalten und Regelverhalten.' },
+    { firstName: 'Emil', lastName: 'Fischer', birthDate: '27.01.2017', pronouns: 'Er / Ihm', group: '3a', grade: '3', schoolYear: '4', note: 'Jüngerer Beispiel-Fall für Selbstregulation.' }
+  ];
+
   const TOPIC_ORDER = ['selbstkompetenz', 'sozialkompetenz', 'konfliktverhalten', 'regelverhalten', 'lernkompetenz'];
 
   function emotionSections(emotion) {
@@ -487,12 +495,13 @@
   function activeStudentId() {
     const params = new URLSearchParams(window.location.search);
     const fromUrl = params.get('studentId');
-    if (fromUrl) {
+    const students = getStudents();
+    if (fromUrl && students.some(s => s.id === fromUrl)) {
       localStorage.setItem(ACTIVE_STUDENT_KEY, fromUrl);
       return fromUrl;
     }
+    if (fromUrl) localStorage.removeItem(ACTIVE_STUDENT_KEY);
     const stored = localStorage.getItem(ACTIVE_STUDENT_KEY);
-    const students = getStudents();
     if (stored && students.some(s => s.id === stored)) return stored;
     return students[0]?.id || '';
   }
@@ -506,6 +515,77 @@
     if (!status) return;
     status.textContent = message || '';
     status.style.color = isError ? '#8a1d1d' : 'var(--blue-700)';
+  }
+
+  function initHelpToggle() {
+    $$('[data-help-toggle]').forEach(button => {
+      const card = button.closest('[data-help-card]');
+      const body = card ? $('[data-help-body]', card) : null;
+      if (!body) return;
+      button.addEventListener('click', () => {
+        const isHidden = body.hidden;
+        body.hidden = !isHidden;
+        button.setAttribute('aria-expanded', String(isHidden));
+        button.textContent = isHidden ? 'Hilfe ausblenden' : 'Hilfe einblenden';
+        card.classList.toggle('is-collapsed', !isHidden);
+      });
+    });
+  }
+
+  function fillStudentFormWithPreset(form, preset) {
+    if (!form || !preset) return;
+    Object.entries({
+      firstName: preset.firstName,
+      lastName: preset.lastName,
+      birthDate: preset.birthDate,
+      pronouns: preset.pronouns,
+      group: preset.group,
+      grade: preset.grade,
+      schoolYear: preset.schoolYear
+    }).forEach(([name, value]) => {
+      const field = form.elements[name];
+      if (field) field.value = value || '';
+    });
+    validateStudentForm(form);
+    setStatus(`Vorschlag ${preset.firstName} ${preset.lastName} wurde in das Formular übernommen.`);
+    form.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function initStudentPresetSlider(form) {
+    const container = $('#studentPresetSlider');
+    if (!container) return;
+    container.innerHTML = DEMO_STUDENT_PRESETS.map((preset, index) => `
+      <article class="preset-slide">
+        <strong>${escapeHtml(preset.firstName)} ${escapeHtml(preset.lastName)}</strong>
+        <span>${escapeHtml(preset.group)} · Jahrgang ${escapeHtml(preset.grade)} · ${escapeHtml(preset.birthDate)}</span>
+        <p>${escapeHtml(preset.note)}</p>
+        <button class="btn btn-secondary" type="button" data-preset-index="${index}">Übernehmen</button>
+      </article>
+    `).join('');
+    const count = $('#presetCount');
+    if (count) count.textContent = String(DEMO_STUDENT_PRESETS.length);
+    container.addEventListener('click', event => {
+      const button = event.target.closest('[data-preset-index]');
+      if (!button) return;
+      const preset = DEMO_STUDENT_PRESETS[Number(button.dataset.presetIndex)];
+      fillStudentFormWithPreset(form, preset);
+    });
+  }
+
+  function setStudentRequiredElementState(element, studentId, options = {}) {
+    if (!element) return;
+    const hasStudent = Boolean(studentId && getStudentById(studentId));
+    const hint = $('[data-tile-hint]', element);
+    element.classList.toggle('tile-disabled', !hasStudent);
+    element.classList.toggle('btn-disabled', !hasStudent && element.classList.contains('btn'));
+    element.setAttribute('aria-disabled', String(!hasStudent));
+    if (!hasStudent) {
+      element.removeAttribute('href');
+      if (hint) hint.textContent = options.emptyHint || 'Zuerst Schüler:innenprofil anlegen und auswählen.';
+      return;
+    }
+    if (options.href) element.setAttribute('href', options.href);
+    if (hint) hint.textContent = options.readyHint || '';
   }
 
   function renderStudentOptions(select, selectedId = '') {
@@ -535,6 +615,19 @@
     const statsObservations = $('#statsObservations');
     if (statsStudents) statsStudents.textContent = students.length;
     if (statsObservations) statsObservations.textContent = observations.length;
+
+    const selectedId = activeStudentId();
+    const selectedStudent = getStudentById(selectedId);
+    setStudentRequiredElementState($('#dashboardStartObservation'), selectedId, {
+      href: link(`mesk.html?studentId=${encodeURIComponent(selectedId || '')}`),
+      emptyHint: 'Erst Profil anlegen',
+      readyHint: selectedStudent ? `für ${studentName(selectedStudent)}` : ''
+    });
+    setStudentRequiredElementState($('#dashboardOpenProfile'), selectedId, {
+      href: link(`beobachtung.html?studentId=${encodeURIComponent(selectedId || '')}`),
+      emptyHint: 'Erst Profil anlegen',
+      readyHint: selectedStudent ? `Profil: ${studentName(selectedStudent)}` : ''
+    });
 
     const studentList = $('#studentList');
     if (studentList) {
@@ -578,11 +671,13 @@
     return `
       <article class="card observation-card">
         <span class="doc-icon" aria-hidden="true">▣</span>
-        <div>
+        <div class="observation-copy">
           <h3>${escapeHtml(topicTitle)}</h3>
           <p class="card-meta">${escapeHtml(studentName(student))} · ${escapeHtml(formatDateTime(observation.updatedAt))} · ${answered} Einträge · ${escapeHtml(observation.status || 'Entwurf')}</p>
         </div>
-        <a class="btn" href="${link(`beobachtung.html?studentId=${encodeURIComponent(observation.studentId || '')}`)}">Ansehen</a>
+        <div class="observation-actions">
+          <a class="btn" href="${link(`beobachtung.html?studentId=${encodeURIComponent(observation.studentId || '')}`)}">Ansehen</a>
+        </div>
       </article>
     `;
   }
@@ -598,6 +693,8 @@
   function initStudentForm() {
     const form = $('#studentForm');
     if (!form) return;
+
+    initStudentPresetSlider(form);
 
     const today = new Date();
     const fallback = new Intl.DateTimeFormat('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' }).format(today);
@@ -658,7 +755,11 @@
     const student = getStudentById(selectedId);
     const profile = $('#studentProfile');
     const addLink = $('#createObservationLink');
-    if (addLink) addLink.href = link(`mesk.html?studentId=${encodeURIComponent(selectedId || '')}`);
+    setStudentRequiredElementState(addLink, selectedId, {
+      href: link(`mesk.html?studentId=${encodeURIComponent(selectedId || '')}`),
+      emptyHint: 'Zuerst Schüler:in anlegen'
+    });
+    if (!student) setStatus('Bitte zuerst eine:n Schüler:in anlegen und auswählen, bevor eine Beobachtung gestartet wird.', true);
 
     if (!profile) return;
     if (!student) {
@@ -755,6 +856,31 @@
   function renderTopicLinks(studentId) {
     const list = $('#topicList');
     if (!list) return;
+    const selectedStudent = getStudentById(studentId);
+    if (!selectedStudent) {
+      setStatus('Eine Beobachtung kann erst gestartet werden, wenn ein Schüler:innenprofil angelegt und ausgewählt wurde.', true);
+      list.innerHTML = `
+        <div class="empty-state topic-lock">
+          <strong>Beobachtung noch gesperrt.</strong><br>
+          Lege zuerst eine:n Schüler:in an oder wähle ein vorhandenes Profil aus. Danach werden die MeSK-Bereiche freigeschaltet.
+          <div class="card-actions"><a class="btn btn-primary" href="${link('schueler-anlegen.html')}">Schüler:in anlegen</a></div>
+        </div>
+        ${TOPIC_ORDER.map(key => {
+          const topic = TOPICS[key];
+          const itemCount = topic.subtopics.reduce((sum, subtopic) => sum + subtopic.questions.length, 0);
+          return `
+            <div class="topic-row topic-row-disabled" aria-disabled="true">
+              <span class="topic-chevron" aria-hidden="true">›</span>
+              <span class="topic-radio" aria-hidden="true"></span>
+              <span>${escapeHtml(topic.title)}<br><small>${escapeHtml(topic.description)}</small></span>
+              <small>${topic.subtopics.length} Themen · ${itemCount} Items</small>
+            </div>
+          `;
+        }).join('')}
+      `;
+      return;
+    }
+    setStatus(`Ausgewählt: ${studentName(selectedStudent)}. Wähle jetzt einen Beobachtungsbereich.`, false);
     list.innerHTML = TOPIC_ORDER.map(key => {
       const topic = TOPICS[key];
       const itemCount = topic.subtopics.reduce((sum, subtopic) => sum + subtopic.questions.length, 0);
@@ -798,13 +924,26 @@
     const selectedId = activeStudentId();
     const select = $('#studentSelect');
     renderStudentOptions(select, selectedId);
+    const updateTopicStudentState = () => {
+      const currentId = $('#studentSelect')?.value || '';
+      const selectedStudent = getStudentById(currentId);
+      const hasStudent = Boolean(selectedStudent);
+      const label = $('#selectedStudentName');
+      if (label) label.textContent = hasStudent ? studentName(selectedStudent) : 'Keine Schüler:in ausgewählt';
+      renderCaseExample(topicKey, selectedStudent);
+      const formEl = $('#topicForm');
+      const saveButton = formEl?.querySelector('button[type="submit"]');
+      if (saveButton) saveButton.disabled = !hasStudent;
+      $$('#questionContainer input, #notes').forEach(field => { field.disabled = !hasStudent; });
+      const containerEl = $('#questionContainer');
+      if (containerEl) containerEl.classList.toggle('is-disabled', !hasStudent);
+      if (!hasStudent) setStatus('Bitte zuerst eine:n Schüler:in anlegen und im Auswahlfeld aktiv auswählen. Erst dann kann diese Beobachtung gespeichert werden.', true);
+      else setStatus(`Beobachtung für ${studentName(selectedStudent)} vorbereitet.`, false);
+    };
     if (select) {
       select.addEventListener('change', () => {
         localStorage.setItem(ACTIVE_STUDENT_KEY, select.value);
-        const selectedStudent = getStudentById(select.value);
-        const label = $('#selectedStudentName');
-        if (label) label.textContent = studentName(selectedStudent);
-        renderCaseExample(topicKey, selectedStudent);
+        updateTopicStudentState();
       });
     }
 
@@ -848,11 +987,13 @@
       </div>
     `;
 
+    updateTopicStudentState();
+
     form.addEventListener('submit', event => {
       event.preventDefault();
       const studentId = $('#studentSelect')?.value || selectedId;
-      if (!studentId) {
-        setStatus('Bitte zuerst eine:n Schüler:in anlegen oder auswählen.', true);
+      if (!studentId || !getStudentById(studentId)) {
+        setStatus('Bitte zuerst eine:n Schüler:in anlegen und auswählen. Ohne zugeordnetes Profil kann keine Beobachtung gespeichert werden.', true);
         return;
       }
       const answers = {};
@@ -942,6 +1083,7 @@
   }
 
   document.addEventListener('DOMContentLoaded', () => {
+    initHelpToggle();
     initDemoReset();
     if (page === 'dashboard') renderDashboard();
     if (page === 'student-form') initStudentForm();

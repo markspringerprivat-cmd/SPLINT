@@ -22,67 +22,99 @@
     </nav>
   </header>
 
-  <main class="page page-narrow" id="content">
-    <h1 class="page-title">Schüler:in erstellen</h1>
-
-    <div class="notice">
-      Deine Schulleitung hat den Auftragsverarbeitungsvertrag noch nicht bestätigt. So lange dies noch nicht geschehen ist, darfst du keine personenbezogenen Daten deiner Schülerinnen und Schüler in SPLINT eingeben.
-    </div>
-    <p>Felder mit * sind Pflichtfelder.</p>
-
-    <form id="studentForm" class="form-grid" novalidate>
-      <div class="form-row">
-        <label for="firstName">Vorname *</label>
-        <input id="firstName" name="firstName" type="text" autocomplete="given-name" required>
-      </div>
-
-      <div class="form-row">
-        <label for="lastName">Nachname *</label>
-        <input id="lastName" name="lastName" type="text" autocomplete="family-name" required>
-      </div>
-
-      <div class="form-row">
-        <label for="birthDate">Geburtsdatum *</label>
-        <div class="input-icon">
-          <input id="birthDate" name="birthDate" type="text" inputmode="numeric" placeholder="TT.MM.JJJJ" required>
-          <span aria-hidden="true">▣</span>
+  <main class="page page-wide page-with-help student-create-layout" id="content">
+    <aside class="meta-column" aria-labelledby="student-help-title">
+      <article class="card meta-help" data-help-card>
+        <div class="meta-help-head">
+          <p class="upper tiny">Meta-Hilfe</p>
+          <button class="help-toggle" type="button" data-help-toggle aria-expanded="true">Hilfe ausblenden</button>
         </div>
-      </div>
+        <div class="meta-help-body" data-help-body>
+          <h2 id="student-help-title">Schritt 1: Profil anlegen</h2>
+          <p>Für die Demo ist ein Schüler:innenprofil obligatorisch. Erst danach kann eine Beobachtung gestartet und eindeutig gespeichert werden.</p>
+          <ol class="tutorial-steps compact-steps">
+            <li><strong>Vorschlag übernehmen</strong><span>Nutze eine Beispielkachel für eine schnelle Präsentation.</span></li>
+            <li><strong>Daten prüfen</strong><span>Pflichtfelder sind Vorname, Nachname und Geburtsdatum.</span></li>
+            <li><strong>Speichern</strong><span>Nach dem Speichern wird das Profil automatisch ausgewählt.</span></li>
+          </ol>
+        </div>
+      </article>
 
-      <div class="form-row">
-        <label for="pronouns">Pronomen</label>
-        <select id="pronouns" name="pronouns">
-          <option>Xier / Xies</option>
-          <option>Sie / Ihr</option>
-          <option>Er / Ihm</option>
-          <option>Keine Angabe</option>
-        </select>
-      </div>
+      <article class="card preset-card">
+        <div class="preset-head">
+          <div>
+            <p class="upper tiny">Demo-Vorschläge</p>
+            <h2>Schüler:in schnell übernehmen</h2>
+          </div>
+          <span class="slider-count" id="presetCount">5</span>
+        </div>
+        <p class="muted small">Seitlich wischen oder scrollen. Ein Klick auf „Übernehmen“ füllt das Formular aus.</p>
+        <div class="preset-slider" id="studentPresetSlider" aria-label="Vorausgefüllte Schüler:innenvorschläge"></div>
+      </article>
+    </aside>
 
-      <div class="form-row">
-        <label for="group">Lerngruppe</label>
-        <input id="group" name="group" type="text" placeholder="z.B. 4a oder Fördergruppe Lesen">
-      </div>
+    <section class="form-panel" aria-labelledby="student-form-title">
+      <h1 class="page-title" id="student-form-title">Schüler:in erstellen</h1>
 
-      <div class="form-row">
-        <label for="grade">Jahrgangsstufe</label>
-        <input id="grade" name="grade" type="text" placeholder="z.B. 4">
+      <div class="notice">
+        Deine Schulleitung hat den Auftragsverarbeitungsvertrag noch nicht bestätigt. So lange dies noch nicht geschehen ist, darfst du keine personenbezogenen Daten deiner Schülerinnen und Schüler in SPLINT eingeben.
       </div>
+      <p>Felder mit * sind Pflichtfelder.</p>
 
-      <div class="form-row">
-        <label for="schoolYear">Schulbesuchsjahr <span class="hint">(wird jährlich am 1.8. aktualisiert)</span></label>
-        <input id="schoolYear" name="schoolYear" type="text" placeholder="z.B. 5">
-      </div>
+      <form id="studentForm" class="form-grid" novalidate>
+        <div class="form-row">
+          <label for="firstName">Vorname *</label>
+          <input id="firstName" name="firstName" type="text" autocomplete="given-name" required>
+        </div>
 
-      <div class="form-footer">
-        <label class="checkline" for="continueCreating">
-          <input id="continueCreating" name="continueCreating" type="checkbox" value="yes">
-          Erstelle weitere:n Schüler:in dieser Lerngruppe
-        </label>
-        <button class="btn btn-primary" id="saveStudent" type="submit" disabled>▣ Speichern</button>
-      </div>
-      <div class="statusline" id="statusline" aria-live="polite"></div>
-    </form>
+        <div class="form-row">
+          <label for="lastName">Nachname *</label>
+          <input id="lastName" name="lastName" type="text" autocomplete="family-name" required>
+        </div>
+
+        <div class="form-row">
+          <label for="birthDate">Geburtsdatum *</label>
+          <div class="input-icon">
+            <input id="birthDate" name="birthDate" type="text" inputmode="numeric" placeholder="TT.MM.JJJJ" required>
+            <span aria-hidden="true">▣</span>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <label for="pronouns">Pronomen</label>
+          <select id="pronouns" name="pronouns">
+            <option>Xier / Xies</option>
+            <option>Sie / Ihr</option>
+            <option>Er / Ihm</option>
+            <option>Keine Angabe</option>
+          </select>
+        </div>
+
+        <div class="form-row">
+          <label for="group">Lerngruppe</label>
+          <input id="group" name="group" type="text" placeholder="z.B. 4a oder Fördergruppe Lesen">
+        </div>
+
+        <div class="form-row">
+          <label for="grade">Jahrgangsstufe</label>
+          <input id="grade" name="grade" type="text" placeholder="z.B. 4">
+        </div>
+
+        <div class="form-row">
+          <label for="schoolYear">Schulbesuchsjahr <span class="hint">(wird jährlich am 1.8. aktualisiert)</span></label>
+          <input id="schoolYear" name="schoolYear" type="text" placeholder="z.B. 5">
+        </div>
+
+        <div class="form-footer">
+          <label class="checkline" for="continueCreating">
+            <input id="continueCreating" name="continueCreating" type="checkbox" value="yes">
+            Erstelle weitere:n Schüler:in dieser Lerngruppe
+          </label>
+          <button class="btn btn-primary" id="saveStudent" type="submit" disabled>▣ Speichern</button>
+        </div>
+        <div class="statusline" id="statusline" aria-live="polite"></div>
+      </form>
+    </section>
   </main>
 </body>
 </html>
