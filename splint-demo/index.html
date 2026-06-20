@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SPLINT One Demo · Hauptseite</title>
+  <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="assets/css/styles.css">
+  <script defer src="assets/js/app.js"></script>
+</head>
+<body data-page="dashboard" data-root="">
+  <a class="skip-link" href="#content">Zum Inhalt springen</a>
+  <header class="topbar">
+    <a class="brand" href="index.html" aria-label="SPLINT One Demo Startseite">
+      <img class="brand-mark" src="assets/img/logo.svg" alt="">
+      <span class="brand-text"><strong>SPLINT One</strong><small>Probelizenz · Demo</small></span>
+    </a>
+    <nav class="nav-actions" aria-label="Hauptnavigation">
+      <a class="install-btn" href="#">Installieren</a>
+      <a class="nav-pill" href="schueler-anlegen.html">Schüler:in erstellen</a>
+      <span class="avatar" aria-label="Benutzerkürzel">MS</span>
+    </nav>
+  </header>
+
+  <section class="hero">
+    <div class="hero-inner hero-wide">
+      <h1>Meine SPLINT Demo</h1>
+      <p class="muted">Lokale Präsentationsfassung: Schüler:innen und Beobachtungsbögen werden im Browser gespeichert und auf dieser Hauptseite angezeigt.</p>
+      <div class="button-row">
+        <a class="btn btn-primary" href="schueler-anlegen.html">Schüler:in erstellen</a>
+        <a class="btn" href="mesk.html">Beobachtung erstellen</a>
+        <button class="btn btn-secondary" id="seedDemo" type="button">Demo-Daten laden</button>
+        <button class="btn btn-ghost" id="resetDemo" type="button">Demo-Daten löschen</button>
+      </div>
+    </div>
+  </section>
+
+  <main class="page page-wide" id="content">
+    <section class="section" aria-labelledby="actions-title">
+      <h2 id="actions-title">Aktionen</h2>
+      <div class="tile-grid">
+        <a class="tile tile-primary" href="mesk.html">
+          <span class="tile-icon">＋</span>
+          <span>Beobachtung erstellen</span>
+        </a>
+        <a class="tile" href="schueler-anlegen.html">
+          <span class="tile-icon">☻</span>
+          <span>Schüler:in anlegen</span>
+        </a>
+        <a class="tile" href="beobachtung.html">
+          <span class="tile-icon">▥</span>
+          <span>Beobachtungsübersicht öffnen</span>
+        </a>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="overview-title">
+      <h2 id="overview-title">Übersicht</h2>
+      <div class="tile-grid">
+        <article class="card">
+          <h3>Schüler:innen</h3>
+          <p class="page-title" id="statsStudents" aria-live="polite">0</p>
+          <p class="muted">lokal angelegt</p>
+        </article>
+        <article class="card">
+          <h3>Beobachtungsbögen</h3>
+          <p class="page-title" id="statsObservations" aria-live="polite">0</p>
+          <p class="muted">lokal gespeichert</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="students-title">
+      <h2 id="students-title">Angelegte Schüler:innen</h2>
+      <div class="card-list" id="studentList" aria-live="polite"></div>
+    </section>
+
+    <section class="section" aria-labelledby="observations-title">
+      <h2 id="observations-title">Meine Beobachtungen</h2>
+      <div class="card-list" id="observationList" aria-live="polite"></div>
+    </section>
+
+    <p class="footer-note">Hinweis: Diese statische Demo ist für Präsentationszwecke gebaut und nicht mit einem echten SPLINT-System verbunden.</p>
+  </main>
+</body>
+</html>
