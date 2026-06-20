@@ -1,137 +1,304 @@
 (() => {
   'use strict';
 
-  const STUDENTS_KEY = 'splintDemo.students.v1';
-  const OBSERVATIONS_KEY = 'splintDemo.observations.v1';
-  const ACTIVE_STUDENT_KEY = 'splintDemo.activeStudentId.v1';
+  const STUDENTS_KEY = 'splintDemo.students.v2';
+  const OBSERVATIONS_KEY = 'splintDemo.observations.v2';
+  const ACTIVE_STUDENT_KEY = 'splintDemo.activeStudentId.v2';
+
+  const SCALE = [
+    { value: '0', label: 'nicht beobachtet' },
+    { value: '1', label: 'selten' },
+    { value: '2', label: 'teilweise' },
+    { value: '3', label: 'überwiegend' },
+    { value: '4', label: 'sicher' }
+  ];
+
+  const TOPIC_ORDER = ['selbstkompetenz', 'sozialkompetenz', 'konfliktverhalten', 'regelverhalten', 'lernkompetenz'];
+
+  function emotionSections(emotion) {
+    const lower = emotion.toLowerCase();
+    const own = emotion === 'Wut' ? 'wütend' : emotion === 'Angst' ? 'ängstlich' : 'traurig';
+    const ownNoun = emotion === 'Wut' ? 'Wut' : emotion === 'Angst' ? 'Angst' : 'Traurigkeit';
+    return [
+      {
+        title: `Selbstregulation bei ${emotion}`,
+        questions: [
+          `setzt bei ${emotion} adaptive Strategien stets bewusst ein und nutzt sie eigenständig.`,
+          `setzt hilfreiche Strategien zur Bewältigung und Regulation von ${emotion} mit Unterstützung ein.`,
+          `greift bei ${emotion} in einem vertrauten Setting und mit struktureller Unterstützung auf hilfreiche Strategien zurück.`,
+          `greift bei ${emotion} ausschließlich auf maladaptive, ungeeignete Bewältigungsstrategien zurück.`
+        ]
+      },
+      {
+        title: `Verständnis der eigenen ${emotion === 'Traurigkeit' ? 'Traurigkeit' : emotion}`,
+        questions: [
+          `versteht Ursachen und Auswirkungen der eigenen ${ownNoun}.`,
+          `versteht, was sie/ihn ${own} macht.`,
+          `kann ${ownNoun} mit emotionaler Stabilisierung wahrnehmen, benennen und akzeptieren.`,
+          `identifiziert und benennt die eigene ${ownNoun} ausschließlich mit zeitlichem Abstand.`
+        ]
+      },
+      {
+        title: `Verständnis der ${emotion === 'Traurigkeit' ? 'Traurigkeit' : emotion} anderer`,
+        questions: [
+          `versteht Ursachen und Auswirkungen der ${lower} anderer.`,
+          `versteht, was andere ${own} macht.`,
+          `kann ${ownNoun} bei anderen mit emotionaler Stabilisierung wahrnehmen, benennen und akzeptieren.`,
+          `identifiziert und benennt die ${ownNoun} anderer ausschließlich mit zeitlichem Abstand.`
+        ]
+      },
+      {
+        title: `Verhalten bei ${emotion}`,
+        questions: [
+          `verhält sich bei ${emotion} verlässlich situationsangemessen.`,
+          `verhält sich bei ${emotion} zumeist angemessen.`,
+          `verhält sich bei ${emotion} zum Teil angemessen.`,
+          `verhält sich bei ${emotion} nicht angemessen.`
+        ]
+      }
+    ];
+  }
 
   const TOPICS = {
     selbstkompetenz: {
       title: 'Selbstkompetenz',
-      description: 'Einschätzung emotionaler Kompetenzen und selbstbezogener Regulation.',
+      shortTitle: 'Selbstkompetenz',
+      description: 'Beobachtung emotionaler Selbstregulation, Wahrnehmung eigener Gefühle und Verständnis der Gefühle anderer.',
       subtopics: [
-        {
-          title: 'Wut',
-          questions: [
-            'Kann Ärger wahrnehmen und benennen.',
-            'Kann sich nach Ärger oder Frustration wieder beruhigen.',
-            'Kann mit Unterstützung angemessene Handlungsalternativen nutzen.'
-          ]
-        },
-        {
-          title: 'Angst',
-          questions: [
-            'Kann Unsicherheit oder Angstsignale mitteilen.',
-            'Nimmt angebotene Unterstützung in belastenden Situationen an.',
-            'Traut sich schrittweise neue Aufgaben oder Situationen zu.'
-          ]
-        },
-        {
-          title: 'Traurigkeit',
-          questions: [
-            'Kann Traurigkeit oder Rückzugstendenzen ausdrücken.',
-            'Bleibt in belastenden Phasen erreichbar.',
-            'Findet mit Unterstützung zurück in die Lern- oder Gruppensituation.'
-          ]
-        }
+        ...emotionSections('Wut'),
+        ...emotionSections('Angst'),
+        ...emotionSections('Traurigkeit')
       ]
     },
     sozialkompetenz: {
       title: 'Sozialkompetenz',
-      description: 'Beobachtung kooperativer und sozial orientierter Verhaltensweisen.',
+      shortTitle: 'Sozialkompetenz',
+      description: 'Beobachtung von Hilfsbereitschaft, Gesprächsverhalten, Kontaktaufnahme und kooperativen Lösungsstrategien.',
       subtopics: [
         {
-          title: 'Soziale Orientierung',
+          title: 'Hilfsbereitschaft',
           questions: [
-            'Achtet auf Bedürfnisse und Grenzen anderer.',
-            'Kann Rücksicht nehmen und abwarten.',
-            'Zeigt Hilfsbereitschaft oder kooperatives Verhalten.'
+            'erkennt aus eigener Initiative, wenn andere Hilfe benötigen, und bietet Unterstützung an.',
+            'nimmt Bedürfnisse anderer in offenen Situationen im bekannten Umfeld wahr und reagiert angemessen.',
+            'nimmt Bedürfnisse anderer Bezugspersonen in einer vertrauten Situation wahr.',
+            'nimmt Bedürfnisse bevorzugter Bezugspersonen mit Unterstützung und in strukturierten Situationen wahr.',
+            'konzentriert sich ausschließlich auf eigene Bedürfnisse, unabhängig von situativen Hinweisen.'
           ]
         },
         {
-          title: 'Soziale Initiative',
+          title: 'Toleranz gegenüber anderen Meinungen und Bereitschaft zur Einigung',
           questions: [
-            'Nimmt angemessen Kontakt zu Mitschüler:innen auf.',
-            'Beteiligt sich an Gruppenaktivitäten.',
-            'Kann eigene Ideen in der Gruppe einbringen.'
+            'akzeptiert Meinungen, Ideen und Werte anderer; Kompromisse sind durch eigene Beiträge möglich.',
+            'ist bereit, Meinungen, Ideen und Werte anderer zu verstehen und gleichberechtigt einzubeziehen.',
+            'ist bereit, Werte und Überzeugungen anderer in situativen Kontexten zu verstehen.',
+            'kann die Meinung, Ideen und Werte anderer in vertrauensvollen Gesprächen ansatzweise aufnehmen.',
+            'nimmt ausschließlich die eigene Meinung, die eigenen Ideen und Werte wahr.'
+          ]
+        },
+        {
+          title: 'Beteiligung an Gesprächen',
+          questions: [
+            'tauscht sich gerne mit anderen aus und bringt sich konstruktiv in Gespräche ein.',
+            'tauscht sich gerne mit anderen aus, hört anderen zu und geht auf sie ein.',
+            'hört in Gesprächssituationen zunehmend zu und wendet Gesprächsphasen ein.',
+            'tauscht sich nicht gerne aus; in strukturierten Situationen können Gesprächsbeiträge gelingen.',
+            'tauscht sich nicht gerne aus; auch gut strukturierte Situationen brauchen enge Begleitung.'
+          ]
+        },
+        {
+          title: 'Kontaktaufnahme',
+          questions: [
+            'baut erlernte sozial angemessene Techniken der Kontaktaufnahme situationsgerecht aus.',
+            'überträgt gelernte Techniken sozial angemessener Kontaktaufnahme in verschiedene Situationen.',
+            'setzt eingeübte Techniken sozialer Kontaktaufnahme in bekannten, überschaubaren Situationen ein.',
+            'setzt mit Unterstützung und in eng betreuten Übungssituationen sozial angemessenen Kontakt um.',
+            'nimmt sozial unangemessen Kontakt auf und benötigt enge Begleitung.'
+          ]
+        },
+        {
+          title: 'Teilnahme an Gesprächen',
+          questions: [
+            'gestaltet Gespräche kooperativ und beeinflusst diese in sozial angemessener Weise.',
+            'stellt in Gesprächen eigene Interessen zurück, wenn die Situation es erfordert.',
+            'beteiligt sich sozial angemessen an Gesprächen, sofern eigene Meinungen berücksichtigt werden.',
+            'nimmt meist, jedoch nicht ausschließlich, an Gesprächen teil, wenn eigene Ziele betroffen sind.',
+            'nimmt ausschließlich dann an Gesprächen teil, um eigene Ziele und Interessen zu verfolgen.'
+          ]
+        },
+        {
+          title: 'Handlungs- und Lösungsstrategien',
+          questions: [
+            'bringt im Schulalltag eigene Ideen und Lösungsvorschläge ein und trägt zur Umsetzung bei.',
+            'bringt im Schulalltag eigene Ideen und Lösungsvorschläge ein und erlebt Beteiligung als wirksam.',
+            'setzt erarbeitete Strategien und Handlungsalternativen im Schulalltag mit Unterstützung ein.',
+            'bringt im Schulalltag noch keine Ideen und Lösungsvorschläge eigenständig ein.',
+            'bringt im Schulalltag keine eigenen Ideen und Lösungsvorschläge ein; enge Anleitung ist nötig.'
           ]
         }
       ]
     },
     konfliktverhalten: {
       title: 'Konfliktverhalten',
-      description: 'Beobachtung von Konfliktreaktionen und Strategien zur Klärung.',
+      shortTitle: 'Konfliktverhalten',
+      description: 'Beobachtung von Problemlösefähigkeit, Hilfeannahme, Konfliktbeendigung und Wiedergutmachung.',
       subtopics: [
         {
-          title: 'Konfliktverhalten – internalisierend',
+          title: 'Problemlösefähigkeit',
           questions: [
-            'Zieht sich in Konflikten stark zurück.',
-            'Kann eigene Bedürfnisse im Konflikt benennen.',
-            'Nimmt Unterstützung zur Klärung an.'
+            'findet auch in offenen Konfliktsituationen Lösungen für Probleme.',
+            'erarbeitet nur in bekannten Situationen Lösungen für Probleme und setzt diese um.',
+            'erarbeitet in strukturierten Situationen Lösungen für Probleme und setzt diese teilweise um.',
+            'findet in strukturierten Situationen und in einem geschützten Rahmen ansatzweise Lösungen.',
+            'findet aufgrund von Selbstbezogenheit, eigenen Nöten, Ängsten und Risiken kaum Lösungen.'
           ]
         },
         {
-          title: 'Konfliktverhalten – externalisierend',
+          title: 'Hilfe annehmen',
           questions: [
-            'Kann Impulse in Konfliktsituationen regulieren.',
-            'Nutzt verbale statt körperlicher Reaktionen.',
-            'Kann Vereinbarungen zur Konfliktlösung einhalten.'
+            'nimmt auch in offenen Konfliktsituationen Hilfen von außen an, sodass Klärung möglich wird.',
+            'entwickelt punktuell Einsicht in die eigene Perspektive und Verständnis für Unterstützung.',
+            'zeigt durch vertrauensvolle Intervention bei subjektiv bedeutsamen Ereignissen erste Offenheit.',
+            'entwickelt durch vertrauensvolle Intervention eine Einsicht in die Notwendigkeit von Hilfe.',
+            'benötigt für eine Verhaltensmodifikation nachhaltige und verlässliche Unterstützung.'
+          ]
+        },
+        {
+          title: 'Befinden nach Konflikten',
+          questions: [
+            'erlebt spürbare Entlastung, weil Konflikte auch in offenen Situationen durch Klärung bearbeitet werden.',
+            'erlebt punktuelle Entlastung, wenn sie/er zur Lösung beiträgt.',
+            'sucht nach Konflikten Ruhe und Rückzug, um das Erlebte zunächst für sich zu regulieren.',
+            'erlebt nach Konflikten subjektive Entlastung durch selbstgefährdendes oder unangemessenes Verhalten.',
+            'erlebt auch in geschütztem und vertrautem Rahmen keine Entlastung, da Konflikte fortwirken.'
+          ]
+        },
+        {
+          title: 'Konflikte beenden',
+          questions: [
+            'nimmt auch in offenen Konfliktsituationen Hilfen von außen wahr und beendet Konflikte angemessen.',
+            'nimmt in bekannten Konfliktsituationen verbale Interventionen von außen an.',
+            'nimmt in strukturierten Situationen vertrauensvolle Interventionen wahr und kann sich lösen.',
+            'zeigt in Konflikten in strukturierten Situationen Selbst- und Fremdverletzungstendenzen.',
+            'zeigt auch in stark strukturierten Situationen Selbst- und Fremdverletzung oder Eskalation.'
+          ]
+        },
+        {
+          title: 'Verständnis von Konfliktsituationen',
+          questions: [
+            'verhält sich empathisch für die Sichtweise des Gegenübers, auch auf Peer-Ebene.',
+            'übernimmt nach einer Intervention die Perspektive des Gegenübers punktuell.',
+            'entwickelt erste Einsicht in eigene Anteile des Konflikts und in die Perspektive anderer.',
+            'agiert meist, jedoch nicht ausschließlich, in Konflikten mit Blick auf eigene Interessen.',
+            'zeigt eine stark egozentrische, selbstbezogene Sicht und entwickelt situativ wenig Einsicht.'
+          ]
+        },
+        {
+          title: 'Konfliktlösung und Wiedergutmachung',
+          questions: [
+            'verträgt sich nach einem Konflikt mit anderen und macht Fehler wieder gut.',
+            'erarbeitet nach einem Konflikt eigene Anteile einer konstruktiven Lösung und Wiedergutmachung.',
+            'kennt konstruktive Lösungen und kann diese situativ umsetzen.',
+            'erarbeitet durch vertrauensvolle Zuwendung Handlungsalternativen.',
+            'benötigt eine langfristige Intervention zur Unterstützung der Verhaltensmodifikation.'
           ]
         }
       ]
     },
     regelverhalten: {
       title: 'Regelverhalten',
-      description: 'Einschätzung von Regelbewusstsein, Regelakzeptanz und Wiedergutmachung.',
+      shortTitle: 'Regelverhalten',
+      description: 'Beobachtung von Regelakzeptanz, Einsicht nach Regelverstößen und Konsequenzen.',
       subtopics: [
         {
           title: 'Einhaltung von Klassen- und Schulregeln',
           questions: [
-            'Kennt zentrale Klassen- und Schulregeln.',
-            'Hält vereinbarte Regeln im Alltag ein.',
-            'Kann Hinweise auf Regelverstöße aufnehmen.'
+            'hält sich grundsätzlich an vereinbarte Regeln des Zusammenlebens.',
+            'hält sich in der Kleingruppe an vereinbarte Regeln des Zusammenlebens.',
+            'hält sich in einer selbst gewählten Partnerarbeit und unter Anleitung an gemeinsame Regeln.',
+            'hält sich nur bei persönlichem Interesse und direkter Instruktion an vereinbarte Regeln.',
+            'hält sich nur bei subjektiver Motivation und Setzung eindeutiger Konsequenzen an Regeln.'
           ]
         },
         {
           title: 'Einsicht bei Regelverstoß',
           questions: [
-            'Kann Regelverstöße nachvollziehen.',
-            'Übernimmt Verantwortung für eigenes Verhalten.',
-            'Beteiligt sich an Wiedergutmachung oder Folgevereinbarungen.'
+            'zeigt grundsätzlich Einsicht bei Fehlverhalten.',
+            'zeigt in der Kleingruppe und mit Aussicht auf Belohnung Einsicht bei Fehlverhalten.',
+            'zeigt bei selbst gewählter Partnerarbeit unter Anleitung und Aussicht auf Anerkennung Einsicht.',
+            'zeigt bei direkter Intervention in Ansätzen Einsicht in Fehlverhalten.',
+            'zeigt auch bei eindeutigen Konsequenzen keine Einsicht bei Fehlverhalten.'
           ]
         }
       ]
     },
     lernkompetenz: {
       title: 'Lernkompetenz',
-      description: 'Beobachtung von Arbeitsverhalten, Ausdauer und Konzentration.',
+      shortTitle: 'Lernkompetenz',
+      description: 'Beobachtung von Motivation, Erledigung schulischer Anforderungen, Durchhaltevermögen, Aufmerksamkeit und Umgang mit Materialien.',
       subtopics: [
         {
-          title: 'Lern- und Leistungsbereitschaft',
+          title: 'Motivation zur eigenständigen Arbeit',
           questions: [
-            'Beginnt Aufgaben innerhalb angemessener Zeit.',
-            'Zeigt Bereitschaft, sich anzustrengen.',
-            'Kann bei Schwierigkeiten weiterarbeiten oder Hilfe anfordern.'
+            'ist von sich aus motiviert, Aufgaben alleine zu schaffen.',
+            'lässt sich durch äußere Umstände oder andere Personen motivieren, Aufgaben alleine zu schaffen.',
+            'lässt sich motivieren, Aufgaben alleine zu schaffen, wenn diese an den persönlichen Interessen anknüpfen.',
+            'ist durch intensive Begleitung bereit, Aufgaben kurzzeitig zu bearbeiten.',
+            'entwickelt nur durch intensive Begleitung und Zuwendung Lern- und Leistungsbereitschaft.'
           ]
         },
         {
-          title: 'Konzentration und Sorgfalt beim Lernen',
+          title: 'Erledigung schulischer Anforderungen',
           questions: [
-            'Kann Aufmerksamkeit über einen vereinbarten Zeitraum halten.',
-            'Bearbeitet Aufgaben sorgfältig.',
-            'Kontrolliert Ergebnisse mit Unterstützung oder selbstständig.'
+            'erledigt die schulischen Anforderungen nach Ermutigung angemessen selbstständig.',
+            'bearbeitet schulische Anforderungen in strukturierten Kontexten und mit unterstützendem Input.',
+            'bearbeitet kurzzeitig schulische Anforderungen in strukturierten Kontexten.',
+            'erfüllt kurzzeitig individuell vereinbarte schulische Anforderungen durch intensive Begleitung.',
+            'schafft die Aufgaben noch nicht und erkennt schulische Anforderungen nur eingeschränkt als bedeutsam an.'
+          ]
+        },
+        {
+          title: 'Durchhaltevermögen bei schwierigen Aufgaben',
+          questions: [
+            'hält bei schwierigen Aufgaben durch. Schwierigkeiten werden konstruktiv bearbeitet.',
+            'hält in strukturierten Kontexten und mit unterstützendem Input bei schwierigen Aufgaben durch.',
+            'hält bei schwierigen Aufgaben durch, wenn auf persönlich erlebte Schwierigkeiten Rücksicht genommen wird.',
+            'lässt sich nur kurzfristig auf schwierige Aufgaben ein und fühlt sich durch Anforderungen schnell belastet.',
+            'hält bei jeglichen schulischen Anforderungen nicht durch. Die Teilnahme an Aufgaben gelingt kaum.'
+          ]
+        },
+        {
+          title: 'Aufmerksamkeit auf Aufgaben',
+          questions: [
+            'konzentriert sich ungeteilt und gezielt auf Aufgaben.',
+            'konzentriert sich über einen vorgesehenen Zeitraum auf differenzierte Aufgabenstellungen.',
+            'konzentriert sich mit Hilfe für eine vereinbarte Zeit auf differenzierte Aufgaben.',
+            'konzentriert sich unter Anleitung kurzzeitig auf differenzierte Aufgabenstellungen.',
+            'konzentriert sich, wenn überhaupt, nur mit Unterstützung kurzzeitig und phasenweise auf Aufgaben.'
+          ]
+        },
+        {
+          title: 'Erledigen von Aufgaben',
+          questions: [
+            'erledigt Aufgaben zügig und den Anforderungen entsprechend.',
+            'erledigt Aufgaben in einem angemessenen Tempo.',
+            'erledigt Aufgaben mit individueller Unterstützung angemessen und vollständig.',
+            'bearbeitet Aufgaben in Ansätzen und setzt sie nach Unterbrechung fort. Der Arbeitsprozess bleibt instabil.',
+            'erledigt mit individueller Unterstützung Aufgaben in Ansätzen. Der Arbeitsprozess benötigt enge Begleitung.'
+          ]
+        },
+        {
+          title: 'Umgang mit Materialien',
+          questions: [
+            'nutzt alle eigenen und fremden Materialien sorgfältig.',
+            'nutzt eigene Materialien angemessen und sorgfältig.',
+            'geht mit Materialien mit Unterstützung angemessen um.',
+            'entwickelt ein Bewusstsein für einen sachgerechten Umgang mit Materialien.',
+            'erachtet den sachgerechten Umgang mit Materialien als bedeutungslos.'
           ]
         }
       ]
     }
   };
-
-  const SCALE = [
-    { value: '0', label: 'nicht beobachtet' },
-    { value: '1', label: 'selten / mit viel Unterstützung' },
-    { value: '2', label: 'teilweise / situationsabhängig' },
-    { value: '3', label: 'häufig / selbstständig' }
-  ];
 
   const $ = (selector, context = document) => context.querySelector(selector);
   const $$ = (selector, context = document) => Array.from(context.querySelectorAll(selector));
@@ -287,16 +454,22 @@
     }
   }
 
+  function countAnswered(observation) {
+    const answers = Object.values(observation.answers || {});
+    return answers.filter(answer => answer.value !== '').length;
+  }
+
   function observationCard(observation) {
     const student = getStudentById(observation.studentId);
     const topic = TOPICS[observation.topicKey];
     const topicTitle = topic?.title || observation.topicTitle || 'Beobachtungsbogen';
+    const answered = countAnswered(observation);
     return `
       <article class="card observation-card">
         <span class="doc-icon" aria-hidden="true">▣</span>
         <div>
           <h3>${escapeHtml(topicTitle)}</h3>
-          <p class="card-meta">${escapeHtml(studentName(student))} · ${escapeHtml(formatDateTime(observation.updatedAt))} · ${escapeHtml(observation.status || 'Entwurf')}</p>
+          <p class="card-meta">${escapeHtml(studentName(student))} · ${escapeHtml(formatDateTime(observation.updatedAt))} · ${answered} Einträge · ${escapeHtml(observation.status || 'Entwurf')}</p>
         </div>
         <a class="btn" href="${link(`beobachtung.html?studentId=${encodeURIComponent(observation.studentId || '')}`)}">Ansehen</a>
       </article>
@@ -319,8 +492,9 @@
     const fallback = new Intl.DateTimeFormat('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' }).format(today);
     if (form.elements.birthDate && !form.elements.birthDate.value) form.elements.birthDate.value = fallback;
 
-    $$('#firstName, #lastName, #birthDate', form).forEach(input => {
-      input.addEventListener('input', () => validateStudentForm(form));
+    ['firstName', 'lastName', 'birthDate'].forEach(id => {
+      const input = $(`#${id}`, form);
+      if (input) input.addEventListener('input', () => validateStudentForm(form));
     });
     validateStudentForm(form);
 
@@ -470,15 +644,32 @@
   function renderTopicLinks(studentId) {
     const list = $('#topicList');
     if (!list) return;
-    const countText = topic => `${topic.subtopics.length} Unterbereiche`;
-    list.innerHTML = Object.entries(TOPICS).map(([key, topic]) => `
-      <a class="topic-row" href="${link(`themen/${key}.html?studentId=${encodeURIComponent(studentId || '')}`)}">
-        <span class="topic-chevron" aria-hidden="true">›</span>
-        <span class="topic-radio" aria-hidden="true"></span>
-        <span>${escapeHtml(topic.title)}<br><small>${escapeHtml(topic.description)}</small></span>
-        <small>${countText(topic)}</small>
-      </a>
-    `).join('');
+    list.innerHTML = TOPIC_ORDER.map(key => {
+      const topic = TOPICS[key];
+      const itemCount = topic.subtopics.reduce((sum, subtopic) => sum + subtopic.questions.length, 0);
+      return `
+        <a class="topic-row" href="${link(`themen/${key}.html?studentId=${encodeURIComponent(studentId || '')}`)}">
+          <span class="topic-chevron" aria-hidden="true">›</span>
+          <span class="topic-radio" aria-hidden="true"></span>
+          <span>${escapeHtml(topic.title)}<br><small>${escapeHtml(topic.description)}</small></span>
+          <small>${topic.subtopics.length} Themen · ${itemCount} Items</small>
+        </a>
+      `;
+    }).join('');
+  }
+
+  function topicNav(topicKey) {
+    const index = TOPIC_ORDER.indexOf(topicKey);
+    const prevKey = TOPIC_ORDER[(index - 1 + TOPIC_ORDER.length) % TOPIC_ORDER.length];
+    const nextKey = TOPIC_ORDER[(index + 1) % TOPIC_ORDER.length];
+    const selectedId = activeStudentId();
+    return `
+      <div class="topic-screenbar" aria-label="Bereichsnavigation">
+        <a href="${link(`themen/${prevKey}.html?studentId=${encodeURIComponent(selectedId || '')}`)}" aria-label="Vorheriger Bereich">‹</a>
+        <strong>${escapeHtml(TOPICS[topicKey].title)}</strong>
+        <a href="${link(`themen/${nextKey}.html?studentId=${encodeURIComponent(selectedId || '')}`)}" aria-label="Nächster Bereich">›</a>
+      </div>
+    `;
   }
 
   function renderTopicPage() {
@@ -488,6 +679,8 @@
 
     const title = $('#topicTitle');
     const description = $('#topicDescription');
+    const toolbar = $('#topicToolbar');
+    if (toolbar) toolbar.innerHTML = topicNav(topicKey);
     if (title) title.textContent = topic.title;
     if (description) description.textContent = topic.description;
 
@@ -495,7 +688,11 @@
     const select = $('#studentSelect');
     renderStudentOptions(select, selectedId);
     if (select) {
-      select.addEventListener('change', () => localStorage.setItem(ACTIVE_STUDENT_KEY, select.value));
+      select.addEventListener('change', () => {
+        localStorage.setItem(ACTIVE_STUDENT_KEY, select.value);
+        const label = $('#selectedStudentName');
+        if (label) label.textContent = studentName(getStudentById(select.value));
+      });
     }
 
     const studentNameField = $('#selectedStudentName');
@@ -505,29 +702,36 @@
     const container = $('#questionContainer');
     if (!form || !container) return;
 
-    container.innerHTML = topic.subtopics.map((subtopic, subIndex) => `
-      <details class="question-group" open>
-        <summary>${escapeHtml(subtopic.title)}</summary>
-        <div class="question-list">
-          ${subtopic.questions.map((question, questionIndex) => {
-            const name = `q_${subIndex}_${questionIndex}`;
-            return `
-              <fieldset class="question-item">
-                <legend class="label">${escapeHtml(question)}</legend>
-                <div class="scale">
-                  ${SCALE.map(item => `
-                    <label>
-                      <input type="radio" name="${name}" value="${item.value}">
-                      <span>${escapeHtml(item.label)}</span>
-                    </label>
-                  `).join('')}
-                </div>
-              </fieldset>
-            `;
-          }).join('')}
-        </div>
-      </details>
-    `).join('');
+    container.innerHTML = `
+      <div class="rubric-panel">
+        ${topic.subtopics.map((subtopic, subIndex) => `
+          <section class="rubric-section" aria-labelledby="subtopic-${subIndex}">
+            <h3 id="subtopic-${subIndex}" class="rubric-heading">${escapeHtml(subtopic.title)}</h3>
+            <div class="rubric-list">
+              ${subtopic.questions.map((question, questionIndex) => {
+                const name = `q_${subIndex}_${questionIndex}`;
+                return `
+                  <fieldset class="rubric-row">
+                    <legend>
+                      <span class="rubric-blur" aria-hidden="true"></span>
+                      <span>${escapeHtml(question)}</span>
+                    </legend>
+                    <div class="rubric-scale" role="radiogroup" aria-label="Einschätzung">
+                      ${SCALE.map(item => `
+                        <label class="rubric-choice">
+                          <input type="radio" name="${name}" value="${item.value}" data-label="${escapeHtml(item.label)}">
+                          <span>${escapeHtml(item.label)}</span>
+                        </label>
+                      `).join('')}
+                    </div>
+                  </fieldset>
+                `;
+              }).join('')}
+            </div>
+          </section>
+        `).join('')}
+      </div>
+    `;
 
     form.addEventListener('submit', event => {
       event.preventDefault();
@@ -540,10 +744,13 @@
       topic.subtopics.forEach((subtopic, subIndex) => {
         subtopic.questions.forEach((question, questionIndex) => {
           const name = `q_${subIndex}_${questionIndex}`;
+          const value = form.elements[name]?.value || '';
+          const scaleLabel = SCALE.find(item => item.value === value)?.label || '';
           answers[name] = {
             subtopic: subtopic.title,
             question,
-            value: form.elements[name]?.value || ''
+            value,
+            scaleLabel
           };
         });
       });

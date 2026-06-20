@@ -33,4 +33,8 @@ Es gibt keinen Server, keine Datenbank und keine externe API. Dadurch ist die De
 
 ## Hinweis
 
-Dies ist eine eigenständige Demo-Adaption für Präsentationszwecke und keine offizielle SPLINT-Anwendung. Die enthaltenen Fragebogen-Items sind Platzhalter und sollten für eine echte Nutzung fachlich geprüft und ersetzt werden.
+Dies ist eine eigenständige Demo-Adaption für Präsentationszwecke und keine offizielle SPLINT-Anwendung. Die enthaltenen Fragebogen-Items sind als Demo-Rubrik aus den bereitgestellten Screenshots nachgebildet. Für eine echte Nutzung sollten Formulierungen, Datenschutz und fachliche Kriterien geprüft werden.
+
+## Aktuelle Ergänzung
+
+- Lernkompetenz nach Screenshot ergänzt: Motivation zur eigenständigen Arbeit, Erledigung schulischer Anforderungen, Durchhaltevermögen bei schwierigen Aufgaben, Aufmerksamkeit auf Aufgaben, Erledigen von Aufgaben und Umgang mit Materialien.
