@@ -24,23 +24,7 @@
 
   <main class="page page-wide page-with-help student-create-layout" id="content">
     <aside class="meta-column" aria-labelledby="student-help-title">
-      <article class="card meta-help" data-help-card>
-        <div class="meta-help-head">
-          <p class="upper tiny">Meta-Hilfe</p>
-          <button class="help-toggle" type="button" data-help-toggle aria-expanded="true">Hilfe ausblenden</button>
-        </div>
-        <div class="meta-help-body" data-help-body>
-          <h2 id="student-help-title">Schritt 1: Profil anlegen</h2>
-          <p>Für die Demo ist ein Schüler:innenprofil obligatorisch. Erst danach kann eine Beobachtung gestartet und eindeutig gespeichert werden.</p>
-          <ol class="tutorial-steps compact-steps">
-            <li><strong>Vorschlag übernehmen</strong><span>Nutze eine Beispielkachel für eine schnelle Präsentation.</span></li>
-            <li><strong>Daten prüfen</strong><span>Pflichtfelder sind Vorname, Nachname und Geburtsdatum.</span></li>
-            <li><strong>Speichern</strong><span>Nach dem Speichern wird das Profil automatisch ausgewählt.</span></li>
-          </ol>
-        </div>
-      </article>
-
-      <article class="card preset-card">
+      <article class="card preset-card" data-tour="student-presets">
         <div class="preset-head">
           <div>
             <p class="upper tiny">Demo-Vorschläge</p>
@@ -61,7 +45,7 @@
       </div>
       <p>Felder mit * sind Pflichtfelder.</p>
 
-      <form id="studentForm" class="form-grid" novalidate>
+      <form id="studentForm" class="form-grid" data-tour="student-form" novalidate>
         <div class="form-row">
           <label for="firstName">Vorname *</label>
           <input id="firstName" name="firstName" type="text" autocomplete="given-name" required>
@@ -110,7 +94,7 @@
             <input id="continueCreating" name="continueCreating" type="checkbox" value="yes">
             Erstelle weitere:n Schüler:in dieser Lerngruppe
           </label>
-          <button class="btn btn-primary" id="saveStudent" type="submit" disabled>▣ Speichern</button>
+          <button class="btn btn-primary" id="saveStudent" data-tour="student-save" type="submit" disabled>▣ Speichern</button>
         </div>
         <div class="statusline" id="statusline" aria-live="polite"></div>
       </form>

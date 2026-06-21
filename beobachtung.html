@@ -36,29 +36,11 @@
     </div>
   </section>
 
-  <main class="page page-wide page-with-help observation-layout" id="content">
-    <aside class="meta-column" aria-labelledby="overview-help-title">
-      <article class="card meta-help" data-help-card>
-        <div class="meta-help-head">
-          <p class="upper tiny">Meta-Hilfe</p>
-          <button class="help-toggle" type="button" data-help-toggle aria-expanded="true">Hilfe ausblenden</button>
-        </div>
-        <div class="meta-help-body" data-help-body>
-          <h2 id="overview-help-title">Profil und Beobachtungen</h2>
-          <p>Diese Seite zeigt das ausgewählte Profil, vorhandene Beobachtungsbögen und den Einstieg zu weiteren Beobachtungen.</p>
-          <ol class="tutorial-steps compact-steps">
-            <li><strong>Profil prüfen</strong><span>Die Basisdaten werden aus dem Schüler:innenprofil übernommen.</span></li>
-            <li><strong>Neue Beobachtung</strong><span>Der Start ist nur aktiv, wenn oben eine Person ausgewählt ist.</span></li>
-            <li><strong>Gespeicherte Bögen</strong><span>Über „Ansehen“ gelangst du zurück zur Profilübersicht der zugeordneten Person.</span></li>
-          </ol>
-        </div>
-      </article>
-    </aside>
-
+  <main class="page page-wide observation-layout" id="content">
     <section class="content-column profile-content">
       <div id="studentProfile" aria-live="polite"></div>
 
-      <section class="section" aria-labelledby="observation-sheets-title">
+      <section class="section" data-tour="profile-observation-section" aria-labelledby="observation-sheets-title">
         <h2 id="observation-sheets-title">Beobachtungsbögen</h2>
         <p class="upper">Meine Beobachtungen</p>
         <div class="tile-grid observation-tile-grid" id="ownObservations" aria-live="polite"></div>

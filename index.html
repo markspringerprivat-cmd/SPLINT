@@ -28,59 +28,23 @@
       <div class="button-row hero-tools">
         <button class="btn btn-secondary" id="seedDemo" type="button">Demo-Daten laden</button>
         <button class="btn btn-ghost" id="resetDemo" type="button">Demo-Daten löschen</button>
+        <button class="btn" id="startTour" type="button">Tutorial starten</button>
       </div>
     </div>
   </section>
 
   <main class="dashboard-page" id="content">
     <div class="dashboard-layout">
-      <aside class="dashboard-guide" aria-labelledby="guide-title">
-        <article class="card tutorial-card meta-help" data-help-card>
-          <div class="meta-help-head">
-            <p class="upper tiny">Meta-Hilfe</p>
-            <button class="help-toggle" type="button" data-help-toggle aria-expanded="true">Hilfe ausblenden</button>
-          </div>
-          <div class="meta-help-body" data-help-body>
-            <h2 id="guide-title">So nutzt du die Demo</h2>
-            <p>Diese Präsentationsfassung bildet den Ablauf einer SPLINT-One-Beobachtung nach. Alle Daten bleiben lokal im Browser und werden nicht an einen Server übertragen.</p>
-
-            <ol class="tutorial-steps">
-              <li>
-                <strong>Schüler:in anlegen</strong>
-                <span>Lege zuerst ein Schüler:innenprofil an. Ohne Profil kann keine Beobachtung gestartet werden.</span>
-              </li>
-              <li>
-                <strong>Profil auswählen</strong>
-                <span>Öffne ein Profil oder wähle eine Person in der MeSK-Auswahl. Die Auswahl steuert Fallbeispiele und Speicherung.</span>
-              </li>
-              <li>
-                <strong>Beobachtung starten</strong>
-                <span>Wähle den MeSK-Fragebogen und anschließend einen Beobachtungsbereich wie Selbstkompetenz, Sozialkompetenz oder Lernkompetenz.</span>
-              </li>
-              <li>
-                <strong>Speichern und prüfen</strong>
-                <span>Gespeicherte Bögen erscheinen rechts auf dieser Hauptseite und zusätzlich im Profil der ausgewählten Schüler:in.</span>
-              </li>
-            </ol>
-
-            <div class="guide-note">
-              <strong>Präsentationshinweis:</strong>
-              <span>„Demo-Daten laden“ erstellt einen Beispieldatensatz. Alternativ kannst du eigene Profile erfassen.</span>
-            </div>
-          </div>
-        </article>
-      </aside>
-
       <section class="dashboard-main" aria-label="Aktionen und Kennzahlen">
         <section class="section" aria-labelledby="actions-title">
           <h2 id="actions-title">Aktionen</h2>
           <div class="tile-grid dashboard-actions">
-            <a class="tile tile-primary" id="dashboardStartObservation" href="mesk.html" data-requires-student>
+            <a class="tile tile-primary" id="dashboardStartObservation" data-tour="dashboard-observation" href="mesk.html" data-requires-student>
               <span class="tile-icon">＋</span>
               <span>Beobachtung erstellen</span>
               <small class="tile-hint" data-tile-hint></small>
             </a>
-            <a class="tile" href="schueler-anlegen.html">
+            <a class="tile" href="schueler-anlegen.html" data-tour="dashboard-student">
               <span class="tile-icon">☻</span>
               <span>Schüler:in anlegen</span>
             </a>
@@ -109,7 +73,7 @@
         </section>
       </section>
 
-      <aside class="dashboard-sidebar" aria-label="Gespeicherte Inhalte">
+      <aside class="dashboard-sidebar" data-tour="dashboard-results" aria-label="Gespeicherte Inhalte">
         <section class="section dashboard-panel" aria-labelledby="students-title">
           <h2 id="students-title">Angelegte Schüler:innen</h2>
           <div class="card-list compact-list" id="studentList" aria-live="polite"></div>

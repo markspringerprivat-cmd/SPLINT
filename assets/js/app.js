@@ -4,6 +4,8 @@
   const STUDENTS_KEY = 'splintDemo.students.v2';
   const OBSERVATIONS_KEY = 'splintDemo.observations.v2';
   const ACTIVE_STUDENT_KEY = 'splintDemo.activeStudentId.v2';
+  const TOUR_STATE_KEY = 'splintDemo.guidedTour.state.v1';
+  const TOUR_SEEN_KEY = 'splintDemo.guidedTour.seen.v1';
 
   const SCALE = [
     { value: '0', label: 'nicht beobachtet' },
@@ -503,7 +505,7 @@
     if (fromUrl) localStorage.removeItem(ACTIVE_STUDENT_KEY);
     const stored = localStorage.getItem(ACTIVE_STUDENT_KEY);
     if (stored && students.some(s => s.id === stored)) return stored;
-    return students[0]?.id || '';
+    return '';
   }
 
   function getStudentById(studentId) {
@@ -547,6 +549,7 @@
       if (field) field.value = value || '';
     });
     validateStudentForm(form);
+    maybeAdvanceStudentTourIfReady(form);
     setStatus(`Vorschlag ${preset.firstName} ${preset.lastName} wurde in das Formular übernommen.`);
     form.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
@@ -598,6 +601,14 @@
       return;
     }
     select.disabled = false;
+    if (!selectedId) {
+      const placeholder = document.createElement('option');
+      placeholder.value = '';
+      placeholder.textContent = 'Bitte Schüler:in auswählen';
+      placeholder.selected = true;
+      placeholder.disabled = true;
+      select.appendChild(placeholder);
+    }
     students.forEach(student => {
       const option = document.createElement('option');
       option.value = student.id;
@@ -702,7 +713,10 @@
 
     ['firstName', 'lastName', 'birthDate'].forEach(id => {
       const input = $(`#${id}`, form);
-      if (input) input.addEventListener('input', () => validateStudentForm(form));
+      if (input) input.addEventListener('input', () => {
+        validateStudentForm(form);
+        maybeAdvanceStudentTourIfReady(form);
+      });
     });
     validateStudentForm(form);
 
@@ -730,6 +744,7 @@
       localStorage.setItem(ACTIVE_STUDENT_KEY, student.id);
 
       const continueCreating = Boolean(formData.get('continueCreating'));
+      if (isTourActive() && Number(readTourState().step) <= 3) setTourStep(4);
       if (continueCreating) {
         form.reset();
         if (form.elements.birthDate) form.elements.birthDate.value = fallback;
@@ -784,30 +799,30 @@
           </dl>
         </div>
         <div class="profile-body">
-          <section class="section">
+          <section class="section" data-tour="profile-participants">
             <h3>Beteiligte Personen <span aria-hidden="true">☻</span></h3>
             <p>Verantwortliche Personen: 1<br>Unterstützer:innen: 0<br>Förderziel-Mentor:innen: 0</p>
             <a href="#">Beteiligung verwalten ✎</a>
           </section>
-          <section class="section">
+          <section class="section" data-tour="profile-strengths">
             <h3>Stärken und Interessen</h3>
             <p class="muted">Nicht vorhanden</p>
             <a href="#">Stärken oder Interesse hinzufügen ✎</a>
           </section>
-          <div class="tabbar" role="tablist" aria-label="SPLINT Bereiche">
+          <div class="tabbar" data-tour="profile-tabs" role="tablist" aria-label="SPLINT Bereiche">
             <span class="tab active">SPLINT Förderplanung</span>
             <span class="tab">SPLINT Feedback</span>
           </div>
-          <div class="icon-menu" aria-label="Werkzeuge">
+          <div class="icon-menu" data-tour="profile-tools" aria-label="Werkzeuge">
             <span class="icon-menu-item"><span class="circle-icon">▥</span>Ergebnisse</span>
             <span class="icon-menu-item icon-muted"><span class="circle-icon">□</span>Förderplan</span>
           </div>
-          <section class="section">
+          <section class="section" data-tour="profile-disadvantage">
             <h3>Nachteilsausgleich</h3>
             <p class="muted">Nicht vorhanden</p>
             <a href="#">Nachteilsausgleich hinzufügen ✎</a>
           </section>
-          <section class="section">
+          <section class="section" data-tour="profile-agreements">
             <h3>Vereinbarungen</h3>
             <p>Hier kannst du getroffene Vereinbarungen zu ${escapeHtml(studentName(student))} vermerken. Sie sind für alle Verantwortlichen sichtbar und erscheinen auf dem Förderplan.</p>
             <div class="button-row">
@@ -825,13 +840,13 @@
       const observations = getObservations().filter(obs => obs.studentId === selectedId);
       if (!observations.length) {
         ownObs.innerHTML = `
-          <a class="tile tile-primary" href="${link(`mesk.html?studentId=${encodeURIComponent(selectedId)}`)}">
+          <a class="tile tile-primary" data-tour="profile-observation-tile" href="${link(`mesk.html?studentId=${encodeURIComponent(selectedId)}`)}">
             <span class="tile-icon">＋</span>
             <span>Beobachtung erstellen</span>
           </a>`;
       } else {
         ownObs.innerHTML = `
-          <a class="tile" href="${link(`mesk.html?studentId=${encodeURIComponent(selectedId)}`)}">
+          <a class="tile" data-tour="profile-observation-tile" href="${link(`mesk.html?studentId=${encodeURIComponent(selectedId)}`)}">
             <span class="tile-icon">＋</span><span>Weitere Beobachtung erstellen</span>
           </a>
           ${observations.map(observationCard).join('')}
@@ -885,7 +900,7 @@
       const topic = TOPICS[key];
       const itemCount = topic.subtopics.reduce((sum, subtopic) => sum + subtopic.questions.length, 0);
       return `
-        <a class="topic-row" href="${link(`themen/${key}.html?studentId=${encodeURIComponent(studentId || '')}`)}">
+        <a class="topic-row" data-tour="topic-link" data-topic-key="${escapeHtml(key)}" href="${link(`themen/${key}.html?studentId=${encodeURIComponent(studentId || '')}`)}">
           <span class="topic-chevron" aria-hidden="true">›</span>
           <span class="topic-radio" aria-hidden="true"></span>
           <span>${escapeHtml(topic.title)}<br><small>${escapeHtml(topic.description)}</small></span>
@@ -965,7 +980,7 @@
               ${subtopic.questions.map((question, questionIndex) => {
                 const name = `q_${subIndex}_${questionIndex}`;
                 return `
-                  <div class="rubric-row" role="group" aria-labelledby="${name}_statement">
+                  <div class="rubric-row" data-question-name="${name}" role="group" aria-labelledby="${name}_statement">
                     <div class="rubric-statement" id="${name}_statement">
                       <span class="rubric-blur" aria-hidden="true"></span>
                       <span class="rubric-question">${escapeHtml(question)}</span>
@@ -988,12 +1003,31 @@
     `;
 
     updateTopicStudentState();
+    updateRubricCompletionState(form);
+    form.addEventListener('change', event => {
+      if (event.target && event.target.matches('input[type="radio"]')) {
+        updateRubricCompletionState(form);
+        maybeAdvanceTopicTourAfterAllAnswered(form);
+      }
+    });
 
     form.addEventListener('submit', event => {
       event.preventDefault();
       const studentId = $('#studentSelect')?.value || selectedId;
       if (!studentId || !getStudentById(studentId)) {
         setStatus('Bitte zuerst eine:n Schüler:in anlegen und auswählen. Ohne zugeordnetes Profil kann keine Beobachtung gespeichert werden.', true);
+        return;
+      }
+      const missing = getMissingQuestionNames(form);
+      if (missing.length) {
+        updateRubricCompletionState(form);
+        const firstMissing = document.querySelector(`[data-question-name="${missing[0]}"]`);
+        if (firstMissing) {
+          firstMissing.classList.add('tour-missing');
+          firstMissing.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          window.setTimeout(() => firstMissing.classList.remove('tour-missing'), 2200);
+        }
+        setStatus(`Es ist noch ${missing.length === 1 ? 'ein Item offen' : missing.length + ' Items offen'}. Bitte setze in jeder Zeile eine Einschätzung.`, true);
         return;
       }
       const answers = {};
@@ -1026,9 +1060,10 @@
       });
       setObservations(observations);
       localStorage.setItem(ACTIVE_STUDENT_KEY, studentId);
-      setStatus('Beobachtungsbogen wurde lokal gespeichert. Weiterleitung zur Übersicht …');
+      if (isTourActive() && Number(readTourState().step) <= 18) setTourStep(19);
+      setStatus('Beobachtungsbogen wurde lokal gespeichert. Weiterleitung zur Hauptseite …');
       window.setTimeout(() => {
-        window.location.href = link(`beobachtung.html?studentId=${encodeURIComponent(studentId)}`);
+        window.location.href = link('index.html');
       }, 650);
     });
   }
@@ -1041,6 +1076,8 @@
         localStorage.removeItem(STUDENTS_KEY);
         localStorage.removeItem(OBSERVATIONS_KEY);
         localStorage.removeItem(ACTIVE_STUDENT_KEY);
+        localStorage.removeItem(TOUR_STATE_KEY);
+        localStorage.removeItem(TOUR_SEEN_KEY);
         window.location.reload();
       });
     }
@@ -1082,6 +1119,389 @@
     }
   }
 
+
+  function readTourState() {
+    return read(TOUR_STATE_KEY, { active: false, step: null });
+  }
+
+  function writeTourState(state) {
+    write(TOUR_STATE_KEY, state);
+  }
+
+  function isTourActive() {
+    return Boolean(readTourState().active);
+  }
+
+  function setTourStep(step) {
+    writeTourState({ active: true, step });
+    window.setTimeout(renderGuidedTour, 40);
+  }
+
+  function clearTourLayer() {
+    $$('.tour-target-active').forEach(element => element.classList.remove('tour-target-active'));
+    const existing = $('#guidedTourLayer');
+    if (existing) existing.remove();
+    const modal = $('#guidedTourIntro');
+    if (modal) modal.remove();
+  }
+
+  function endTour() {
+    localStorage.removeItem(TOUR_STATE_KEY);
+    localStorage.setItem(TOUR_SEEN_KEY, 'yes');
+    clearTourLayer();
+  }
+
+  function startGuidedTour() {
+    writeTourState({ active: true, step: 0 });
+    localStorage.setItem(TOUR_SEEN_KEY, 'yes');
+    renderGuidedTour();
+  }
+
+  function tourSteps() {
+    return {
+      1: {
+        page: 'dashboard',
+        selector: '[data-tour="dashboard-student"]',
+        title: 'Schritt 1: Schüler:innenprofil anlegen',
+        body: 'Eine Beobachtung ist in dieser Demo erst möglich, wenn ein Profil existiert. Klicke auf diese Kachel, um eine Person anzulegen.',
+        instruction: 'Klicke auf die hervorgehobene Kachel.',
+        clickNextStep: 2,
+        actionOnly: true
+      },
+      2: {
+        page: 'student-form',
+        selector: '.student-create-layout',
+        title: 'Profil vorbereiten',
+        body: 'Du kannst eine der fünf Beispielpersonen übernehmen oder das Formular rechts selbst ausfüllen. Sobald Vorname, Nachname und Geburtsdatum vorhanden sind, springt das Tutorial zum Speicherbutton.',
+        instruction: 'Übernimm einen Vorschlag oder fülle die Pflichtfelder aus.',
+        actionOnly: true
+      },
+      3: {
+        page: 'student-form',
+        selector: '[data-tour="student-save"]',
+        title: 'Profil speichern',
+        body: 'Speichere das Profil. Es wird anschließend automatisch als aktive Schüler:in ausgewählt und der weiteren Beobachtung zugeordnet.',
+        instruction: 'Klicke auf „Speichern“.',
+        actionOnly: true
+      },
+      4: {
+        page: 'observation',
+        selector: '[data-tour="profile-participants"]',
+        title: 'Beteiligte Personen',
+        body: 'Hier werden verantwortliche Personen, Unterstützer:innen und Förderziel-Mentor:innen angezeigt. In der Demo sind diese Angaben exemplarisch, damit die Profilstruktur sichtbar wird.',
+        nextStep: 5
+      },
+      5: {
+        page: 'observation',
+        selector: '[data-tour="profile-strengths"]',
+        title: 'Stärken und Interessen',
+        body: 'Dieser Bereich wäre im echten System für vorhandene Stärken, Interessen und Ressourcen der ausgewählten Schüler:in vorgesehen.',
+        nextStep: 6
+      },
+      6: {
+        page: 'observation',
+        selector: '[data-tour="profile-tabs"]',
+        title: 'Förderplanung und Feedback',
+        body: 'Die Register zeigen, dass SPLINT unterschiedliche Arbeitsbereiche bündeln kann. Für die Demo bleibt der Fokus auf Förderplanung und MeSK-Beobachtung.',
+        nextStep: 7
+      },
+      7: {
+        page: 'observation',
+        selector: '[data-tour="profile-tools"]',
+        title: 'Ergebnisse und Förderplan',
+        body: 'Über solche Werkzeuge könnten Ergebnisse betrachtet und Förderplan-Informationen vorbereitet werden. Diese Demo bildet die Navigation nur visuell nach.',
+        nextStep: 8
+      },
+      8: {
+        page: 'observation',
+        selector: '[data-tour="profile-disadvantage"]',
+        title: 'Nachteilsausgleich',
+        body: 'Hier könnten Hinweise zu individuellen Unterstützungsmaßnahmen oder Nachteilsausgleichen dokumentiert werden.',
+        nextStep: 9
+      },
+      9: {
+        page: 'observation',
+        selector: '[data-tour="profile-agreements"]',
+        title: 'Vereinbarungen',
+        body: 'Vereinbarungen dienen dazu, getroffene Absprachen nachvollziehbar zu sichern. In der Präsentationsfassung ist dieser Bereich exemplarisch angelegt.',
+        nextStep: 10
+      },
+      10: {
+        page: 'observation',
+        selector: '[data-tour="profile-observation-section"]',
+        title: 'Beobachtungsbögen',
+        body: 'Unten werden Beobachtungsbögen angelegt und später wieder angezeigt. Im nächsten Schritt startest du einen neuen MeSK-Bogen.',
+        nextStep: 11
+      },
+      11: {
+        page: 'observation',
+        selector: '[data-tour="profile-observation-tile"]',
+        title: 'Beobachtungsbogen erstellen',
+        body: 'Klicke auf diese Kachel. Dadurch öffnet sich die MeSK-Auswahl für die aktuell ausgewählte Schüler:in.',
+        instruction: 'Klicke auf die hervorgehobene Kachel.',
+        clickNextStep: 12,
+        actionOnly: true
+      },
+      12: {
+        page: 'mesk',
+        selector: '[data-tour="mesk-box"]',
+        title: 'MeSK-Fragebogen',
+        body: 'Für diese Demo-Version soll im Rahmen des Seminars mit dem MeSK-Fragebogen gearbeitet werden. Der Bogen dient hier als Beispiel für eine strukturierte Beobachtung emotionaler und sozialer Kompetenzen.',
+        nextStep: 13
+      },
+      13: {
+        page: 'mesk',
+        selector: '[data-tour="mesk-student-select"]',
+        title: 'Schüler:in auswählen',
+        body: 'Hier wird festgelegt, für welche Person die Beobachtung gespeichert wird. Das Fallbeispiel auf der nächsten Seite nutzt ebenfalls diese Schülerdaten.',
+        nextStep: 14
+      },
+      14: {
+        page: 'mesk',
+        selector: '[data-tour="mesk-topic-list"]',
+        title: 'Kompetenzbereich wählen',
+        body: 'Die Oberkategorien führen zu eigenen ausfüllbaren Beobachtungsbögen: Selbstkompetenz, Sozialkompetenz, Konfliktverhalten, Regelverhalten und Lernkompetenz.',
+        instruction: 'Wähle jetzt einen Kompetenzbereich aus.',
+        clickNextStep: 15,
+        actionOnly: true
+      },
+      15: {
+        page: 'topic',
+        selector: '[data-tour="topic-case"]',
+        title: 'Fallbeispiel zur ausgewählten Person',
+        body: 'Links steht ein ausführliches Fallbeispiel, das automatisch aus dem ausgewählten Schüler:innenprofil und dem gewählten Kompetenzbereich konstruiert wird.',
+        nextStep: 16
+      },
+      16: {
+        page: 'topic',
+        selector: '[data-tour="topic-questions"]',
+        title: 'Beobachtungsbogen ausfüllen',
+        body: 'Die Aussagen sind nach Teilbereichen geordnet. Setze in jeder Zeile genau eine Einschätzung. Erst wenn alle Items beantwortet sind, führt dich das Tutorial zu den Notizen.',
+        instruction: 'Beantworte alle Items im Bogen.',
+        actionOnly: true
+      },
+      17: {
+        page: 'topic',
+        selector: '[data-tour="topic-notes"]',
+        title: 'Notizen zur Beobachtung',
+        body: 'Hier kannst du konkrete Situationen, Kontextinformationen oder Beispiele ergänzen. Die Notiz ist optional, macht die Einschätzung aber nachvollziehbarer.',
+        nextStep: 18,
+        nextLabel: 'Weiter zum Speichern'
+      },
+      18: {
+        page: 'topic',
+        selector: '[data-tour="topic-save"]',
+        title: 'Beobachtung speichern',
+        body: 'Speichere den vollständig ausgefüllten Bogen. Danach gelangst du automatisch zur Hauptseite, wo Schülerprofil und Beobachtung rechts angezeigt werden.',
+        instruction: 'Klicke auf „Beobachtung speichern“.',
+        actionOnly: true
+      },
+      19: {
+        page: 'dashboard',
+        selector: '[data-tour="dashboard-results"]',
+        title: 'Ergebnis auf der Hauptseite',
+        body: 'Hier erscheinen die angelegte Schüler:in und die gespeicherte Beobachtung. Damit ist der vollständige Demo-Ablauf abgeschlossen.',
+        nextStep: 'complete',
+        nextLabel: 'Tutorial beenden'
+      }
+    };
+  }
+
+  function createTourIntro() {
+    clearTourLayer();
+    const modal = document.createElement('div');
+    modal.id = 'guidedTourIntro';
+    modal.className = 'tour-intro-modal';
+    modal.innerHTML = `
+      <article class="tour-intro-card" role="dialog" aria-modal="true" aria-labelledby="tourIntroTitle">
+        <p class="tour-progress">Geführte Demo</p>
+        <h2 id="tourIntroTitle">So nutzt du die SPLINT-Demo</h2>
+        <p>Das Tutorial führt einmal vollständig durch den Ablauf: Profil anlegen, Profilübersicht verstehen, MeSK-Bereich auswählen, Beobachtung ausfüllen und speichern.</p>
+        <p>Während der Führung wird die Seite abgedunkelt. Nur der jeweils relevante Bereich bleibt hervorgehoben.</p>
+        <ul>
+          <li>Ohne Schüler:innenprofil kann keine Beobachtung gestartet werden.</li>
+          <li>Jede Beobachtung wird lokal im Browser gespeichert.</li>
+          <li>Am Ende erscheint die gespeicherte Beobachtung auf der Hauptseite.</li>
+        </ul>
+        <div class="tour-intro-actions">
+          <button class="btn" type="button" data-tour-skip>Überspringen</button>
+          <button class="btn btn-primary" type="button" data-tour-start>OK, starten</button>
+        </div>
+      </article>
+    `;
+    document.body.appendChild(modal);
+    $('[data-tour-start]', modal)?.addEventListener('click', () => setTourStep(1));
+    $('[data-tour-skip]', modal)?.addEventListener('click', endTour);
+    $('[data-tour-start]', modal)?.focus();
+  }
+
+  function targetRectWithPadding(target, padding = 8) {
+    const rect = target.getBoundingClientRect();
+    return {
+      top: Math.max(8, rect.top - padding),
+      left: Math.max(8, rect.left - padding),
+      right: Math.min(window.innerWidth - 8, rect.right + padding),
+      bottom: Math.min(window.innerHeight - 8, rect.bottom + padding),
+      width: Math.min(window.innerWidth - 16, rect.width + padding * 2),
+      height: Math.min(window.innerHeight - 16, rect.height + padding * 2)
+    };
+  }
+
+  function createScrim(layer, style) {
+    const piece = document.createElement('div');
+    piece.className = 'tour-scrim';
+    Object.assign(piece.style, style);
+    layer.appendChild(piece);
+  }
+
+  function placeTooltip(tooltip, rect) {
+    const gap = 16;
+    const width = Math.min(390, window.innerWidth - 28);
+    let left = Math.min(Math.max(14, rect.left), window.innerWidth - width - 14);
+    let top = rect.bottom + gap;
+    tooltip.classList.remove('is-above');
+    if (top + tooltip.offsetHeight > window.innerHeight - 14) {
+      top = rect.top - tooltip.offsetHeight - gap;
+      tooltip.classList.add('is-above');
+    }
+    if (top < 14) top = 14;
+    tooltip.style.left = `${left}px`;
+    tooltip.style.top = `${top}px`;
+  }
+
+  function renderTourTooltip(layer, target, rect, step, stepNumber) {
+    const tooltip = document.createElement('aside');
+    tooltip.className = 'tour-tooltip';
+    tooltip.setAttribute('role', 'dialog');
+    tooltip.setAttribute('aria-live', 'polite');
+    const total = 19;
+    const actions = step.actionOnly
+      ? `<button class="btn" type="button" data-tour-skip>Tour beenden</button>`
+      : `<button class="btn" type="button" data-tour-skip>Tour beenden</button><button class="btn btn-primary" type="button" data-tour-next>${escapeHtml(step.nextLabel || 'Weiter')}</button>`;
+    tooltip.innerHTML = `
+      <div class="tour-progress">Schritt ${stepNumber} von ${total}</div>
+      <h2>${escapeHtml(step.title)}</h2>
+      <p>${escapeHtml(step.body)}</p>
+      ${step.instruction ? `<p class="tour-step-text"><strong>${escapeHtml(step.instruction)}</strong></p>` : ''}
+      <div class="tour-actions">${actions}</div>
+    `;
+    layer.appendChild(tooltip);
+    placeTooltip(tooltip, rect);
+    $('[data-tour-skip]', tooltip)?.addEventListener('click', endTour);
+    $('[data-tour-next]', tooltip)?.addEventListener('click', () => {
+      if (step.nextStep === 'complete') endTour();
+      else setTourStep(step.nextStep);
+    });
+    if (step.clickNextStep && target) {
+      target.addEventListener('click', () => setTourStep(step.clickNextStep), { once: true });
+    }
+    $('[data-tour-next]', tooltip)?.focus();
+  }
+
+  function renderGuidedTour() {
+    clearTourLayer();
+    const state = readTourState();
+    if (!state.active) return;
+    const stepNumber = Number(state.step);
+    if (stepNumber === 0) {
+      createTourIntro();
+      return;
+    }
+    const step = tourSteps()[stepNumber];
+    if (!step) return;
+    if (step.page !== page) return;
+    const target = $(step.selector);
+    if (!target) return;
+
+    target.scrollIntoView({ behavior: 'auto', block: 'center', inline: 'nearest' });
+    window.setTimeout(() => {
+      clearTourLayer();
+      const liveTarget = $(step.selector);
+      if (!liveTarget) return;
+      liveTarget.classList.add('tour-target-active');
+      const rect = targetRectWithPadding(liveTarget);
+      const layer = document.createElement('div');
+      layer.id = 'guidedTourLayer';
+      layer.className = 'tour-layer';
+      createScrim(layer, { top: '0px', left: '0px', right: '0px', height: `${rect.top}px` });
+      createScrim(layer, { top: `${rect.bottom}px`, left: '0px', right: '0px', bottom: '0px' });
+      createScrim(layer, { top: `${rect.top}px`, left: '0px', width: `${rect.left}px`, height: `${rect.height}px` });
+      createScrim(layer, { top: `${rect.top}px`, left: `${rect.right}px`, right: '0px', height: `${rect.height}px` });
+      const hole = document.createElement('div');
+      hole.className = 'tour-hole';
+      Object.assign(hole.style, {
+        top: `${rect.top}px`,
+        left: `${rect.left}px`,
+        width: `${rect.width}px`,
+        height: `${rect.height}px`
+      });
+      layer.appendChild(hole);
+      document.body.appendChild(layer);
+      renderTourTooltip(layer, liveTarget, rect, step, stepNumber);
+    }, 260);
+  }
+
+  function initGuidedTour() {
+    const startButton = $('#startTour');
+    if (startButton) startButton.addEventListener('click', startGuidedTour);
+
+    if (page === 'dashboard' && !localStorage.getItem(TOUR_SEEN_KEY) && !isTourActive()) {
+      startGuidedTour();
+      return;
+    }
+    if (isTourActive()) renderGuidedTour();
+  }
+
+  let tourRenderQueued = false;
+  function queueTourRender() {
+    if (!isTourActive() || tourRenderQueued) return;
+    tourRenderQueued = true;
+    window.setTimeout(() => {
+      tourRenderQueued = false;
+      renderGuidedTour();
+    }, 120);
+  }
+
+  window.addEventListener('resize', queueTourRender);
+  window.addEventListener('scroll', queueTourRender, { passive: true });
+
+  function maybeAdvanceStudentTourIfReady(form) {
+    const state = readTourState();
+    if (!state.active || Number(state.step) !== 2) return;
+    if (validateStudentForm(form)) setTourStep(3);
+  }
+
+  function cssEscapeName(value) {
+    if (window.CSS && typeof window.CSS.escape === 'function') return window.CSS.escape(value);
+    return String(value).replace(/[^a-zA-Z0-9_-]/g, '\\$&');
+  }
+
+  function getQuestionNames(form) {
+    return [...new Set($$('input[type="radio"]', form).map(input => input.name).filter(Boolean))];
+  }
+
+  function getMissingQuestionNames(form) {
+    return getQuestionNames(form).filter(name => !form.querySelector(`input[name="${cssEscapeName(name)}"]:checked`));
+  }
+
+  function updateRubricCompletionState(form) {
+    if (!form) return;
+    getQuestionNames(form).forEach(name => {
+      const escaped = cssEscapeName(name);
+      const row = document.querySelector(`[data-question-name="${escaped}"]`);
+      if (!row) return;
+      const complete = Boolean(form.querySelector(`input[name="${escaped}"]:checked`));
+      row.classList.toggle('is-complete', complete);
+      row.classList.toggle('is-missing', !complete);
+    });
+  }
+
+  function maybeAdvanceTopicTourAfterAllAnswered(form) {
+    const state = readTourState();
+    if (!state.active || Number(state.step) !== 16) return;
+    if (!getMissingQuestionNames(form).length) setTourStep(17);
+  }
+
   document.addEventListener('DOMContentLoaded', () => {
     initHelpToggle();
     initDemoReset();
@@ -1090,5 +1510,6 @@
     if (page === 'observation') renderObservationPage();
     if (page === 'mesk') renderMeskPage();
     if (page === 'topic') renderTopicPage();
+    initGuidedTour();
   });
 })();

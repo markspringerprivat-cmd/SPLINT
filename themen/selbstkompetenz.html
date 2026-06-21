@@ -36,30 +36,14 @@
 
     <div class="topic-workspace">
       <aside class="case-column" aria-labelledby="case-title">
-      <article class="card meta-help topic-meta-help" data-help-card>
-        <div class="meta-help-head">
-          <p class="upper tiny">Meta-Hilfe</p>
-          <button class="help-toggle" type="button" data-help-toggle aria-expanded="true">Hilfe ausblenden</button>
-        </div>
-        <div class="meta-help-body" data-help-body>
-          <h2>Selbstkompetenz: Beobachtung</h2>
-          <p>Links darunter wird ein Fallbeispiel aus dem ausgewählten Schüler:innenprofil erzeugt. Rechts füllst du den Beobachtungsbogen aus.</p>
-          <ol class="tutorial-steps compact-steps">
-            <li><strong>Person prüfen</strong><span>Ohne ausgewählte Schüler:in bleibt Speichern deaktiviert.</span></li>
-            <li><strong>Aussagen bewerten</strong><span>Wähle je Zeile eine Einschätzung von „nicht beobachtet“ bis „sicher“.</span></li>
-            <li><strong>Notizen ergänzen</strong><span>Trage konkrete Situationen ein, damit die Bewertung nachvollziehbar bleibt.</span></li>
-          </ol>
-        </div>
-      </article>
-
-        <article class="card case-example-card" id="caseExample">
+        <article class="card case-example-card" id="caseExample" data-tour="topic-case">
           <h2 id="case-title">Fallbeispiel</h2>
           <p class="muted">Wähle eine:n Schüler:in aus, damit ein passendes Beispiel angezeigt wird.</p>
         </article>
       </aside>
 
       <form id="topicForm" class="topic-form-panel">
-        <section class="section student-select-section">
+        <section class="section student-select-section" data-tour="topic-student-select">
           <div class="form-row">
             <label for="studentSelect">Schüler:in</label>
             <select id="studentSelect"></select>
@@ -69,16 +53,16 @@
         <section class="section" aria-labelledby="questions-title">
           <h2 id="questions-title">Beobachtung ausfüllen</h2>
           <p class="muted">Wähle je Aussage eine Einschätzung. Die Zeilen sind für Desktop, iPad und Smartphone so aufgebaut, dass Aussagen und Antwortskala sauber untereinander ausgerichtet bleiben.</p>
-          <div id="questionContainer"></div>
+          <div id="questionContainer" data-tour="topic-questions"></div>
         </section>
 
-        <section class="section">
+        <section class="section" data-tour="topic-notes">
           <label for="notes">Notizen zur Beobachtung</label>
           <textarea id="notes" name="notes" placeholder="Beobachtungskontext, Situation, konkrete Beispiele …"></textarea>
         </section>
 
         <div class="button-row form-actions-sticky">
-          <button class="btn btn-primary" type="submit">▣ Beobachtung speichern</button>
+          <button class="btn btn-primary" data-tour="topic-save" type="submit">▣ Beobachtung speichern</button>
           <a class="btn" href="../mesk.html">Abbrechen</a>
         </div>
         <div class="statusline" id="statusline" aria-live="polite"></div>

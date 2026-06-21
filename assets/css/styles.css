@@ -1456,3 +1456,186 @@ input:focus, select:focus, textarea:focus {
     position: static;
   }
 }
+
+/* Guided-Tour-Version: sichtbare rote Meta-Hilfekarten entfernt, Overlay übernimmt Anleitung */
+.dashboard-layout {
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  display: grid;
+  grid-template-columns: minmax(520px, 1fr) minmax(340px, 500px);
+  gap: clamp(22px, 2.4vw, 42px);
+  align-items: start;
+}
+.dashboard-main { max-width: 900px; width: 100%; justify-self: center; }
+.dashboard-sidebar { display: grid; gap: 28px; }
+
+.student-create-layout {
+  grid-template-columns: minmax(300px, 420px) minmax(0, 760px);
+  justify-content: start;
+}
+.student-create-layout .form-panel { max-width: 760px; }
+.student-create-layout .preset-card { position: sticky; top: 82px; }
+
+.mesk-page {
+  max-width: 980px;
+}
+.observation-layout {
+  max-width: 1080px;
+}
+
+[data-tour], .tour-highlight-source { scroll-margin: 110px; }
+.tour-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  pointer-events: none;
+}
+.tour-scrim {
+  position: fixed;
+  background: rgba(2, 19, 38, .62);
+  pointer-events: auto;
+}
+.tour-hole {
+  position: fixed;
+  border: 3px solid #f6b14a;
+  border-radius: 12px;
+  box-shadow: 0 0 0 4px rgba(255,255,255,.96), 0 18px 36px rgba(0, 0, 0, .24);
+  pointer-events: none;
+  z-index: 1001;
+}
+.tour-tooltip {
+  position: fixed;
+  z-index: 1002;
+  width: min(390px, calc(100vw - 28px));
+  background: #fff7f5;
+  border: 2px solid #b3483f;
+  color: var(--blue-900);
+  border-radius: 14px;
+  padding: 16px 17px;
+  box-shadow: 0 20px 45px rgba(0, 18, 38, .28);
+  pointer-events: auto;
+}
+.tour-tooltip::before {
+  content: "";
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  background: #fff7f5;
+  border-left: 2px solid #b3483f;
+  border-top: 2px solid #b3483f;
+  transform: rotate(45deg);
+  top: -11px;
+  left: 28px;
+}
+.tour-tooltip.is-above::before {
+  top: auto;
+  bottom: -11px;
+  transform: rotate(225deg);
+}
+.tour-tooltip h2 {
+  margin: 0 0 8px;
+  color: #071d36;
+  font-size: 20px;
+}
+.tour-tooltip p {
+  margin: 0 0 12px;
+}
+.tour-tooltip .tour-step-text {
+  color: #425267;
+  font-size: 14px;
+}
+.tour-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  margin-top: 14px;
+}
+.tour-actions .btn {
+  min-height: 36px;
+  padding: 7px 12px;
+}
+.tour-progress {
+  color: #6c7480;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  margin-bottom: 8px;
+}
+.tour-target-active {
+  position: relative;
+  z-index: 1003 !important;
+}
+.tour-missing {
+  outline: 3px solid #b3483f;
+  outline-offset: 4px;
+}
+
+.tour-intro-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 1005;
+  display: grid;
+  place-items: center;
+  background: rgba(2, 19, 38, .64);
+  padding: 18px;
+}
+.tour-intro-card {
+  width: min(640px, 100%);
+  background: #fff;
+  color: var(--blue-900);
+  border-radius: 16px;
+  border: 2px solid #b3483f;
+  box-shadow: 0 24px 60px rgba(0, 18, 38, .34);
+  padding: clamp(20px, 4vw, 34px);
+}
+.tour-intro-card h2 {
+  margin: 0 0 12px;
+  font-size: clamp(1.6rem, 3vw, 2.25rem);
+  color: #071d36;
+}
+.tour-intro-card p { margin: 0 0 14px; }
+.tour-intro-card ul { margin: 12px 0 0 20px; padding: 0; }
+.tour-intro-card li + li { margin-top: 6px; }
+.tour-intro-actions { display: flex; gap: 10px; justify-content: flex-end; flex-wrap: wrap; margin-top: 22px; }
+
+.rubric-row.is-complete .rubric-statement {
+  box-shadow: inset 4px 0 0 #7aa58d;
+}
+.rubric-row.is-missing .rubric-statement {
+  box-shadow: inset 4px 0 0 #b3483f;
+}
+.form-actions-sticky .btn[disabled] {
+  pointer-events: auto;
+}
+
+@media (max-width: 1280px) {
+  .dashboard-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .dashboard-main { justify-self: stretch; max-width: none; }
+  .dashboard-sidebar {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .student-create-layout {
+    grid-template-columns: minmax(280px, 360px) minmax(0, 1fr);
+  }
+}
+@media (max-width: 980px) {
+  .student-create-layout {
+    grid-template-columns: 1fr;
+  }
+  .student-create-layout .preset-card { position: static; }
+  .dashboard-sidebar { grid-template-columns: 1fr 1fr; }
+  .tour-tooltip::before { display: none; }
+}
+@media (max-width: 760px) {
+  .dashboard-sidebar { grid-template-columns: 1fr; }
+  .tour-tooltip {
+    left: 14px !important;
+    right: 14px !important;
+    width: auto;
+  }
+}

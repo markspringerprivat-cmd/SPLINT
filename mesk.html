@@ -23,34 +23,16 @@
     </nav>
   </header>
 
-  <main class="page page-wide page-with-help" id="content">
-    <aside class="meta-column" aria-labelledby="mesk-help-title">
-      <article class="card meta-help" data-help-card>
-        <div class="meta-help-head">
-          <p class="upper tiny">Meta-Hilfe</p>
-          <button class="help-toggle" type="button" data-help-toggle aria-expanded="true">Hilfe ausblenden</button>
-        </div>
-        <div class="meta-help-body" data-help-body>
-          <h2 id="mesk-help-title">Schritt 2: Beobachtungsbereich wählen</h2>
-          <p>Eine Beobachtung kann erst gestartet werden, wenn mindestens ein Profil vorhanden und im Auswahlfeld aktiv ausgewählt ist.</p>
-          <ol class="tutorial-steps compact-steps">
-            <li><strong>Schüler:in auswählen</strong><span>Die Auswahl entscheidet, für wen der Bogen gespeichert und welches Fallbeispiel erzeugt wird.</span></li>
-            <li><strong>Oberkategorie wählen</strong><span>Die MeSK-Bereiche führen jeweils zu einem eigenen ausfüllbaren Beobachtungsbogen.</span></li>
-            <li><strong>Bogen ausfüllen</strong><span>Auf der nächsten Seite werden Aussagen bewertet und lokal gespeichert.</span></li>
-          </ol>
-        </div>
-      </article>
-    </aside>
-
+  <main class="page page-wide mesk-page" id="content">
     <section class="content-column" aria-labelledby="mesk-title">
       <h1 class="page-title" id="mesk-title">Beobachtung anlegen</h1>
 
-      <div class="mesk-box">▣ Beobachtung: MeSK-Fragebogen zur Einschätzung emotionaler und sozialer Kompetenzen</div>
+      <div class="mesk-box" data-tour="mesk-box">▣ Beobachtung: MeSK-Fragebogen zur Einschätzung emotionaler und sozialer Kompetenzen</div>
 
       <section class="section">
         <h2>MeSK Fragebogen anbieten</h2>
         <p class="muted">Wähle zuerst die Schüler:in und anschließend einen Bereich, der beobachtet werden soll. Die Oberkategorien sind als Einstieg verlinkt.</p>
-        <div class="form-row">
+        <div class="form-row" data-tour="mesk-student-select">
           <label for="studentSelect">Schüler:in</label>
           <select id="studentSelect"></select>
         </div>
@@ -60,7 +42,7 @@
       <section class="section" aria-labelledby="topic-title">
         <h2 id="topic-title">Beobachtungsbogen starten</h2>
         <p class="upper">Bereich auswählen</p>
-        <div class="topic-list" id="topicList" aria-live="polite"></div>
+        <div class="topic-list" id="topicList" data-tour="mesk-topic-list" aria-live="polite"></div>
       </section>
 
       <div class="button-row">
