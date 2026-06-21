@@ -2,30 +2,31 @@
 
 Statische HTML/CSS/JavaScript-Demo zur Präsentation eines SPLINT-ähnlichen Ablaufs.
 
-## Inhalt
+## Enthalten
 
-- `index.html` – Hauptseite mit Aktionen, Übersicht, angelegten Schüler:innen und gespeicherten Beobachtungen
-- `schueler-anlegen.html` – Schüler:innenprofil erstellen, inkl. fünf Demo-Vorschlägen
-- `beobachtung.html` – Profil-/Beobachtungsübersicht
-- `mesk.html` – MeSK-Auswahl mit verpflichtender Schüler:innenauswahl
-- `themen/*.html` – ausfüllbare Beobachtungsbögen für Selbstkompetenz, Sozialkompetenz, Konfliktverhalten, Regelverhalten und Lernkompetenz
-- `assets/css/styles.css` – Layout, responsive Darstellung und Tour-Overlay
-- `assets/js/app.js` – lokale Speicherung, Demo-Daten, Fragebögen und geführtes Tutorial
+- `index.html` – Hauptseite mit Aktionen, Übersicht, angelegten Schüler:innen und gespeicherten Beobachtungen.
+- `schueler-anlegen.html` – Formular zum Erstellen eines Schüler:innenprofils inklusive fünf Demo-Vorschlägen.
+- `beobachtung.html` – SPLINT-nahe Profil- und Beobachtungsübersicht.
+- `mesk.html` – Auswahl des MeSK-Fragebogens und der Oberkategorien.
+- `themen/*.html` – einzelne ausfüllbare Beobachtungsbögen für Selbstkompetenz, Sozialkompetenz, Konfliktverhalten, Regelverhalten und Lernkompetenz.
+- `assets/css/styles.css` – gesamtes Layout inkl. Desktop-, Tablet- und Smartphone-Ansicht.
+- `assets/js/app.js` – lokale Speicherung, Demo-Daten, MeSK-Rubrik, Validierung und Tutorial-Tour.
 
-## Neue Funktionen
+## Funktionen
 
-- Geführtes Erststart-Tutorial mit abgedunkelter Seite und hervorgehobenem Zielbereich
-- Tutorial führt durch: Profil anlegen → Profilübersicht → MeSK auswählen → Kompetenzbereich wählen → Fallbeispiel prüfen → Bogen ausfüllen → Notizen → Speichern → Hauptseite
-- Rote statische Meta-Hilfe-Kacheln wurden entfernt; die Hilfe läuft über das Overlay-Tutorial
-- Beobachtungen können erst gestartet werden, wenn ein Profil existiert und aktiv ausgewählt wurde
-- Beobachtungsbogen kann erst gespeichert werden, wenn jedes Item beantwortet wurde
-- Nach dem Speichern erfolgt eine Weiterleitung auf die Hauptseite
-- Angelegte Schüler:innen und gespeicherte Beobachtungen erscheinen rechts auf der Hauptseite
+- Schüler:innenprofile werden im Browser per `localStorage` gespeichert.
+- Beobachtungen können erst gestartet werden, wenn ein Profil existiert und ausgewählt ist.
+- Beobachtungsbögen können erst gespeichert werden, wenn jedes Item beantwortet wurde.
+- Nach dem Speichern wird automatisch zur Hauptseite zurückgeführt.
+- Beim ersten Besuch erscheint eine Auswahl zwischen geführter Tutorial-Tour und freiem Entdecken.
+- Die Tutorial-Tour läuft je HTML-Seite einzeln mit Abdunkelung, Spotlight und kurzer Erklärung.
+- Alle Seiten sind responsiv für Desktop, iPad/Tablet und Smartphone aufgebaut.
 
-## Speicherung
+## Nutzung in GitHub Pages
 
-Die Demo nutzt `localStorage`. Es gibt keine Serververbindung und keine echte SPLINT-Anbindung.
+1. ZIP entpacken.
+2. Den Ordnerinhalt in ein GitHub-Repository kopieren.
+3. GitHub Pages aktivieren.
+4. `index.html` als Startseite verwenden.
 
-## Nutzung in GitHub
-
-Alle Dateien in ein Repository hochladen. Für GitHub Pages kann `index.html` direkt als Startseite verwendet werden.
+Die Demo ist nicht mit einem echten SPLINT-System verbunden und verarbeitet keine Serverdaten.

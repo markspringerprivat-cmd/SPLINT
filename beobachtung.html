@@ -19,32 +19,30 @@
       <a class="install-btn" href="#">Installieren</a>
       <a class="nav-pill" href="index.html">Hauptseite</a>
       <a class="nav-pill" href="schueler-anlegen.html">Schüler:in erstellen</a>
+      <button class="nav-pill" id="restartTour" type="button">Tutorial</button>
       <span class="avatar" aria-label="Benutzerkürzel">MS</span>
     </nav>
   </header>
 
   <section class="hero">
-    <div class="hero-inner hero-wide">
+    <div class="hero-inner">
       <h1>Beobachtung und Übersicht</h1>
       <p class="muted">Schüler:innenprofil mit SPLINT-ähnlicher Struktur und Kachel zum Anlegen eines Beobachtungsbogens.</p>
       <div class="button-row">
         <label class="label" for="studentSelect">Schüler:in auswählen</label>
         <select id="studentSelect" aria-label="Schüler:in auswählen"></select>
-        <a class="btn btn-primary" id="createObservationLink" href="mesk.html" data-requires-student>Beobachtung erstellen</a>
+        <a class="btn btn-primary" id="createObservationLink" href="mesk.html"><span>Beobachtung erstellen</span><small data-tile-hint></small></a>
       </div>
-      <div class="statusline" id="statusline" aria-live="polite"></div>
     </div>
   </section>
 
-  <main class="page page-wide observation-layout" id="content">
-    <section class="content-column profile-content">
-      <div id="studentProfile" aria-live="polite"></div>
+  <main class="page page-wide" id="content">
+    <div id="studentProfile" aria-live="polite"></div>
 
-      <section class="section" data-tour="profile-observation-section" aria-labelledby="observation-sheets-title">
-        <h2 id="observation-sheets-title">Beobachtungsbögen</h2>
-        <p class="upper">Meine Beobachtungen</p>
-        <div class="tile-grid observation-tile-grid" id="ownObservations" aria-live="polite"></div>
-      </section>
+    <section class="section" aria-labelledby="observation-sheets-title">
+      <h2 id="observation-sheets-title">Beobachtungsbögen</h2>
+      <p class="upper">Meine Beobachtungen</p>
+      <div class="tile-grid" id="ownObservations" aria-live="polite"></div>
     </section>
   </main>
 </body>

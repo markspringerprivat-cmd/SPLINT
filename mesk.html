@@ -19,37 +19,36 @@
       <a class="install-btn" href="#">Installieren</a>
       <a class="nav-pill" href="index.html">Hauptseite</a>
       <a class="nav-pill" href="beobachtung.html">Übersicht</a>
+      <button class="nav-pill" id="restartTour" type="button">Tutorial</button>
       <span class="avatar" aria-label="Benutzerkürzel">MS</span>
     </nav>
   </header>
 
-  <main class="page page-wide mesk-page" id="content">
-    <section class="content-column" aria-labelledby="mesk-title">
-      <h1 class="page-title" id="mesk-title">Beobachtung anlegen</h1>
+  <main class="page page-wide" id="content">
+    <h1 class="page-title">Beobachtung anlegen</h1>
 
-      <div class="mesk-box" data-tour="mesk-box">▣ Beobachtung: MeSK-Fragebogen zur Einschätzung emotionaler und sozialer Kompetenzen</div>
+    <div class="mesk-box" id="meskBox">▣ Beobachtung: MeSK-Fragebogen zur Einschätzung emotionaler und sozialer Kompetenzen</div>
 
-      <section class="section">
-        <h2>MeSK Fragebogen anbieten</h2>
-        <p class="muted">Wähle zuerst die Schüler:in und anschließend einen Bereich, der beobachtet werden soll. Die Oberkategorien sind als Einstieg verlinkt.</p>
-        <div class="form-row" data-tour="mesk-student-select">
-          <label for="studentSelect">Schüler:in</label>
-          <select id="studentSelect"></select>
-        </div>
-        <div class="statusline" id="statusline" aria-live="polite"></div>
-      </section>
-
-      <section class="section" aria-labelledby="topic-title">
-        <h2 id="topic-title">Beobachtungsbogen starten</h2>
-        <p class="upper">Bereich auswählen</p>
-        <div class="topic-list" id="topicList" data-tour="mesk-topic-list" aria-live="polite"></div>
-      </section>
-
-      <div class="button-row">
-        <a class="btn" href="schueler-anlegen.html">Schüler:in vorher anlegen</a>
-        <a class="btn btn-secondary" href="index.html">Zur Hauptseite</a>
+    <section class="section">
+      <h2>MeSK Fragebogen anbieten</h2>
+      <p class="muted">Wähle zuerst die Schüler:in und anschließend einen Bereich, der beobachtet werden soll. Die Oberkategorien sind als Einstieg verlinkt.</p>
+      <div class="form-row">
+        <label for="studentSelect">Schüler:in</label>
+        <select id="studentSelect"></select>
       </div>
+      <div class="statusline" id="statusline" aria-live="polite"></div>
     </section>
+
+    <section class="section" aria-labelledby="topic-title">
+      <h2 id="topic-title">Beobachtungsbogen starten</h2>
+      <p class="upper">Bereich auswählen</p>
+      <div class="topic-list" id="topicList" aria-live="polite"></div>
+    </section>
+
+    <div class="button-row">
+      <a class="btn" href="schueler-anlegen.html">Schüler:in vorher anlegen</a>
+      <a class="btn btn-secondary" href="index.html">Zur Hauptseite</a>
+    </div>
   </main>
 </body>
 </html>

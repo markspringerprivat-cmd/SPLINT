@@ -4,8 +4,6 @@
   const STUDENTS_KEY = 'splintDemo.students.v2';
   const OBSERVATIONS_KEY = 'splintDemo.observations.v2';
   const ACTIVE_STUDENT_KEY = 'splintDemo.activeStudentId.v2';
-  const TOUR_STATE_KEY = 'splintDemo.guidedTour.state.v1';
-  const TOUR_SEEN_KEY = 'splintDemo.guidedTour.seen.v1';
 
   const SCALE = [
     { value: '0', label: 'nicht beobachtet' },
@@ -314,10 +312,11 @@
   const $$ = (selector, context = document) => Array.from(context.querySelectorAll(selector));
   const page = document.body.dataset.page || '';
   const root = document.body.dataset.root || '';
+  const topicKey = document.body.dataset.topic || '';
+  const TOUR_MODE_KEY = 'splintDemo.tourMode.v4';
+  const TOUR_DONE_PREFIX = 'splintDemo.tourDone.v4.';
 
-  function link(path) {
-    return `${root}${path}`;
-  }
+  function link(path) { return `${root}${path}`; }
 
   function read(key, fallback) {
     try {
@@ -329,10 +328,7 @@
     }
   }
 
-  function write(key, value) {
-    localStorage.setItem(key, JSON.stringify(value));
-  }
-
+  function write(key, value) { localStorage.setItem(key, JSON.stringify(value)); }
   function getStudents() { return read(STUDENTS_KEY, []); }
   function setStudents(students) { write(STUDENTS_KEY, students); }
   function getObservations() { return read(OBSERVATIONS_KEY, []); }
@@ -353,10 +349,11 @@
 
   function formatDateGerman(value) {
     if (!value) return '–';
-    const parts = String(value).split('-');
+    const raw = String(value);
+    const parts = raw.split('-');
     if (parts.length === 3) return `${parts[2]}.${parts[1]}.${parts[0]}`;
-    if (/^\d{2}\.\d{2}\.\d{4}$/.test(value)) return value;
-    return value;
+    if (/^\d{2}\.\d{2}\.\d{4}$/.test(raw)) return raw;
+    return raw;
   }
 
   function parseGermanDate(value) {
@@ -383,17 +380,11 @@
     return `${student.firstName || ''} ${student.lastName || ''}`.trim() || 'Unbenannte:r Schüler:in';
   }
 
-
   function studentContext(student) {
     if (!student) {
       return {
-        name: 'die ausgewählte Person',
-        displayName: 'Nicht zugeordnet',
-        group: '–',
-        grade: '–',
-        birthDate: '–',
-        pronouns: '–',
-        schoolYear: '–',
+        name: 'die ausgewählte Person', displayName: 'Nicht zugeordnet', group: '–', grade: '–',
+        birthDate: '–', pronouns: '–', schoolYear: '–',
         detailLine: 'Bitte zuerst eine:n Schüler:in auswählen oder anlegen.'
       };
     }
@@ -405,18 +396,393 @@
       `Geburtsdatum ${formatDateGerman(student.birthDate)}`
     ];
     return {
-      name,
-      displayName: name,
-      group: student.group || '–',
-      grade: student.grade || '–',
-      birthDate: formatDateGerman(student.birthDate),
-      pronouns: student.pronouns || '–',
-      schoolYear: student.schoolYear || '–',
-      detailLine: details.join(' · ')
+      name, displayName: name, group: student.group || '–', grade: student.grade || '–',
+      birthDate: formatDateGerman(student.birthDate), pronouns: student.pronouns || '–',
+      schoolYear: student.schoolYear || '–', detailLine: details.join(' · ')
     };
   }
 
-  function caseCopy(topicKey, ctx) {
+  function activeStudentId() {
+    const params = new URLSearchParams(window.location.search);
+    const fromUrl = params.get('studentId');
+    const students = getStudents();
+    if (fromUrl && students.some(s => s.id === fromUrl)) {
+      localStorage.setItem(ACTIVE_STUDENT_KEY, fromUrl);
+      return fromUrl;
+    }
+    if (fromUrl) localStorage.removeItem(ACTIVE_STUDENT_KEY);
+    const stored = localStorage.getItem(ACTIVE_STUDENT_KEY);
+    if (stored && students.some(s => s.id === stored)) return stored;
+    return students[0]?.id || '';
+  }
+
+  function getStudentById(studentId) { return getStudents().find(student => student.id === studentId) || null; }
+
+  function setStatus(message, isError = false) {
+    const status = $('#statusline');
+    if (!status) return;
+    status.textContent = message || '';
+    status.classList.toggle('is-error', Boolean(isError));
+  }
+
+  function renderStudentOptions(select, selectedId = '') {
+    if (!select) return;
+    const students = getStudents();
+    select.innerHTML = '';
+    if (!students.length) {
+      select.innerHTML = '<option value="">Keine Schüler:innen angelegt</option>';
+      select.disabled = true;
+      return;
+    }
+    select.disabled = false;
+    students.forEach(student => {
+      const option = document.createElement('option');
+      option.value = student.id;
+      option.textContent = studentName(student);
+      if (student.id === selectedId) option.selected = true;
+      select.appendChild(option);
+    });
+  }
+
+  function setStudentRequiredElementState(element, studentId, options = {}) {
+    if (!element) return;
+    const hasStudent = Boolean(studentId && getStudentById(studentId));
+    const hint = $('[data-tile-hint]', element);
+    element.classList.toggle('tile-disabled', !hasStudent);
+    element.classList.toggle('btn-disabled', !hasStudent && element.classList.contains('btn'));
+    element.setAttribute('aria-disabled', String(!hasStudent));
+    if (!hasStudent) {
+      element.dataset.disabledHref = options.href || element.getAttribute('href') || '';
+      element.removeAttribute('href');
+      if (hint) hint.textContent = options.emptyHint || 'Zuerst Schüler:innenprofil anlegen und auswählen.';
+      return;
+    }
+    if (options.href) element.setAttribute('href', options.href);
+    if (hint) hint.textContent = options.readyHint || '';
+  }
+
+  function countAnswered(observation) {
+    const answers = Object.values(observation.answers || {});
+    return answers.filter(answer => answer.value !== '').length;
+  }
+
+  function totalItems(topic) {
+    return (topic?.subtopics || []).reduce((sum, subtopic) => sum + subtopic.questions.length, 0);
+  }
+
+  function observationCard(observation) {
+    const student = getStudentById(observation.studentId);
+    const topic = TOPICS[observation.topicKey];
+    const topicTitle = topic?.title || observation.topicTitle || 'Beobachtungsbogen';
+    const answered = countAnswered(observation);
+    const total = totalItems(topic);
+    return `
+      <article class="card observation-card">
+        <span class="doc-icon" aria-hidden="true">▣</span>
+        <div class="observation-copy">
+          <h3>${escapeHtml(topicTitle)}</h3>
+          <p class="card-meta">${escapeHtml(studentName(student))} · ${escapeHtml(formatDateTime(observation.updatedAt))} · ${answered}${total ? `/${total}` : ''} Einträge · ${escapeHtml(observation.status || 'Entwurf')}</p>
+        </div>
+        <div class="observation-actions">
+          <a class="btn" href="${link(`beobachtung.html?studentId=${encodeURIComponent(observation.studentId || '')}`)}">Ansehen</a>
+        </div>
+      </article>
+    `;
+  }
+
+  function renderDashboard() {
+    const students = getStudents();
+    const observations = getObservations();
+    $('#statsStudents') && ($('#statsStudents').textContent = students.length);
+    $('#statsObservations') && ($('#statsObservations').textContent = observations.length);
+
+    const selectedId = activeStudentId();
+    const selectedStudent = getStudentById(selectedId);
+    setStudentRequiredElementState($('#dashboardStartObservation'), selectedId, {
+      href: link(`mesk.html?studentId=${encodeURIComponent(selectedId || '')}`),
+      emptyHint: 'Erst Profil anlegen',
+      readyHint: selectedStudent ? `für ${studentName(selectedStudent)}` : ''
+    });
+    setStudentRequiredElementState($('#dashboardOpenProfile'), selectedId, {
+      href: link(`beobachtung.html?studentId=${encodeURIComponent(selectedId || '')}`),
+      emptyHint: 'Erst Profil anlegen',
+      readyHint: selectedStudent ? `Profil: ${studentName(selectedStudent)}` : ''
+    });
+
+    const studentList = $('#studentList');
+    if (studentList) {
+      if (!students.length) {
+        studentList.innerHTML = '<div class="empty-state">Noch keine Schüler:innen angelegt. Erstelle zuerst ein Profil, damit Beobachtungen eindeutig gespeichert werden können.</div>';
+      } else {
+        studentList.innerHTML = students.map(student => `
+          <article class="card compact-card ${student.id === selectedId ? 'is-active' : ''}">
+            <h3>${escapeHtml(studentName(student))}</h3>
+            <p class="card-meta">${escapeHtml(student.group || 'Keine Lerngruppe')} · Jahrgang ${escapeHtml(student.grade || '–')} · Geburtsdatum ${escapeHtml(formatDateGerman(student.birthDate))}</p>
+            <div class="card-actions">
+              <a class="btn" href="${link(`beobachtung.html?studentId=${encodeURIComponent(student.id)}`)}">Profil öffnen</a>
+              <a class="btn btn-secondary" href="${link(`mesk.html?studentId=${encodeURIComponent(student.id)}`)}">Beobachtung erstellen</a>
+            </div>
+          </article>
+        `).join('');
+      }
+    }
+
+    const observationList = $('#observationList');
+    if (observationList) {
+      if (!observations.length) {
+        observationList.innerHTML = '<div class="empty-state">Noch keine Beobachtungsbögen gespeichert.</div>';
+      } else {
+        const sorted = [...observations].sort((a, b) => String(b.updatedAt).localeCompare(String(a.updatedAt)));
+        observationList.innerHTML = sorted.map(observationCard).join('');
+      }
+    }
+  }
+
+  function fillStudentFormWithPreset(form, preset) {
+    if (!form || !preset) return;
+    Object.entries({
+      firstName: preset.firstName, lastName: preset.lastName, birthDate: preset.birthDate,
+      pronouns: preset.pronouns, group: preset.group, grade: preset.grade, schoolYear: preset.schoolYear
+    }).forEach(([name, value]) => {
+      const field = form.elements[name];
+      if (field) field.value = value || '';
+    });
+    validateStudentForm(form);
+    setStatus(`Vorschlag ${preset.firstName} ${preset.lastName} wurde übernommen. Prüfe die Daten und speichere das Profil.`);
+    form.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function initStudentPresetSlider(form) {
+    const container = $('#studentPresetSlider');
+    if (!container) return;
+    container.innerHTML = DEMO_STUDENT_PRESETS.map((preset, index) => `
+      <article class="preset-slide">
+        <strong>${escapeHtml(preset.firstName)} ${escapeHtml(preset.lastName)}</strong>
+        <span>${escapeHtml(preset.group)} · Jahrgang ${escapeHtml(preset.grade)} · ${escapeHtml(preset.birthDate)}</span>
+        <p>${escapeHtml(preset.note)}</p>
+        <button class="btn btn-secondary" type="button" data-preset-index="${index}">Übernehmen</button>
+      </article>
+    `).join('');
+    const count = $('#presetCount');
+    if (count) count.textContent = String(DEMO_STUDENT_PRESETS.length);
+    container.addEventListener('click', event => {
+      const button = event.target.closest('[data-preset-index]');
+      if (!button) return;
+      const preset = DEMO_STUDENT_PRESETS[Number(button.dataset.presetIndex)];
+      fillStudentFormWithPreset(form, preset);
+    });
+  }
+
+  function validateStudentForm(form) {
+    const required = ['firstName', 'lastName', 'birthDate'];
+    const isValid = required.every(name => String(form.elements[name]?.value || '').trim().length > 0);
+    const button = $('#saveStudent');
+    if (button) button.disabled = !isValid;
+    return isValid;
+  }
+
+  function initStudentForm() {
+    const form = $('#studentForm');
+    if (!form) return;
+    initStudentPresetSlider(form);
+    const today = new Date();
+    const fallback = new Intl.DateTimeFormat('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' }).format(today);
+    if (form.elements.birthDate && !form.elements.birthDate.value) form.elements.birthDate.value = fallback;
+    ['firstName', 'lastName', 'birthDate'].forEach(name => {
+      const input = form.elements[name];
+      if (input) input.addEventListener('input', () => validateStudentForm(form));
+    });
+    validateStudentForm(form);
+
+    form.addEventListener('submit', event => {
+      event.preventDefault();
+      if (!validateStudentForm(form)) {
+        setStatus('Bitte Vorname, Nachname und Geburtsdatum ausfüllen.', true);
+        return;
+      }
+      const formData = new FormData(form);
+      const student = {
+        id: id('student'),
+        firstName: String(formData.get('firstName') || '').trim(),
+        lastName: String(formData.get('lastName') || '').trim(),
+        birthDate: parseGermanDate(formData.get('birthDate')),
+        pronouns: String(formData.get('pronouns') || '').trim(),
+        group: String(formData.get('group') || '').trim(),
+        grade: String(formData.get('grade') || '').trim(),
+        schoolYear: String(formData.get('schoolYear') || '').trim(),
+        createdAt: new Date().toISOString()
+      };
+      const students = getStudents();
+      students.push(student);
+      setStudents(students);
+      localStorage.setItem(ACTIVE_STUDENT_KEY, student.id);
+      const continueCreating = Boolean(formData.get('continueCreating'));
+      if (continueCreating) {
+        form.reset();
+        if (form.elements.birthDate) form.elements.birthDate.value = fallback;
+        validateStudentForm(form);
+        setStatus(`${studentName(student)} wurde gespeichert. Du kannst die nächste Person erfassen.`);
+      } else {
+        window.location.href = link(`beobachtung.html?studentId=${encodeURIComponent(student.id)}`);
+      }
+    });
+  }
+
+  function renderStudentProfile(student) {
+    if (!student) {
+      return `
+        <div class="empty-state profile-empty">
+          <strong>Kein Schüler:innenprofil ausgewählt.</strong><br>
+          Lege zuerst ein Profil an. Erst dann können Beobachtungsbögen gestartet und gespeichert werden.
+          <div class="card-actions"><a class="btn btn-primary" href="${link('schueler-anlegen.html')}">Schüler:in anlegen</a></div>
+        </div>`;
+    }
+    return `
+      <article class="card profile-card" data-tour-target="profile-main">
+        <div class="profile-head">
+          <div>
+            <p class="upper tiny">Schüler:innenprofil</p>
+            <h2>${escapeHtml(studentName(student))}</h2>
+          </div>
+          <div class="profile-tools-inline"><a class="btn btn-secondary" href="${link(`mesk.html?studentId=${encodeURIComponent(student.id)}`)}">Beobachtung erstellen</a></div>
+        </div>
+        <div class="profile-body">
+          <dl class="profile-grid">
+            <div class="kv"><dt>Lerngruppe</dt><dd>${escapeHtml(student.group || '–')}</dd></div>
+            <div class="kv"><dt>Jahrgangsstufe</dt><dd>${escapeHtml(student.grade || '–')}</dd></div>
+            <div class="kv"><dt>Geburtsdatum</dt><dd>${escapeHtml(formatDateGerman(student.birthDate))}</dd></div>
+            <div class="kv"><dt>Schulbesuchsjahr</dt><dd>${escapeHtml(student.schoolYear || '–')}</dd></div>
+            <div class="kv"><dt>Pronomen</dt><dd>${escapeHtml(student.pronouns || '–')}</dd></div>
+          </dl>
+        </div>
+      </article>
+
+      <section class="profile-section" id="peopleSection" data-tour-target="people">
+        <h2>Beteiligte Personen <span aria-hidden="true">☻</span></h2>
+        <p>Verantwortliche Personen: 1<br>Unterstützer:innen: 0<br>Förderziel-Mentor:innen: 0</p>
+        <a href="#">Beteiligung verwalten ✎</a>
+      </section>
+
+      <section class="profile-section" id="strengthsSection" data-tour-target="strengths">
+        <h2>Stärken und Interessen</h2>
+        <p class="muted">Nicht vorhanden</p>
+        <a href="#">Stärken oder Interesse hinzufügen ✎</a>
+      </section>
+
+      <section class="profile-section" id="planningTabs" data-tour-target="planning">
+        <div class="tabbar"><button class="tab active" type="button">SPLINT Förderplanung</button><button class="tab" type="button">SPLINT Feedback</button></div>
+        <div class="icon-menu"><span class="icon-menu-item"><span class="circle-icon">▥</span>Ergebnisse</span><span class="icon-menu-item icon-muted"><span class="circle-icon">□</span>Förderplan</span></div>
+      </section>
+
+      <section class="profile-section" id="compensationSection" data-tour-target="compensation">
+        <h2>Nachteilsausgleich</h2>
+        <p class="muted">Nicht vorhanden</p>
+        <a href="#">Nachteilsausgleich hinzufügen ✎</a>
+      </section>
+
+      <section class="profile-section" id="agreementsSection" data-tour-target="agreements">
+        <h2>Vereinbarungen</h2>
+        <p>Hier kannst du getroffene Vereinbarungen zu ${escapeHtml(studentName(student))} vermerken. Sie sind für alle Verantwortlichen sichtbar.</p>
+        <div class="agreement-row"><input type="text" placeholder="Neue Vereinbarung"><button class="btn btn-secondary" type="button">＋</button></div>
+        <p class="muted">Für ${escapeHtml(studentName(student))} gibt es noch keine Vereinbarungen. Hinterlasse als erste:r eine Vereinbarung.</p>
+      </section>
+    `;
+  }
+
+  function renderObservationPage() {
+    const selectedId = activeStudentId();
+    const select = $('#studentSelect');
+    renderStudentOptions(select, selectedId);
+    if (select) {
+      select.addEventListener('change', () => {
+        localStorage.setItem(ACTIVE_STUDENT_KEY, select.value);
+        window.location.href = link(`beobachtung.html?studentId=${encodeURIComponent(select.value)}`);
+      });
+    }
+    const student = getStudentById(activeStudentId());
+    const createLink = $('#createObservationLink');
+    setStudentRequiredElementState(createLink, student?.id || '', {
+      href: link(`mesk.html?studentId=${encodeURIComponent(student?.id || '')}`),
+      emptyHint: 'Erst Profil anlegen'
+    });
+    const profile = $('#studentProfile');
+    if (profile) profile.innerHTML = renderStudentProfile(student);
+
+    const own = $('#ownObservations');
+    if (own) {
+      if (!student) {
+        own.innerHTML = `<a class="tile tile-primary" href="${link('schueler-anlegen.html')}"><span class="tile-icon">＋</span><span>Zuerst Schüler:in anlegen</span></a>`;
+      } else {
+        const observations = getObservations().filter(observation => observation.studentId === student.id);
+        own.innerHTML = `
+          <a class="tile tile-primary" id="profileObservationTile" data-tour-target="profile-observation" href="${link(`mesk.html?studentId=${encodeURIComponent(student.id)}`)}">
+            <span class="tile-icon">＋</span>
+            <span>Weitere Beobachtung erstellen</span>
+          </a>
+          ${observations.map(observationCard).join('')}
+        `;
+      }
+    }
+  }
+
+  function renderMeskPage() {
+    const selectedId = activeStudentId();
+    const select = $('#studentSelect');
+    renderStudentOptions(select, selectedId);
+    if (select) {
+      select.addEventListener('change', () => {
+        localStorage.setItem(ACTIVE_STUDENT_KEY, select.value);
+        renderMeskPage();
+      }, { once: true });
+    }
+    const studentId = $('#studentSelect')?.value || activeStudentId();
+    const selectedStudent = getStudentById(studentId);
+    const list = $('#topicList');
+    if (!list) return;
+    if (!selectedStudent) {
+      setStatus('Der MeSK-Bogen wird erst freigeschaltet, wenn ein Schüler:innenprofil angelegt und ausgewählt wurde.', true);
+      list.innerHTML = `
+        <div class="empty-state topic-lock" data-tour-target="topic-list">
+          <strong>Beobachtung noch gesperrt.</strong><br>
+          Lege zuerst eine:n Schüler:in an oder wähle ein vorhandenes Profil aus.
+          <div class="card-actions"><a class="btn btn-primary" href="${link('schueler-anlegen.html')}">Schüler:in anlegen</a></div>
+        </div>
+        ${TOPIC_ORDER.map(key => topicRowHtml(key, '', true)).join('')}
+      `;
+      return;
+    }
+    setStatus(`Ausgewählt: ${studentName(selectedStudent)}. Wähle jetzt einen Beobachtungsbereich.`, false);
+    list.innerHTML = TOPIC_ORDER.map((key, index) => topicRowHtml(key, studentId, false, index)).join('');
+  }
+
+  function topicRowHtml(key, studentId, disabled = false, index = 0) {
+    const topic = TOPICS[key];
+    const itemCount = totalItems(topic);
+    const attrs = index === 0 ? ' data-tour-target="topic-first"' : '';
+    const inner = `
+      <span class="topic-chevron" aria-hidden="true">›</span>
+      <span class="topic-radio" aria-hidden="true"></span>
+      <span class="topic-main"><strong>${escapeHtml(topic.title)}</strong><small>${escapeHtml(topic.description)}</small></span>
+      <small class="topic-count">${topic.subtopics.length} Themen · ${itemCount} Items</small>
+    `;
+    if (disabled) return `<div class="topic-row topic-row-disabled" aria-disabled="true"${attrs}>${inner}</div>`;
+    return `<a class="topic-row" href="${link(`themen/${key}.html?studentId=${encodeURIComponent(studentId || '')}`)}"${attrs}>${inner}</a>`;
+  }
+
+  function topicNav(currentKey) {
+    const index = TOPIC_ORDER.indexOf(currentKey);
+    const prevKey = TOPIC_ORDER[(index - 1 + TOPIC_ORDER.length) % TOPIC_ORDER.length];
+    const nextKey = TOPIC_ORDER[(index + 1) % TOPIC_ORDER.length];
+    const selectedId = activeStudentId();
+    return `
+      <div class="topic-screenbar" aria-label="Bereichsnavigation">
+        <a href="${link(`themen/${prevKey}.html?studentId=${encodeURIComponent(selectedId || '')}`)}" aria-label="Vorheriger Bereich">‹</a>
+        <strong>${escapeHtml(TOPICS[currentKey].title)}</strong>
+        <a href="${link(`themen/${nextKey}.html?studentId=${encodeURIComponent(selectedId || '')}`)}" aria-label="Nächster Bereich">›</a>
+      </div>`;
+  }
+
+  function caseCopy(key, ctx) {
     const name = ctx.name;
     const examples = {
       selbstkompetenz: {
@@ -460,20 +826,17 @@
         ]
       }
     };
-    return examples[topicKey] || {
-      focus: ['Beobachtungsinhalt', 'Situation', 'Dokumentation'],
-      paragraphs: [`Für ${name} wird ein passendes Fallbeispiel zur ausgewählten Kategorie angezeigt.`]
-    };
+    return examples[key] || { focus: ['Beobachtungsinhalt', 'Situation', 'Dokumentation'], paragraphs: [`Für ${name} wird ein passendes Fallbeispiel angezeigt.`] };
   }
 
-  function renderCaseExample(topicKey, student) {
+  function renderCaseExample(key, student) {
     const container = $('#caseExample');
     if (!container) return;
     const ctx = studentContext(student);
-    const copy = caseCopy(topicKey, ctx);
+    const copy = caseCopy(key, ctx);
     container.innerHTML = `
       <p class="upper tiny">Automatisch aus Schülerdaten generiert</p>
-      <h2 id="case-title">Fallbeispiel: ${escapeHtml(TOPICS[topicKey]?.title || 'Beobachtung')}</h2>
+      <h2 id="case-title">Fallbeispiel: ${escapeHtml(TOPICS[key]?.title || 'Beobachtung')}</h2>
       <dl class="case-meta-grid">
         <div><dt>Schüler:in</dt><dd>${escapeHtml(ctx.displayName)}</dd></div>
         <div><dt>Lerngruppe</dt><dd>${escapeHtml(ctx.group)}</dd></div>
@@ -482,495 +845,28 @@
         <div><dt>Geburtsdatum</dt><dd>${escapeHtml(ctx.birthDate)}</dd></div>
         <div><dt>Pronomen</dt><dd>${escapeHtml(ctx.pronouns)}</dd></div>
       </dl>
-      <div class="case-copy">
-        ${copy.paragraphs.map(paragraph => `<p>${escapeHtml(paragraph)}</p>`).join('')}
-      </div>
-      <div class="case-focus">
-        <strong>Im Bogen besonders prüfen:</strong>
-        <ul>
-          ${copy.focus.map(item => `<li>${escapeHtml(item)}</li>`).join('')}
-        </ul>
-      </div>
-    `;
-  }
-
-  function activeStudentId() {
-    const params = new URLSearchParams(window.location.search);
-    const fromUrl = params.get('studentId');
-    const students = getStudents();
-    if (fromUrl && students.some(s => s.id === fromUrl)) {
-      localStorage.setItem(ACTIVE_STUDENT_KEY, fromUrl);
-      return fromUrl;
-    }
-    if (fromUrl) localStorage.removeItem(ACTIVE_STUDENT_KEY);
-    const stored = localStorage.getItem(ACTIVE_STUDENT_KEY);
-    if (stored && students.some(s => s.id === stored)) return stored;
-    return '';
-  }
-
-  function getStudentById(studentId) {
-    return getStudents().find(student => student.id === studentId) || null;
-  }
-
-  function setStatus(message, isError = false) {
-    const status = $('#statusline');
-    if (!status) return;
-    status.textContent = message || '';
-    status.style.color = isError ? '#8a1d1d' : 'var(--blue-700)';
-  }
-
-  function initHelpToggle() {
-    $$('[data-help-toggle]').forEach(button => {
-      const card = button.closest('[data-help-card]');
-      const body = card ? $('[data-help-body]', card) : null;
-      if (!body) return;
-      button.addEventListener('click', () => {
-        const isHidden = body.hidden;
-        body.hidden = !isHidden;
-        button.setAttribute('aria-expanded', String(isHidden));
-        button.textContent = isHidden ? 'Hilfe ausblenden' : 'Hilfe einblenden';
-        card.classList.toggle('is-collapsed', !isHidden);
-      });
-    });
-  }
-
-  function fillStudentFormWithPreset(form, preset) {
-    if (!form || !preset) return;
-    Object.entries({
-      firstName: preset.firstName,
-      lastName: preset.lastName,
-      birthDate: preset.birthDate,
-      pronouns: preset.pronouns,
-      group: preset.group,
-      grade: preset.grade,
-      schoolYear: preset.schoolYear
-    }).forEach(([name, value]) => {
-      const field = form.elements[name];
-      if (field) field.value = value || '';
-    });
-    validateStudentForm(form);
-    maybeAdvanceStudentTourIfReady(form);
-    setStatus(`Vorschlag ${preset.firstName} ${preset.lastName} wurde in das Formular übernommen.`);
-    form.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }
-
-  function initStudentPresetSlider(form) {
-    const container = $('#studentPresetSlider');
-    if (!container) return;
-    container.innerHTML = DEMO_STUDENT_PRESETS.map((preset, index) => `
-      <article class="preset-slide">
-        <strong>${escapeHtml(preset.firstName)} ${escapeHtml(preset.lastName)}</strong>
-        <span>${escapeHtml(preset.group)} · Jahrgang ${escapeHtml(preset.grade)} · ${escapeHtml(preset.birthDate)}</span>
-        <p>${escapeHtml(preset.note)}</p>
-        <button class="btn btn-secondary" type="button" data-preset-index="${index}">Übernehmen</button>
-      </article>
-    `).join('');
-    const count = $('#presetCount');
-    if (count) count.textContent = String(DEMO_STUDENT_PRESETS.length);
-    container.addEventListener('click', event => {
-      const button = event.target.closest('[data-preset-index]');
-      if (!button) return;
-      const preset = DEMO_STUDENT_PRESETS[Number(button.dataset.presetIndex)];
-      fillStudentFormWithPreset(form, preset);
-    });
-  }
-
-  function setStudentRequiredElementState(element, studentId, options = {}) {
-    if (!element) return;
-    const hasStudent = Boolean(studentId && getStudentById(studentId));
-    const hint = $('[data-tile-hint]', element);
-    element.classList.toggle('tile-disabled', !hasStudent);
-    element.classList.toggle('btn-disabled', !hasStudent && element.classList.contains('btn'));
-    element.setAttribute('aria-disabled', String(!hasStudent));
-    if (!hasStudent) {
-      element.removeAttribute('href');
-      if (hint) hint.textContent = options.emptyHint || 'Zuerst Schüler:innenprofil anlegen und auswählen.';
-      return;
-    }
-    if (options.href) element.setAttribute('href', options.href);
-    if (hint) hint.textContent = options.readyHint || '';
-  }
-
-  function renderStudentOptions(select, selectedId = '') {
-    if (!select) return;
-    const students = getStudents();
-    select.innerHTML = '';
-    if (!students.length) {
-      select.innerHTML = '<option value="">Keine Schüler:innen angelegt</option>';
-      select.disabled = true;
-      return;
-    }
-    select.disabled = false;
-    if (!selectedId) {
-      const placeholder = document.createElement('option');
-      placeholder.value = '';
-      placeholder.textContent = 'Bitte Schüler:in auswählen';
-      placeholder.selected = true;
-      placeholder.disabled = true;
-      select.appendChild(placeholder);
-    }
-    students.forEach(student => {
-      const option = document.createElement('option');
-      option.value = student.id;
-      option.textContent = studentName(student);
-      if (student.id === selectedId) option.selected = true;
-      select.appendChild(option);
-    });
-  }
-
-  function renderDashboard() {
-    const students = getStudents();
-    const observations = getObservations();
-
-    const statsStudents = $('#statsStudents');
-    const statsObservations = $('#statsObservations');
-    if (statsStudents) statsStudents.textContent = students.length;
-    if (statsObservations) statsObservations.textContent = observations.length;
-
-    const selectedId = activeStudentId();
-    const selectedStudent = getStudentById(selectedId);
-    setStudentRequiredElementState($('#dashboardStartObservation'), selectedId, {
-      href: link(`mesk.html?studentId=${encodeURIComponent(selectedId || '')}`),
-      emptyHint: 'Erst Profil anlegen',
-      readyHint: selectedStudent ? `für ${studentName(selectedStudent)}` : ''
-    });
-    setStudentRequiredElementState($('#dashboardOpenProfile'), selectedId, {
-      href: link(`beobachtung.html?studentId=${encodeURIComponent(selectedId || '')}`),
-      emptyHint: 'Erst Profil anlegen',
-      readyHint: selectedStudent ? `Profil: ${studentName(selectedStudent)}` : ''
-    });
-
-    const studentList = $('#studentList');
-    if (studentList) {
-      if (!students.length) {
-        studentList.innerHTML = '<div class="empty-state">Noch keine Schüler:innen angelegt. Über „Schüler:in erstellen“ wird ein Datensatz im Browser gespeichert.</div>';
-      } else {
-        studentList.innerHTML = students.map(student => `
-          <article class="card">
-            <h3>${escapeHtml(studentName(student))}</h3>
-            <p class="card-meta">${escapeHtml(student.group || 'Keine Lerngruppe')} · Jahrgang ${escapeHtml(student.grade || '–')} · Geburtsdatum ${escapeHtml(formatDateGerman(student.birthDate))}</p>
-            <div class="card-actions">
-              <a class="btn" href="${link(`beobachtung.html?studentId=${encodeURIComponent(student.id)}`)}">Profil öffnen</a>
-              <a class="btn btn-secondary" href="${link(`mesk.html?studentId=${encodeURIComponent(student.id)}`)}">Beobachtung erstellen</a>
-            </div>
-          </article>
-        `).join('');
-      }
-    }
-
-    const observationList = $('#observationList');
-    if (observationList) {
-      if (!observations.length) {
-        observationList.innerHTML = '<div class="empty-state">Noch keine Beobachtungsbögen gespeichert.</div>';
-      } else {
-        const sorted = [...observations].sort((a, b) => String(b.updatedAt).localeCompare(String(a.updatedAt)));
-        observationList.innerHTML = sorted.map(observationCard).join('');
-      }
-    }
-  }
-
-  function countAnswered(observation) {
-    const answers = Object.values(observation.answers || {});
-    return answers.filter(answer => answer.value !== '').length;
-  }
-
-  function observationCard(observation) {
-    const student = getStudentById(observation.studentId);
-    const topic = TOPICS[observation.topicKey];
-    const topicTitle = topic?.title || observation.topicTitle || 'Beobachtungsbogen';
-    const answered = countAnswered(observation);
-    return `
-      <article class="card observation-card">
-        <span class="doc-icon" aria-hidden="true">▣</span>
-        <div class="observation-copy">
-          <h3>${escapeHtml(topicTitle)}</h3>
-          <p class="card-meta">${escapeHtml(studentName(student))} · ${escapeHtml(formatDateTime(observation.updatedAt))} · ${answered} Einträge · ${escapeHtml(observation.status || 'Entwurf')}</p>
-        </div>
-        <div class="observation-actions">
-          <a class="btn" href="${link(`beobachtung.html?studentId=${encodeURIComponent(observation.studentId || '')}`)}">Ansehen</a>
-        </div>
-      </article>
-    `;
-  }
-
-  function validateStudentForm(form) {
-    const required = ['firstName', 'lastName', 'birthDate'];
-    const isValid = required.every(name => String(form.elements[name]?.value || '').trim().length > 0);
-    const button = $('#saveStudent');
-    if (button) button.disabled = !isValid;
-    return isValid;
-  }
-
-  function initStudentForm() {
-    const form = $('#studentForm');
-    if (!form) return;
-
-    initStudentPresetSlider(form);
-
-    const today = new Date();
-    const fallback = new Intl.DateTimeFormat('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' }).format(today);
-    if (form.elements.birthDate && !form.elements.birthDate.value) form.elements.birthDate.value = fallback;
-
-    ['firstName', 'lastName', 'birthDate'].forEach(id => {
-      const input = $(`#${id}`, form);
-      if (input) input.addEventListener('input', () => {
-        validateStudentForm(form);
-        maybeAdvanceStudentTourIfReady(form);
-      });
-    });
-    validateStudentForm(form);
-
-    form.addEventListener('submit', event => {
-      event.preventDefault();
-      if (!validateStudentForm(form)) {
-        setStatus('Bitte alle Pflichtfelder ausfüllen.', true);
-        return;
-      }
-      const formData = new FormData(form);
-      const student = {
-        id: id('student'),
-        firstName: String(formData.get('firstName') || '').trim(),
-        lastName: String(formData.get('lastName') || '').trim(),
-        birthDate: parseGermanDate(formData.get('birthDate')),
-        pronouns: String(formData.get('pronouns') || '').trim(),
-        group: String(formData.get('group') || '').trim(),
-        grade: String(formData.get('grade') || '').trim(),
-        schoolYear: String(formData.get('schoolYear') || '').trim(),
-        createdAt: new Date().toISOString()
-      };
-      const students = getStudents();
-      students.push(student);
-      setStudents(students);
-      localStorage.setItem(ACTIVE_STUDENT_KEY, student.id);
-
-      const continueCreating = Boolean(formData.get('continueCreating'));
-      if (isTourActive() && Number(readTourState().step) <= 3) setTourStep(4);
-      if (continueCreating) {
-        form.reset();
-        if (form.elements.birthDate) form.elements.birthDate.value = fallback;
-        validateStudentForm(form);
-        setStatus(`${studentName(student)} wurde gespeichert. Du kannst die nächste Person erfassen.`);
-      } else {
-        window.location.href = link(`beobachtung.html?studentId=${encodeURIComponent(student.id)}`);
-      }
-    });
-  }
-
-  function renderObservationPage() {
-    const selectedId = activeStudentId();
-    const select = $('#studentSelect');
-    renderStudentOptions(select, selectedId);
-    if (select) {
-      select.addEventListener('change', () => {
-        localStorage.setItem(ACTIVE_STUDENT_KEY, select.value);
-        window.location.href = link(`beobachtung.html?studentId=${encodeURIComponent(select.value)}`);
-      });
-    }
-
-    const student = getStudentById(selectedId);
-    const profile = $('#studentProfile');
-    const addLink = $('#createObservationLink');
-    setStudentRequiredElementState(addLink, selectedId, {
-      href: link(`mesk.html?studentId=${encodeURIComponent(selectedId || '')}`),
-      emptyHint: 'Zuerst Schüler:in anlegen'
-    });
-    if (!student) setStatus('Bitte zuerst eine:n Schüler:in anlegen und auswählen, bevor eine Beobachtung gestartet wird.', true);
-
-    if (!profile) return;
-    if (!student) {
-      profile.innerHTML = `
-        <div class="empty-state">
-          Für die Beobachtungsübersicht muss zuerst ein:e Schüler:in angelegt werden.
-          <div class="card-actions"><a class="btn btn-primary" href="${link('schueler-anlegen.html')}">Schüler:in erstellen</a></div>
-        </div>`;
-      const ownObs = $('#ownObservations');
-      if (ownObs) ownObs.innerHTML = '';
-      return;
-    }
-
-    profile.innerHTML = `
-      <article class="card profile-card">
-        <div class="profile-head">
-          <h2>${escapeHtml(studentName(student))}</h2>
-          <dl class="hero-meta">
-            <dt>Lerngruppe:</dt><dd>${escapeHtml(student.group || 'Nicht angegeben')}</dd>
-            <dt>Jahrgangsstufe:</dt><dd>${escapeHtml(student.grade || 'Nicht angegeben')}</dd>
-            <dt>Geburtsdatum:</dt><dd>${escapeHtml(formatDateGerman(student.birthDate))}</dd>
-          </dl>
-        </div>
-        <div class="profile-body">
-          <section class="section" data-tour="profile-participants">
-            <h3>Beteiligte Personen <span aria-hidden="true">☻</span></h3>
-            <p>Verantwortliche Personen: 1<br>Unterstützer:innen: 0<br>Förderziel-Mentor:innen: 0</p>
-            <a href="#">Beteiligung verwalten ✎</a>
-          </section>
-          <section class="section" data-tour="profile-strengths">
-            <h3>Stärken und Interessen</h3>
-            <p class="muted">Nicht vorhanden</p>
-            <a href="#">Stärken oder Interesse hinzufügen ✎</a>
-          </section>
-          <div class="tabbar" data-tour="profile-tabs" role="tablist" aria-label="SPLINT Bereiche">
-            <span class="tab active">SPLINT Förderplanung</span>
-            <span class="tab">SPLINT Feedback</span>
-          </div>
-          <div class="icon-menu" data-tour="profile-tools" aria-label="Werkzeuge">
-            <span class="icon-menu-item"><span class="circle-icon">▥</span>Ergebnisse</span>
-            <span class="icon-menu-item icon-muted"><span class="circle-icon">□</span>Förderplan</span>
-          </div>
-          <section class="section" data-tour="profile-disadvantage">
-            <h3>Nachteilsausgleich</h3>
-            <p class="muted">Nicht vorhanden</p>
-            <a href="#">Nachteilsausgleich hinzufügen ✎</a>
-          </section>
-          <section class="section" data-tour="profile-agreements">
-            <h3>Vereinbarungen</h3>
-            <p>Hier kannst du getroffene Vereinbarungen zu ${escapeHtml(studentName(student))} vermerken. Sie sind für alle Verantwortlichen sichtbar und erscheinen auf dem Förderplan.</p>
-            <div class="button-row">
-              <input type="text" aria-label="Neue Vereinbarung" placeholder="Neue Vereinbarung">
-              <button class="btn btn-disabled" type="button">＋</button>
-            </div>
-            <p class="muted">Für ${escapeHtml(studentName(student))} gibt es noch keine Vereinbarungen.<br>Hinterlasse als erste:r eine Vereinbarung.</p>
-          </section>
-        </div>
-      </article>
-    `;
-
-    const ownObs = $('#ownObservations');
-    if (ownObs) {
-      const observations = getObservations().filter(obs => obs.studentId === selectedId);
-      if (!observations.length) {
-        ownObs.innerHTML = `
-          <a class="tile tile-primary" data-tour="profile-observation-tile" href="${link(`mesk.html?studentId=${encodeURIComponent(selectedId)}`)}">
-            <span class="tile-icon">＋</span>
-            <span>Beobachtung erstellen</span>
-          </a>`;
-      } else {
-        ownObs.innerHTML = `
-          <a class="tile" data-tour="profile-observation-tile" href="${link(`mesk.html?studentId=${encodeURIComponent(selectedId)}`)}">
-            <span class="tile-icon">＋</span><span>Weitere Beobachtung erstellen</span>
-          </a>
-          ${observations.map(observationCard).join('')}
-        `;
-      }
-    }
-  }
-
-  function renderMeskPage() {
-    const selectedId = activeStudentId();
-    const select = $('#studentSelect');
-    renderStudentOptions(select, selectedId);
-    if (select) {
-      select.addEventListener('change', () => {
-        localStorage.setItem(ACTIVE_STUDENT_KEY, select.value);
-        renderTopicLinks(select.value);
-      });
-    }
-    renderTopicLinks(selectedId);
-  }
-
-  function renderTopicLinks(studentId) {
-    const list = $('#topicList');
-    if (!list) return;
-    const selectedStudent = getStudentById(studentId);
-    if (!selectedStudent) {
-      setStatus('Eine Beobachtung kann erst gestartet werden, wenn ein Schüler:innenprofil angelegt und ausgewählt wurde.', true);
-      list.innerHTML = `
-        <div class="empty-state topic-lock">
-          <strong>Beobachtung noch gesperrt.</strong><br>
-          Lege zuerst eine:n Schüler:in an oder wähle ein vorhandenes Profil aus. Danach werden die MeSK-Bereiche freigeschaltet.
-          <div class="card-actions"><a class="btn btn-primary" href="${link('schueler-anlegen.html')}">Schüler:in anlegen</a></div>
-        </div>
-        ${TOPIC_ORDER.map(key => {
-          const topic = TOPICS[key];
-          const itemCount = topic.subtopics.reduce((sum, subtopic) => sum + subtopic.questions.length, 0);
-          return `
-            <div class="topic-row topic-row-disabled" aria-disabled="true">
-              <span class="topic-chevron" aria-hidden="true">›</span>
-              <span class="topic-radio" aria-hidden="true"></span>
-              <span>${escapeHtml(topic.title)}<br><small>${escapeHtml(topic.description)}</small></span>
-              <small>${topic.subtopics.length} Themen · ${itemCount} Items</small>
-            </div>
-          `;
-        }).join('')}
-      `;
-      return;
-    }
-    setStatus(`Ausgewählt: ${studentName(selectedStudent)}. Wähle jetzt einen Beobachtungsbereich.`, false);
-    list.innerHTML = TOPIC_ORDER.map(key => {
-      const topic = TOPICS[key];
-      const itemCount = topic.subtopics.reduce((sum, subtopic) => sum + subtopic.questions.length, 0);
-      return `
-        <a class="topic-row" data-tour="topic-link" data-topic-key="${escapeHtml(key)}" href="${link(`themen/${key}.html?studentId=${encodeURIComponent(studentId || '')}`)}">
-          <span class="topic-chevron" aria-hidden="true">›</span>
-          <span class="topic-radio" aria-hidden="true"></span>
-          <span>${escapeHtml(topic.title)}<br><small>${escapeHtml(topic.description)}</small></span>
-          <small>${topic.subtopics.length} Themen · ${itemCount} Items</small>
-        </a>
-      `;
-    }).join('');
-  }
-
-  function topicNav(topicKey) {
-    const index = TOPIC_ORDER.indexOf(topicKey);
-    const prevKey = TOPIC_ORDER[(index - 1 + TOPIC_ORDER.length) % TOPIC_ORDER.length];
-    const nextKey = TOPIC_ORDER[(index + 1) % TOPIC_ORDER.length];
-    const selectedId = activeStudentId();
-    return `
-      <div class="topic-screenbar" aria-label="Bereichsnavigation">
-        <a href="${link(`themen/${prevKey}.html?studentId=${encodeURIComponent(selectedId || '')}`)}" aria-label="Vorheriger Bereich">‹</a>
-        <strong>${escapeHtml(TOPICS[topicKey].title)}</strong>
-        <a href="${link(`themen/${nextKey}.html?studentId=${encodeURIComponent(selectedId || '')}`)}" aria-label="Nächster Bereich">›</a>
-      </div>
+      <div class="case-copy">${copy.paragraphs.map(p => `<p>${escapeHtml(p)}</p>`).join('')}</div>
+      <div class="case-focus"><strong>Im Bogen besonders prüfen:</strong><ul>${copy.focus.map(i => `<li>${escapeHtml(i)}</li>`).join('')}</ul></div>
     `;
   }
 
   function renderTopicPage() {
-    const topicKey = document.body.dataset.topic;
     const topic = TOPICS[topicKey];
     if (!topic) return;
-
-    const title = $('#topicTitle');
-    const description = $('#topicDescription');
-    const toolbar = $('#topicToolbar');
-    if (toolbar) toolbar.innerHTML = topicNav(topicKey);
-    if (title) title.textContent = topic.title;
-    if (description) description.textContent = topic.description;
+    $('#topicTitle') && ($('#topicTitle').textContent = topic.title);
+    $('#topicDescription') && ($('#topicDescription').textContent = topic.description);
+    $('#topicToolbar') && ($('#topicToolbar').innerHTML = topicNav(topicKey));
 
     const selectedId = activeStudentId();
     const select = $('#studentSelect');
     renderStudentOptions(select, selectedId);
-    const updateTopicStudentState = () => {
-      const currentId = $('#studentSelect')?.value || '';
-      const selectedStudent = getStudentById(currentId);
-      const hasStudent = Boolean(selectedStudent);
-      const label = $('#selectedStudentName');
-      if (label) label.textContent = hasStudent ? studentName(selectedStudent) : 'Keine Schüler:in ausgewählt';
-      renderCaseExample(topicKey, selectedStudent);
-      const formEl = $('#topicForm');
-      const saveButton = formEl?.querySelector('button[type="submit"]');
-      if (saveButton) saveButton.disabled = !hasStudent;
-      $$('#questionContainer input, #notes').forEach(field => { field.disabled = !hasStudent; });
-      const containerEl = $('#questionContainer');
-      if (containerEl) containerEl.classList.toggle('is-disabled', !hasStudent);
-      if (!hasStudent) setStatus('Bitte zuerst eine:n Schüler:in anlegen und im Auswahlfeld aktiv auswählen. Erst dann kann diese Beobachtung gespeichert werden.', true);
-      else setStatus(`Beobachtung für ${studentName(selectedStudent)} vorbereitet.`, false);
-    };
-    if (select) {
-      select.addEventListener('change', () => {
-        localStorage.setItem(ACTIVE_STUDENT_KEY, select.value);
-        updateTopicStudentState();
-      });
-    }
-
-    const selectedStudent = getStudentById(selectedId);
-    const studentNameField = $('#selectedStudentName');
-    if (studentNameField) studentNameField.textContent = studentName(selectedStudent);
-    renderCaseExample(topicKey, selectedStudent);
+    const student = getStudentById(select?.value || selectedId);
+    $('#selectedStudentName') && ($('#selectedStudentName').textContent = studentName(student));
+    renderCaseExample(topicKey, student);
 
     const form = $('#topicForm');
     const container = $('#questionContainer');
     if (!form || !container) return;
-
     container.innerHTML = `
       <div class="rubric-panel">
         ${topic.subtopics.map((subtopic, subIndex) => `
@@ -980,7 +876,7 @@
               ${subtopic.questions.map((question, questionIndex) => {
                 const name = `q_${subIndex}_${questionIndex}`;
                 return `
-                  <div class="rubric-row" data-question-name="${name}" role="group" aria-labelledby="${name}_statement">
+                  <div class="rubric-row" data-question-row role="group" aria-labelledby="${name}_statement">
                     <div class="rubric-statement" id="${name}_statement">
                       <span class="rubric-blur" aria-hidden="true"></span>
                       <span class="rubric-question">${escapeHtml(question)}</span>
@@ -993,41 +889,80 @@
                         </label>
                       `).join('')}
                     </div>
-                  </div>
-                `;
+                  </div>`;
               }).join('')}
             </div>
           </section>
         `).join('')}
-      </div>
-    `;
+      </div>`;
+
+    let hasScrolledToNotes = false;
+    const updateTopicStudentState = () => {
+      const currentId = $('#studentSelect')?.value || '';
+      const selectedStudent = getStudentById(currentId);
+      const hasStudent = Boolean(selectedStudent);
+      $('#selectedStudentName') && ($('#selectedStudentName').textContent = hasStudent ? studentName(selectedStudent) : 'Keine Schüler:in ausgewählt');
+      renderCaseExample(topicKey, selectedStudent);
+      $$('#questionContainer input, #notes').forEach(field => { field.disabled = !hasStudent; });
+      $('#questionContainer')?.classList.toggle('is-disabled', !hasStudent);
+      if (!hasStudent) setStatus('Bitte zuerst eine:n Schüler:in anlegen und im Auswahlfeld aktiv auswählen.', true);
+      else setStatus(`Beobachtung für ${studentName(selectedStudent)} vorbereitet. Beantworte jedes Item.`, false);
+      updateTopicCompletion(false);
+    };
+
+    const answerNames = topic.subtopics.flatMap((subtopic, subIndex) => subtopic.questions.map((question, questionIndex) => `q_${subIndex}_${questionIndex}`));
+    function incompleteNames() {
+      return answerNames.filter(name => !form.elements[name]?.value);
+    }
+    function updateTopicCompletion(allowAutoScroll = true) {
+      const studentId = $('#studentSelect')?.value || selectedId;
+      const hasStudent = Boolean(getStudentById(studentId));
+      const missing = incompleteNames();
+      const complete = hasStudent && missing.length === 0;
+      const save = $('#saveObservation');
+      if (save) save.classList.toggle('btn-ready', complete);
+      $('#completionCount') && ($('#completionCount').textContent = `${answerNames.length - missing.length}/${answerNames.length} beantwortet`);
+      if (complete) {
+        setStatus('Alle Items sind beantwortet. Du kannst optional eine Notiz eintragen und die Beobachtung speichern.', false);
+        if (allowAutoScroll && !hasScrolledToNotes) {
+          hasScrolledToNotes = true;
+          window.setTimeout(() => $('#notesBlock')?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 80);
+        }
+      }
+      return complete;
+    }
+
+    if (select) {
+      select.addEventListener('change', () => {
+        localStorage.setItem(ACTIVE_STUDENT_KEY, select.value);
+        updateTopicStudentState();
+      });
+    }
+    container.addEventListener('change', event => {
+      if (!event.target.matches('input[type="radio"]')) return;
+      const row = event.target.closest('[data-question-row]');
+      if (row) row.classList.remove('is-missing');
+      updateTopicCompletion(true);
+    });
 
     updateTopicStudentState();
-    updateRubricCompletionState(form);
-    form.addEventListener('change', event => {
-      if (event.target && event.target.matches('input[type="radio"]')) {
-        updateRubricCompletionState(form);
-        maybeAdvanceTopicTourAfterAllAnswered(form);
-      }
-    });
 
     form.addEventListener('submit', event => {
       event.preventDefault();
       const studentId = $('#studentSelect')?.value || selectedId;
       if (!studentId || !getStudentById(studentId)) {
-        setStatus('Bitte zuerst eine:n Schüler:in anlegen und auswählen. Ohne zugeordnetes Profil kann keine Beobachtung gespeichert werden.', true);
+        setStatus('Bitte zuerst eine:n Schüler:in anlegen und auswählen. Ohne Profil kann keine Beobachtung gespeichert werden.', true);
         return;
       }
-      const missing = getMissingQuestionNames(form);
+      const missing = incompleteNames();
+      $$('#questionContainer [data-question-row]').forEach(row => row.classList.remove('is-missing'));
       if (missing.length) {
-        updateRubricCompletionState(form);
-        const firstMissing = document.querySelector(`[data-question-name="${missing[0]}"]`);
+        const firstMissing = form.elements[missing[0]]?.[0]?.closest('[data-question-row]') || form.elements[missing[0]]?.closest?.('[data-question-row]');
         if (firstMissing) {
-          firstMissing.classList.add('tour-missing');
+          firstMissing.classList.add('is-missing');
           firstMissing.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          window.setTimeout(() => firstMissing.classList.remove('tour-missing'), 2200);
         }
-        setStatus(`Es ist noch ${missing.length === 1 ? 'ein Item offen' : missing.length + ' Items offen'}. Bitte setze in jeder Zeile eine Einschätzung.`, true);
+        setStatus(`Noch ${missing.length} Item${missing.length === 1 ? '' : 's'} offen. Bitte wähle in jeder Zeile eine Einschätzung.`, true);
         return;
       }
       const answers = {};
@@ -1035,36 +970,19 @@
         subtopic.questions.forEach((question, questionIndex) => {
           const name = `q_${subIndex}_${questionIndex}`;
           const value = form.elements[name]?.value || '';
-          const scaleLabel = SCALE.find(item => item.value === value)?.label || '';
-          answers[name] = {
-            subtopic: subtopic.title,
-            question,
-            value,
-            scaleLabel
-          };
+          answers[name] = { subtopic: subtopic.title, question, value, scaleLabel: SCALE.find(item => item.value === value)?.label || '' };
         });
       });
       const observations = getObservations();
       const now = new Date().toISOString();
       observations.push({
-        id: id('obs'),
-        studentId,
-        type: 'MeSK',
-        topicKey,
-        topicTitle: topic.title,
-        answers,
-        notes: String($('#notes')?.value || '').trim(),
-        status: 'Entwurf gespeichert',
-        createdAt: now,
-        updatedAt: now
+        id: id('obs'), studentId, type: 'MeSK', topicKey, topicTitle: topic.title,
+        answers, notes: String($('#notes')?.value || '').trim(), status: 'Gespeichert', createdAt: now, updatedAt: now
       });
       setObservations(observations);
       localStorage.setItem(ACTIVE_STUDENT_KEY, studentId);
-      if (isTourActive() && Number(readTourState().step) <= 18) setTourStep(19);
       setStatus('Beobachtungsbogen wurde lokal gespeichert. Weiterleitung zur Hauptseite …');
-      window.setTimeout(() => {
-        window.location.href = link('index.html');
-      }, 650);
+      window.setTimeout(() => { window.location.href = link('index.html'); }, 650);
     });
   }
 
@@ -1076,41 +994,17 @@
         localStorage.removeItem(STUDENTS_KEY);
         localStorage.removeItem(OBSERVATIONS_KEY);
         localStorage.removeItem(ACTIVE_STUDENT_KEY);
-        localStorage.removeItem(TOUR_STATE_KEY);
-        localStorage.removeItem(TOUR_SEEN_KEY);
         window.location.reload();
       });
     }
-
     const seed = $('#seedDemo');
     if (seed) {
       seed.addEventListener('click', () => {
         const existingStudents = getStudents();
         if (existingStudents.length && !confirm('Es sind bereits Daten vorhanden. Demo-Daten ergänzen?')) return;
         const studentId = id('student');
-        const student = {
-          id: studentId,
-          firstName: 'Mika',
-          lastName: 'Schneider',
-          birthDate: '2016-06-20',
-          pronouns: 'Xier / Xies',
-          group: '4a',
-          grade: '4',
-          schoolYear: '5',
-          createdAt: new Date().toISOString()
-        };
-        const obs = {
-          id: id('obs'),
-          studentId,
-          type: 'MeSK',
-          topicKey: 'selbstkompetenz',
-          topicTitle: 'Selbstkompetenz',
-          answers: {},
-          notes: 'Demo-Beobachtung für die Präsentation.',
-          status: 'Entwurf gespeichert',
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString()
-        };
+        const student = { id: studentId, firstName: 'Mika', lastName: 'Schneider', birthDate: '2016-06-20', pronouns: 'Xier / Xies', group: '4a', grade: '4', schoolYear: '5', createdAt: new Date().toISOString() };
+        const obs = { id: id('obs'), studentId, type: 'MeSK', topicKey: 'selbstkompetenz', topicTitle: 'Selbstkompetenz', answers: {}, notes: 'Demo-Beobachtung für die Präsentation.', status: 'Entwurf', createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
         setStudents([...existingStudents, student]);
         setObservations([...getObservations(), obs]);
         localStorage.setItem(ACTIVE_STUDENT_KEY, studentId);
@@ -1119,397 +1013,213 @@
     }
   }
 
-
-  function readTourState() {
-    return read(TOUR_STATE_KEY, { active: false, step: null });
+  function pageTourKey() {
+    if (page === 'topic') return `topic-${topicKey}`;
+    return page || 'page';
   }
 
-  function writeTourState(state) {
-    write(TOUR_STATE_KEY, state);
-  }
-
-  function isTourActive() {
-    return Boolean(readTourState().active);
-  }
-
-  function setTourStep(step) {
-    writeTourState({ active: true, step });
-    window.setTimeout(renderGuidedTour, 40);
-  }
-
-  function clearTourLayer() {
-    $$('.tour-target-active').forEach(element => element.classList.remove('tour-target-active'));
-    const existing = $('#guidedTourLayer');
-    if (existing) existing.remove();
-    const modal = $('#guidedTourIntro');
-    if (modal) modal.remove();
-  }
-
-  function endTour() {
-    localStorage.removeItem(TOUR_STATE_KEY);
-    localStorage.setItem(TOUR_SEEN_KEY, 'yes');
-    clearTourLayer();
-  }
-
-  function startGuidedTour() {
-    writeTourState({ active: true, step: 0 });
-    localStorage.setItem(TOUR_SEEN_KEY, 'yes');
-    renderGuidedTour();
-  }
-
-  function tourSteps() {
-    return {
-      1: {
-        page: 'dashboard',
-        selector: '[data-tour="dashboard-student"]',
-        title: 'Schritt 1: Schüler:innenprofil anlegen',
-        body: 'Eine Beobachtung ist in dieser Demo erst möglich, wenn ein Profil existiert. Klicke auf diese Kachel, um eine Person anzulegen.',
-        instruction: 'Klicke auf die hervorgehobene Kachel.',
-        clickNextStep: 2,
-        actionOnly: true
-      },
-      2: {
-        page: 'student-form',
-        selector: '.student-create-layout',
-        title: 'Profil vorbereiten',
-        body: 'Du kannst eine der fünf Beispielpersonen übernehmen oder das Formular rechts selbst ausfüllen. Sobald Vorname, Nachname und Geburtsdatum vorhanden sind, springt das Tutorial zum Speicherbutton.',
-        instruction: 'Übernimm einen Vorschlag oder fülle die Pflichtfelder aus.',
-        actionOnly: true
-      },
-      3: {
-        page: 'student-form',
-        selector: '[data-tour="student-save"]',
-        title: 'Profil speichern',
-        body: 'Speichere das Profil. Es wird anschließend automatisch als aktive Schüler:in ausgewählt und der weiteren Beobachtung zugeordnet.',
-        instruction: 'Klicke auf „Speichern“.',
-        actionOnly: true
-      },
-      4: {
-        page: 'observation',
-        selector: '[data-tour="profile-participants"]',
-        title: 'Beteiligte Personen',
-        body: 'Hier werden verantwortliche Personen, Unterstützer:innen und Förderziel-Mentor:innen angezeigt. In der Demo sind diese Angaben exemplarisch, damit die Profilstruktur sichtbar wird.',
-        nextStep: 5
-      },
-      5: {
-        page: 'observation',
-        selector: '[data-tour="profile-strengths"]',
-        title: 'Stärken und Interessen',
-        body: 'Dieser Bereich wäre im echten System für vorhandene Stärken, Interessen und Ressourcen der ausgewählten Schüler:in vorgesehen.',
-        nextStep: 6
-      },
-      6: {
-        page: 'observation',
-        selector: '[data-tour="profile-tabs"]',
-        title: 'Förderplanung und Feedback',
-        body: 'Die Register zeigen, dass SPLINT unterschiedliche Arbeitsbereiche bündeln kann. Für die Demo bleibt der Fokus auf Förderplanung und MeSK-Beobachtung.',
-        nextStep: 7
-      },
-      7: {
-        page: 'observation',
-        selector: '[data-tour="profile-tools"]',
-        title: 'Ergebnisse und Förderplan',
-        body: 'Über solche Werkzeuge könnten Ergebnisse betrachtet und Förderplan-Informationen vorbereitet werden. Diese Demo bildet die Navigation nur visuell nach.',
-        nextStep: 8
-      },
-      8: {
-        page: 'observation',
-        selector: '[data-tour="profile-disadvantage"]',
-        title: 'Nachteilsausgleich',
-        body: 'Hier könnten Hinweise zu individuellen Unterstützungsmaßnahmen oder Nachteilsausgleichen dokumentiert werden.',
-        nextStep: 9
-      },
-      9: {
-        page: 'observation',
-        selector: '[data-tour="profile-agreements"]',
-        title: 'Vereinbarungen',
-        body: 'Vereinbarungen dienen dazu, getroffene Absprachen nachvollziehbar zu sichern. In der Präsentationsfassung ist dieser Bereich exemplarisch angelegt.',
-        nextStep: 10
-      },
-      10: {
-        page: 'observation',
-        selector: '[data-tour="profile-observation-section"]',
-        title: 'Beobachtungsbögen',
-        body: 'Unten werden Beobachtungsbögen angelegt und später wieder angezeigt. Im nächsten Schritt startest du einen neuen MeSK-Bogen.',
-        nextStep: 11
-      },
-      11: {
-        page: 'observation',
-        selector: '[data-tour="profile-observation-tile"]',
-        title: 'Beobachtungsbogen erstellen',
-        body: 'Klicke auf diese Kachel. Dadurch öffnet sich die MeSK-Auswahl für die aktuell ausgewählte Schüler:in.',
-        instruction: 'Klicke auf die hervorgehobene Kachel.',
-        clickNextStep: 12,
-        actionOnly: true
-      },
-      12: {
-        page: 'mesk',
-        selector: '[data-tour="mesk-box"]',
-        title: 'MeSK-Fragebogen',
-        body: 'Für diese Demo-Version soll im Rahmen des Seminars mit dem MeSK-Fragebogen gearbeitet werden. Der Bogen dient hier als Beispiel für eine strukturierte Beobachtung emotionaler und sozialer Kompetenzen.',
-        nextStep: 13
-      },
-      13: {
-        page: 'mesk',
-        selector: '[data-tour="mesk-student-select"]',
-        title: 'Schüler:in auswählen',
-        body: 'Hier wird festgelegt, für welche Person die Beobachtung gespeichert wird. Das Fallbeispiel auf der nächsten Seite nutzt ebenfalls diese Schülerdaten.',
-        nextStep: 14
-      },
-      14: {
-        page: 'mesk',
-        selector: '[data-tour="mesk-topic-list"]',
-        title: 'Kompetenzbereich wählen',
-        body: 'Die Oberkategorien führen zu eigenen ausfüllbaren Beobachtungsbögen: Selbstkompetenz, Sozialkompetenz, Konfliktverhalten, Regelverhalten und Lernkompetenz.',
-        instruction: 'Wähle jetzt einen Kompetenzbereich aus.',
-        clickNextStep: 15,
-        actionOnly: true
-      },
-      15: {
-        page: 'topic',
-        selector: '[data-tour="topic-case"]',
-        title: 'Fallbeispiel zur ausgewählten Person',
-        body: 'Links steht ein ausführliches Fallbeispiel, das automatisch aus dem ausgewählten Schüler:innenprofil und dem gewählten Kompetenzbereich konstruiert wird.',
-        nextStep: 16
-      },
-      16: {
-        page: 'topic',
-        selector: '[data-tour="topic-questions"]',
-        title: 'Beobachtungsbogen ausfüllen',
-        body: 'Die Aussagen sind nach Teilbereichen geordnet. Setze in jeder Zeile genau eine Einschätzung. Erst wenn alle Items beantwortet sind, führt dich das Tutorial zu den Notizen.',
-        instruction: 'Beantworte alle Items im Bogen.',
-        actionOnly: true
-      },
-      17: {
-        page: 'topic',
-        selector: '[data-tour="topic-notes"]',
-        title: 'Notizen zur Beobachtung',
-        body: 'Hier kannst du konkrete Situationen, Kontextinformationen oder Beispiele ergänzen. Die Notiz ist optional, macht die Einschätzung aber nachvollziehbarer.',
-        nextStep: 18,
-        nextLabel: 'Weiter zum Speichern'
-      },
-      18: {
-        page: 'topic',
-        selector: '[data-tour="topic-save"]',
-        title: 'Beobachtung speichern',
-        body: 'Speichere den vollständig ausgefüllten Bogen. Danach gelangst du automatisch zur Hauptseite, wo Schülerprofil und Beobachtung rechts angezeigt werden.',
-        instruction: 'Klicke auf „Beobachtung speichern“.',
-        actionOnly: true
-      },
-      19: {
-        page: 'dashboard',
-        selector: '[data-tour="dashboard-results"]',
-        title: 'Ergebnis auf der Hauptseite',
-        body: 'Hier erscheinen die angelegte Schüler:in und die gespeicherte Beobachtung. Damit ist der vollständige Demo-Ablauf abgeschlossen.',
-        nextStep: 'complete',
-        nextLabel: 'Tutorial beenden'
-      }
+  function getTourSteps() {
+    const steps = {
+      dashboard: [
+        { target: '#dashboardStudentTile', title: 'Schritt 1: Schüler:innenprofil anlegen', text: 'Eine Beobachtung ist erst sinnvoll und speicherbar, wenn ein Profil existiert. Beginne hier mit dem Anlegen einer Schüler:in.' },
+        { target: '#dashboardStartObservation', title: 'Schritt 2: Beobachtung starten', text: 'Sobald ein Profil vorhanden ist, führt diese Kachel zur MeSK-Auswahl. Ohne ausgewählte Schüler:in bleibt sie gesperrt.' },
+        { target: '#dashboardStats', title: 'Übersicht', text: 'Diese Kacheln zeigen, wie viele Profile und Beobachtungsbögen lokal im Browser gespeichert sind.' },
+        { target: '#dashboardSide', title: 'Gespeicherte Inhalte', text: 'Rechts erscheinen angelegte Schüler:innen und gespeicherte Beobachtungsbögen. Nach dem Speichern eines Bogens kommst du hierher zurück.' }
+      ],
+      'student-form': [
+        { target: '#studentPresetPanel', title: 'Demo-Vorschläge', text: 'Links kannst du eines von fünf Beispielprofilen übernehmen. Das ist für eine Präsentation schneller als freie Eingabe.' },
+        { target: '#studentFormPanel', title: 'Profilformular', text: 'Hier werden die relevanten Schüler:innendaten erfasst. Pflichtfelder sind Vorname, Nachname und Geburtsdatum.' },
+        { target: '#saveStudent', title: 'Profil speichern', text: 'Nach dem Prüfen der Angaben speicherst du das Profil. Danach ist diese Person automatisch ausgewählt und Beobachtungen werden freigeschaltet.' }
+      ],
+      observation: [
+        { target: '#studentSelect', title: 'Schüler:in auswählen', text: 'Alle Profilinformationen und Beobachtungsbögen beziehen sich auf die hier ausgewählte Person.' },
+        { target: '#studentProfile', title: 'Profilbereich', text: 'Hier werden Grunddaten und SPLINT-nahe Bereiche des Profils angezeigt.' },
+        { target: '#peopleSection', title: 'Beteiligte Personen', text: 'Dieser Bereich steht für Verantwortliche, Unterstützer:innen und weitere Beteiligte am Förderprozess.' },
+        { target: '#strengthsSection', title: 'Stärken und Interessen', text: 'Hier könnten Stärken, Interessen und Ressourcen der Schüler:in ergänzt werden.' },
+        { target: '#planningTabs', title: 'Förderplanung und Feedback', text: 'Die Tabs stehen beispielhaft für Förderplanung, Ergebnisse und Feedbackfunktionen in SPLINT.' },
+        { target: '#compensationSection', title: 'Nachteilsausgleich', text: 'Hier könnte ein Nachteilsausgleich dokumentiert oder ergänzt werden.' },
+        { target: '#agreementsSection', title: 'Vereinbarungen', text: 'Vereinbarungen machen Absprachen für beteiligte Personen nachvollziehbar.' },
+        { target: '#profileObservationTile', title: 'Beobachtungsbogen erstellen', text: 'Über diese Kachel wechselst du zur MeSK-Auswahl und startest einen neuen Beobachtungsbogen.' }
+      ],
+      mesk: [
+        { target: '#meskBox', title: 'MeSK-Fragebogen', text: 'In dieser Demo wird im Seminar mit dem MeSK-Fragebogen gearbeitet. Er dient der Einschätzung emotionaler und sozialer Kompetenzen.' },
+        { target: '#studentSelect', title: 'Profilzuordnung', text: 'Wähle die Schüler:in aus, für die der Bogen angelegt werden soll. Ohne Auswahl sind die Bereiche gesperrt.' },
+        { target: '#topicList', title: 'Kompetenzbereiche', text: 'Die Oberkategorien führen zu eigenen Beobachtungsbögen. Für die Demo wählst du einen Bereich aus und füllst ihn aus.' },
+        { target: '[data-tour-target="topic-first"]', title: 'Bereich auswählen', text: 'Klicke nach dem Tutorial auf einen Kompetenzbereich, zum Beispiel Selbstkompetenz oder Sozialkompetenz.' }
+      ],
+      'topic-selbstkompetenz': topicSteps('Selbstkompetenz'),
+      'topic-sozialkompetenz': topicSteps('Sozialkompetenz'),
+      'topic-konfliktverhalten': topicSteps('Konfliktverhalten'),
+      'topic-regelverhalten': topicSteps('Regelverhalten'),
+      'topic-lernkompetenz': topicSteps('Lernkompetenz')
     };
+    return steps[pageTourKey()] || [];
   }
 
-  function createTourIntro() {
-    clearTourLayer();
-    const modal = document.createElement('div');
-    modal.id = 'guidedTourIntro';
-    modal.className = 'tour-intro-modal';
-    modal.innerHTML = `
-      <article class="tour-intro-card" role="dialog" aria-modal="true" aria-labelledby="tourIntroTitle">
-        <p class="tour-progress">Geführte Demo</p>
-        <h2 id="tourIntroTitle">So nutzt du die SPLINT-Demo</h2>
-        <p>Das Tutorial führt einmal vollständig durch den Ablauf: Profil anlegen, Profilübersicht verstehen, MeSK-Bereich auswählen, Beobachtung ausfüllen und speichern.</p>
-        <p>Während der Führung wird die Seite abgedunkelt. Nur der jeweils relevante Bereich bleibt hervorgehoben.</p>
-        <ul>
-          <li>Ohne Schüler:innenprofil kann keine Beobachtung gestartet werden.</li>
-          <li>Jede Beobachtung wird lokal im Browser gespeichert.</li>
-          <li>Am Ende erscheint die gespeicherte Beobachtung auf der Hauptseite.</li>
-        </ul>
-        <div class="tour-intro-actions">
-          <button class="btn" type="button" data-tour-skip>Überspringen</button>
-          <button class="btn btn-primary" type="button" data-tour-start>OK, starten</button>
+  function topicSteps(label) {
+    return [
+      { target: '#caseExample', title: 'Fallbeispiel zur ausgewählten Person', text: `Links wird aus dem ausgewählten Schüler:innenprofil ein ausführliches Fallbeispiel für ${label} generiert. Es hilft, die Items in eine konkrete Beobachtungssituation einzuordnen.` },
+      { target: '#studentSelect', title: 'Schüler:innenbezug', text: 'Prüfe, ob die richtige Person ausgewählt ist. Die gespeicherte Beobachtung wird diesem Profil zugeordnet.' },
+      { target: '#questionContainer', title: 'Beobachtungsitems', text: 'Im Bogen sind verschiedene Teilbereiche aufgeführt. Wähle je Aussage genau eine Einschätzung.' },
+      { target: '#notesBlock', title: 'Notizen', text: 'Wenn alle Items beantwortet sind, kannst du hier konkrete Beobachtungssituationen oder Kontextinformationen ergänzen.' },
+      { target: '#saveObservation', title: 'Speichern', text: 'Die Beobachtung kann nur gespeichert werden, wenn jedes Item beantwortet wurde. Danach wirst du zur Hauptseite zurückgeführt.' }
+    ];
+  }
+
+  let activeTour = null;
+
+  function showWelcomeChoice() {
+    if (localStorage.getItem(TOUR_MODE_KEY)) return;
+    const wrapper = document.createElement('div');
+    wrapper.className = 'tour-choice-backdrop';
+    wrapper.innerHTML = `
+      <div class="tour-choice-card" role="dialog" aria-modal="true" aria-labelledby="tour-choice-title">
+        <p class="upper tiny">SPLINT One Demo</p>
+        <h2 id="tour-choice-title">So nutzt du diese Demo</h2>
+        <p>Dieses Demo-Tool zeigt vereinfacht, wie in SPLINT ein Schüler:innenprofil angelegt, ein MeSK-Beobachtungsbogen ausgewählt, ausgefüllt und anschließend lokal gespeichert wird. Die Demo kann im Seminar genutzt werden, um den Ablauf nachzuvollziehen und exemplarisch über mögliche Dokumentation und Weitergabe im Kollegium zu sprechen.</p>
+        <div class="choice-grid">
+          <button class="choice-card" type="button" data-choice="guided"><strong>Tutorial-Tour starten</strong><span>Die wichtigsten Bereiche werden nacheinander mit Spotlight und kurzer Erklärung gezeigt.</span></button>
+          <button class="choice-card" type="button" data-choice="free"><strong>Frei entdecken</strong><span>Alle Tutorial-Overlays werden deaktiviert. Du kannst die Demo selbstständig ausprobieren.</span></button>
         </div>
-      </article>
-    `;
-    document.body.appendChild(modal);
-    $('[data-tour-start]', modal)?.addEventListener('click', () => setTourStep(1));
-    $('[data-tour-skip]', modal)?.addEventListener('click', endTour);
-    $('[data-tour-start]', modal)?.focus();
+      </div>`;
+    document.body.appendChild(wrapper);
+    wrapper.addEventListener('click', event => {
+      const choice = event.target.closest('[data-choice]');
+      if (!choice) return;
+      const mode = choice.dataset.choice === 'guided' ? 'guided' : 'free';
+      localStorage.setItem(TOUR_MODE_KEY, mode);
+      wrapper.remove();
+      if (mode === 'guided') startTour(false);
+    });
   }
 
-  function targetRectWithPadding(target, padding = 8) {
+  function startTour(force = true) {
+    const steps = getTourSteps().filter(step => $(step.target));
+    if (!steps.length) return;
+    if (!force && localStorage.getItem(TOUR_DONE_PREFIX + pageTourKey()) === 'true') return;
+    activeTour = { steps, index: 0, overlay: null, tooltip: null, highlight: null };
+    document.body.classList.add('tour-active');
+    activeTour.overlay = document.createElement('div');
+    activeTour.overlay.className = 'tour-overlay';
+    activeTour.overlay.setAttribute('aria-hidden', 'true');
+    activeTour.tooltip = document.createElement('div');
+    activeTour.tooltip.className = 'tour-tooltip';
+    activeTour.tooltip.setAttribute('role', 'dialog');
+    activeTour.tooltip.setAttribute('aria-live', 'polite');
+    document.body.append(activeTour.overlay, activeTour.tooltip);
+    renderTourStep();
+  }
+
+  function renderTourStep() {
+    if (!activeTour) return;
+    const step = activeTour.steps[activeTour.index];
+    const target = $(step.target);
+    if (!target) { finishTour(); return; }
+    if (activeTour.highlight) activeTour.highlight.classList.remove('tour-highlight');
+    activeTour.highlight = target;
+    target.classList.add('tour-highlight');
+    target.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' });
+    window.setTimeout(() => positionTourTooltip(step, target), 260);
+  }
+
+  function positionTourTooltip(step, target) {
+    if (!activeTour) return;
+    const finalStep = activeTour.index === activeTour.steps.length - 1;
+    const tooltip = activeTour.tooltip;
+    tooltip.innerHTML = `
+      <p class="tour-step-count">Schritt ${activeTour.index + 1} von ${activeTour.steps.length}</p>
+      <h2>${escapeHtml(step.title)}</h2>
+      <p>${escapeHtml(step.text)}</p>
+      <div class="tour-controls">
+        <button class="btn btn-ghost" type="button" data-tour-close>Freies Entdecken</button>
+        <div class="tour-control-right">
+          ${activeTour.index > 0 ? '<button class="btn" type="button" data-tour-prev>Zurück</button>' : ''}
+          <button class="btn btn-primary" type="button" data-tour-next>${finalStep ? 'Verstanden' : 'Weiter'}</button>
+        </div>
+      </div>`;
     const rect = target.getBoundingClientRect();
-    return {
-      top: Math.max(8, rect.top - padding),
-      left: Math.max(8, rect.left - padding),
-      right: Math.min(window.innerWidth - 8, rect.right + padding),
-      bottom: Math.min(window.innerHeight - 8, rect.bottom + padding),
-      width: Math.min(window.innerWidth - 16, rect.width + padding * 2),
-      height: Math.min(window.innerHeight - 16, rect.height + padding * 2)
-    };
-  }
-
-  function createScrim(layer, style) {
-    const piece = document.createElement('div');
-    piece.className = 'tour-scrim';
-    Object.assign(piece.style, style);
-    layer.appendChild(piece);
-  }
-
-  function placeTooltip(tooltip, rect) {
-    const gap = 16;
-    const width = Math.min(390, window.innerWidth - 28);
-    let left = Math.min(Math.max(14, rect.left), window.innerWidth - width - 14);
-    let top = rect.bottom + gap;
-    tooltip.classList.remove('is-above');
-    if (top + tooltip.offsetHeight > window.innerHeight - 14) {
-      top = rect.top - tooltip.offsetHeight - gap;
-      tooltip.classList.add('is-above');
+    const tipRect = tooltip.getBoundingClientRect();
+    const margin = 18;
+    const viewportW = window.innerWidth;
+    const viewportH = window.innerHeight;
+    let left;
+    let top;
+    let placement = 'bottom';
+    if (viewportW >= 900 && rect.right + tipRect.width + margin < viewportW) {
+      left = rect.right + margin; top = Math.max(margin, Math.min(rect.top, viewportH - tipRect.height - margin)); placement = 'left';
+    } else if (viewportW >= 900 && rect.left - tipRect.width - margin > 0) {
+      left = rect.left - tipRect.width - margin; top = Math.max(margin, Math.min(rect.top, viewportH - tipRect.height - margin)); placement = 'right';
+    } else {
+      left = Math.max(margin, Math.min((viewportW - tipRect.width) / 2, viewportW - tipRect.width - margin));
+      if (rect.bottom + tipRect.height + margin < viewportH) top = rect.bottom + margin;
+      else top = Math.max(margin, rect.top - tipRect.height - margin);
+      placement = top < rect.top ? 'bottom' : 'top';
     }
-    if (top < 14) top = 14;
     tooltip.style.left = `${left}px`;
     tooltip.style.top = `${top}px`;
+    tooltip.dataset.placement = placement;
   }
 
-  function renderTourTooltip(layer, target, rect, step, stepNumber) {
-    const tooltip = document.createElement('aside');
-    tooltip.className = 'tour-tooltip';
-    tooltip.setAttribute('role', 'dialog');
-    tooltip.setAttribute('aria-live', 'polite');
-    const total = 19;
-    const actions = step.actionOnly
-      ? `<button class="btn" type="button" data-tour-skip>Tour beenden</button>`
-      : `<button class="btn" type="button" data-tour-skip>Tour beenden</button><button class="btn btn-primary" type="button" data-tour-next>${escapeHtml(step.nextLabel || 'Weiter')}</button>`;
-    tooltip.innerHTML = `
-      <div class="tour-progress">Schritt ${stepNumber} von ${total}</div>
-      <h2>${escapeHtml(step.title)}</h2>
-      <p>${escapeHtml(step.body)}</p>
-      ${step.instruction ? `<p class="tour-step-text"><strong>${escapeHtml(step.instruction)}</strong></p>` : ''}
-      <div class="tour-actions">${actions}</div>
-    `;
-    layer.appendChild(tooltip);
-    placeTooltip(tooltip, rect);
-    $('[data-tour-skip]', tooltip)?.addEventListener('click', endTour);
-    $('[data-tour-next]', tooltip)?.addEventListener('click', () => {
-      if (step.nextStep === 'complete') endTour();
-      else setTourStep(step.nextStep);
-    });
-    if (step.clickNextStep && target) {
-      target.addEventListener('click', () => setTourStep(step.clickNextStep), { once: true });
-    }
-    $('[data-tour-next]', tooltip)?.focus();
+  function finishTour() {
+    if (!activeTour) return;
+    if (activeTour.highlight) activeTour.highlight.classList.remove('tour-highlight');
+    activeTour.overlay?.remove();
+    activeTour.tooltip?.remove();
+    activeTour = null;
+    document.body.classList.remove('tour-active');
+    localStorage.setItem(TOUR_DONE_PREFIX + pageTourKey(), 'true');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
-  function renderGuidedTour() {
-    clearTourLayer();
-    const state = readTourState();
-    if (!state.active) return;
-    const stepNumber = Number(state.step);
-    if (stepNumber === 0) {
-      createTourIntro();
-      return;
+  document.addEventListener('click', event => {
+    if (!activeTour) return;
+    if (event.target.closest('[data-tour-next]')) {
+      event.preventDefault();
+      if (activeTour.index >= activeTour.steps.length - 1) finishTour();
+      else { activeTour.index += 1; renderTourStep(); }
+    } else if (event.target.closest('[data-tour-prev]')) {
+      event.preventDefault();
+      activeTour.index = Math.max(0, activeTour.index - 1);
+      renderTourStep();
+    } else if (event.target.closest('[data-tour-close]')) {
+      event.preventDefault();
+      localStorage.setItem(TOUR_MODE_KEY, 'free');
+      finishTour();
     }
-    const step = tourSteps()[stepNumber];
-    if (!step) return;
-    if (step.page !== page) return;
-    const target = $(step.selector);
-    if (!target) return;
+  });
 
-    target.scrollIntoView({ behavior: 'auto', block: 'center', inline: 'nearest' });
-    window.setTimeout(() => {
-      clearTourLayer();
-      const liveTarget = $(step.selector);
-      if (!liveTarget) return;
-      liveTarget.classList.add('tour-target-active');
-      const rect = targetRectWithPadding(liveTarget);
-      const layer = document.createElement('div');
-      layer.id = 'guidedTourLayer';
-      layer.className = 'tour-layer';
-      createScrim(layer, { top: '0px', left: '0px', right: '0px', height: `${rect.top}px` });
-      createScrim(layer, { top: `${rect.bottom}px`, left: '0px', right: '0px', bottom: '0px' });
-      createScrim(layer, { top: `${rect.top}px`, left: '0px', width: `${rect.left}px`, height: `${rect.height}px` });
-      createScrim(layer, { top: `${rect.top}px`, left: `${rect.right}px`, right: '0px', height: `${rect.height}px` });
-      const hole = document.createElement('div');
-      hole.className = 'tour-hole';
-      Object.assign(hole.style, {
-        top: `${rect.top}px`,
-        left: `${rect.left}px`,
-        width: `${rect.width}px`,
-        height: `${rect.height}px`
+  window.addEventListener('resize', () => {
+    if (!activeTour) return;
+    const step = activeTour.steps[activeTour.index];
+    const target = $(step.target);
+    if (target) positionTourTooltip(step, target);
+  });
+
+  function initTourSystem() {
+    const restart = $('#restartTour');
+    if (restart) {
+      restart.addEventListener('click', () => {
+        localStorage.setItem(TOUR_MODE_KEY, 'guided');
+        localStorage.removeItem(TOUR_DONE_PREFIX + pageTourKey());
+        startTour(true);
       });
-      layer.appendChild(hole);
-      document.body.appendChild(layer);
-      renderTourTooltip(layer, liveTarget, rect, step, stepNumber);
-    }, 260);
-  }
-
-  function initGuidedTour() {
-    const startButton = $('#startTour');
-    if (startButton) startButton.addEventListener('click', startGuidedTour);
-
-    if (page === 'dashboard' && !localStorage.getItem(TOUR_SEEN_KEY) && !isTourActive()) {
-      startGuidedTour();
+    }
+    if (!localStorage.getItem(TOUR_MODE_KEY)) {
+      showWelcomeChoice();
       return;
     }
-    if (isTourActive()) renderGuidedTour();
-  }
-
-  let tourRenderQueued = false;
-  function queueTourRender() {
-    if (!isTourActive() || tourRenderQueued) return;
-    tourRenderQueued = true;
-    window.setTimeout(() => {
-      tourRenderQueued = false;
-      renderGuidedTour();
-    }, 120);
-  }
-
-  window.addEventListener('resize', queueTourRender);
-  window.addEventListener('scroll', queueTourRender, { passive: true });
-
-  function maybeAdvanceStudentTourIfReady(form) {
-    const state = readTourState();
-    if (!state.active || Number(state.step) !== 2) return;
-    if (validateStudentForm(form)) setTourStep(3);
-  }
-
-  function cssEscapeName(value) {
-    if (window.CSS && typeof window.CSS.escape === 'function') return window.CSS.escape(value);
-    return String(value).replace(/[^a-zA-Z0-9_-]/g, '\\$&');
-  }
-
-  function getQuestionNames(form) {
-    return [...new Set($$('input[type="radio"]', form).map(input => input.name).filter(Boolean))];
-  }
-
-  function getMissingQuestionNames(form) {
-    return getQuestionNames(form).filter(name => !form.querySelector(`input[name="${cssEscapeName(name)}"]:checked`));
-  }
-
-  function updateRubricCompletionState(form) {
-    if (!form) return;
-    getQuestionNames(form).forEach(name => {
-      const escaped = cssEscapeName(name);
-      const row = document.querySelector(`[data-question-name="${escaped}"]`);
-      if (!row) return;
-      const complete = Boolean(form.querySelector(`input[name="${escaped}"]:checked`));
-      row.classList.toggle('is-complete', complete);
-      row.classList.toggle('is-missing', !complete);
-    });
-  }
-
-  function maybeAdvanceTopicTourAfterAllAnswered(form) {
-    const state = readTourState();
-    if (!state.active || Number(state.step) !== 16) return;
-    if (!getMissingQuestionNames(form).length) setTourStep(17);
+    if (localStorage.getItem(TOUR_MODE_KEY) === 'guided') {
+      window.setTimeout(() => startTour(false), 250);
+    }
   }
 
   document.addEventListener('DOMContentLoaded', () => {
-    initHelpToggle();
     initDemoReset();
     if (page === 'dashboard') renderDashboard();
     if (page === 'student-form') initStudentForm();
     if (page === 'observation') renderObservationPage();
     if (page === 'mesk') renderMeskPage();
     if (page === 'topic') renderTopicPage();
-    initGuidedTour();
+    initTourSystem();
   });
 })();

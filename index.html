@@ -17,18 +17,18 @@
     </a>
     <nav class="nav-actions" aria-label="Hauptnavigation">
       <a class="install-btn" href="#">Installieren</a>
+      <button class="nav-pill" id="restartTour" type="button">Tutorial</button>
       <span class="avatar" aria-label="Benutzerkürzel">MS</span>
     </nav>
   </header>
 
   <section class="hero hero-dashboard">
-    <div class="hero-inner hero-wide hero-left">
+    <div class="hero-inner hero-left">
       <h1>Meine SPLINT Demo</h1>
-      <p class="muted">Lokale Präsentationsfassung: Schüler:innen und Beobachtungsbögen werden im Browser gespeichert und auf dieser Hauptseite angezeigt.</p>
+      <p class="muted">Lokale Präsentationsfassung: Schüler:innen und Beobachtungsbögen werden im Browser gespeichert und rechts auf dieser Hauptseite angezeigt.</p>
       <div class="button-row hero-tools">
         <button class="btn btn-secondary" id="seedDemo" type="button">Demo-Daten laden</button>
         <button class="btn btn-ghost" id="resetDemo" type="button">Demo-Daten löschen</button>
-        <button class="btn" id="startTour" type="button">Tutorial starten</button>
       </div>
     </div>
   </section>
@@ -39,12 +39,12 @@
         <section class="section" aria-labelledby="actions-title">
           <h2 id="actions-title">Aktionen</h2>
           <div class="tile-grid dashboard-actions">
-            <a class="tile tile-primary" id="dashboardStartObservation" data-tour="dashboard-observation" href="mesk.html" data-requires-student>
+            <a class="tile tile-primary" id="dashboardStartObservation" href="mesk.html" data-requires-student>
               <span class="tile-icon">＋</span>
               <span>Beobachtung erstellen</span>
               <small class="tile-hint" data-tile-hint></small>
             </a>
-            <a class="tile" href="schueler-anlegen.html" data-tour="dashboard-student">
+            <a class="tile" id="dashboardStudentTile" href="schueler-anlegen.html">
               <span class="tile-icon">☻</span>
               <span>Schüler:in anlegen</span>
             </a>
@@ -56,24 +56,24 @@
           </div>
         </section>
 
-        <section class="section" aria-labelledby="overview-title">
+        <section class="section" id="dashboardStats" aria-labelledby="overview-title">
           <h2 id="overview-title">Übersicht</h2>
           <div class="tile-grid dashboard-stats">
             <article class="card stat-card">
               <h3>Schüler:innen</h3>
-              <p class="page-title" id="statsStudents" aria-live="polite">0</p>
+              <p class="stat-number" id="statsStudents" aria-live="polite">0</p>
               <p class="muted">lokal angelegt</p>
             </article>
             <article class="card stat-card">
               <h3>Beobachtungsbögen</h3>
-              <p class="page-title" id="statsObservations" aria-live="polite">0</p>
+              <p class="stat-number" id="statsObservations" aria-live="polite">0</p>
               <p class="muted">lokal gespeichert</p>
             </article>
           </div>
         </section>
       </section>
 
-      <aside class="dashboard-sidebar" data-tour="dashboard-results" aria-label="Gespeicherte Inhalte">
+      <aside class="dashboard-side" id="dashboardSide" aria-label="Gespeicherte Inhalte">
         <section class="section dashboard-panel" aria-labelledby="students-title">
           <h2 id="students-title">Angelegte Schüler:innen</h2>
           <div class="card-list compact-list" id="studentList" aria-live="polite"></div>
