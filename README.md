@@ -1,32 +1,36 @@
-# SPLINT One Demo
+# SPLINT One Demo-Webseitenadaption
 
-Statische HTML/CSS/JavaScript-Demo zur Präsentation eines SPLINT-ähnlichen Ablaufs.
+Statische Demo zur Präsentation eines SPLINT-ähnlichen Workflows. Die Demo besteht aus HTML, CSS und JavaScript und kann direkt in ein GitHub-Repository gelegt und über GitHub Pages veröffentlicht werden.
 
-## Enthalten
+## Enthaltene Seiten
 
-- `index.html` – Hauptseite mit Aktionen, Übersicht, angelegten Schüler:innen und gespeicherten Beobachtungen.
-- `schueler-anlegen.html` – Formular zum Erstellen eines Schüler:innenprofils inklusive fünf Demo-Vorschlägen.
-- `beobachtung.html` – SPLINT-nahe Profil- und Beobachtungsübersicht.
-- `mesk.html` – Auswahl des MeSK-Fragebogens und der Oberkategorien.
-- `themen/*.html` – einzelne ausfüllbare Beobachtungsbögen für Selbstkompetenz, Sozialkompetenz, Konfliktverhalten, Regelverhalten und Lernkompetenz.
-- `assets/css/styles.css` – gesamtes Layout inkl. Desktop-, Tablet- und Smartphone-Ansicht.
-- `assets/js/app.js` – lokale Speicherung, Demo-Daten, MeSK-Rubrik, Validierung und Tutorial-Tour.
+- `index.html` – Hauptseite mit Kacheln, Schüler:innenliste und gespeicherten Beobachtungen
+- `schueler-anlegen.html` – Formular „Schüler:in erstellen“ nach Screenshot-Vorlage
+- `beobachtung.html` – Profil-/Übersichtsseite mit Beobachtungsbogen-Kachel
+- `mesk.html` – MeSK-Auswahlseite mit Oberkategorien
+- `themen/selbstkompetenz.html`
+- `themen/sozialkompetenz.html`
+- `themen/konfliktverhalten.html`
+- `themen/regelverhalten.html`
+- `themen/lernkompetenz.html`
 
-## Funktionen
+## Speicherung
 
-- Schüler:innenprofile werden im Browser per `localStorage` gespeichert.
-- Beobachtungen können erst gestartet werden, wenn ein Profil existiert und ausgewählt ist.
-- Beobachtungsbögen können erst gespeichert werden, wenn jedes Item beantwortet wurde.
-- Nach dem Speichern wird automatisch zur Hauptseite zurückgeführt.
-- Beim ersten Besuch erscheint eine Auswahl zwischen geführter Tutorial-Tour und freiem Entdecken.
-- Die Tutorial-Tour läuft je HTML-Seite einzeln mit Abdunkelung, Spotlight und kurzer Erklärung.
-- Alle Seiten sind responsiv für Desktop, iPad/Tablet und Smartphone aufgebaut.
+Die Demo speichert angelegte Schüler:innen und ausgefüllte Beobachtungsbögen lokal im Browser über `localStorage`.
+Es gibt keinen Server, keine Datenbank und keine externe API. Dadurch ist die Demo für Präsentationen und GitHub Pages geeignet.
 
-## Nutzung in GitHub Pages
+## Start
 
 1. ZIP entpacken.
-2. Den Ordnerinhalt in ein GitHub-Repository kopieren.
-3. GitHub Pages aktivieren.
-4. `index.html` als Startseite verwenden.
+2. Dateien in ein GitHub-Repository kopieren.
+3. `index.html` im Browser öffnen oder GitHub Pages für das Repository aktivieren.
 
-Die Demo ist nicht mit einem echten SPLINT-System verbunden und verarbeitet keine Serverdaten.
+## Anpassung
+
+- Farben und Layout: `assets/css/styles.css`
+- Logik, Demo-Daten und MeSK-Themen: `assets/js/app.js`
+- Logo/Favicon: `assets/img/logo.svg` und `assets/img/favicon.svg`
+
+## Hinweis
+
+Dies ist eine eigenständige Demo-Adaption für Präsentationszwecke und keine offizielle SPLINT-Anwendung. Die enthaltenen Fragebogen-Items sind als Demo-Rubrik aus den bereitgestellten Screenshots nachgebildet. Für eine echte Nutzung sollten Formulierungen, Datenschutz und fachliche Kriterien geprüft werden.

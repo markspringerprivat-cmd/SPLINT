@@ -13,14 +13,6 @@
     { value: '4', label: 'sicher' }
   ];
 
-  const DEMO_STUDENT_PRESETS = [
-    { firstName: 'Mika', lastName: 'Schneider', birthDate: '20.06.2016', pronouns: 'Xier / Xies', group: '4a', grade: '4', schoolYear: '5', note: 'Ausgewogener Demo-Fall für alle MeSK-Bereiche.' },
-    { firstName: 'Lea', lastName: 'Kramer', birthDate: '14.03.2015', pronouns: 'Sie / Ihr', group: '5b', grade: '5', schoolYear: '6', note: 'Geeignet für Sozialkompetenz und Gesprächssituationen.' },
-    { firstName: 'Noah', lastName: 'Becker', birthDate: '02.11.2016', pronouns: 'Er / Ihm', group: '4c', grade: '4', schoolYear: '5', note: 'Geeignet für Lernkompetenz und Arbeitsphasen.' },
-    { firstName: 'Sam', lastName: 'Yilmaz', birthDate: '08.09.2014', pronouns: 'Keine Angabe', group: '6a', grade: '6', schoolYear: '7', note: 'Geeignet für Konfliktverhalten und Regelverhalten.' },
-    { firstName: 'Emil', lastName: 'Fischer', birthDate: '27.01.2017', pronouns: 'Er / Ihm', group: '3a', grade: '3', schoolYear: '4', note: 'Jüngerer Beispiel-Fall für Selbstregulation.' }
-  ];
-
   const TOPIC_ORDER = ['selbstkompetenz', 'sozialkompetenz', 'konfliktverhalten', 'regelverhalten', 'lernkompetenz'];
 
   function emotionSections(emotion) {
@@ -242,66 +234,26 @@
     lernkompetenz: {
       title: 'Lernkompetenz',
       shortTitle: 'Lernkompetenz',
-      description: 'Beobachtung von Motivation, Erledigung schulischer Anforderungen, Durchhaltevermögen, Aufmerksamkeit und Umgang mit Materialien.',
+      description: 'Beobachtung von Lernbereitschaft, Ausdauer, Konzentration und Sorgfalt beim Lernen.',
       subtopics: [
         {
-          title: 'Motivation zur eigenständigen Arbeit',
+          title: 'Lern- und Leistungsbereitschaft',
           questions: [
-            'ist von sich aus motiviert, Aufgaben alleine zu schaffen.',
-            'lässt sich durch äußere Umstände oder andere Personen motivieren, Aufgaben alleine zu schaffen.',
-            'lässt sich motivieren, Aufgaben alleine zu schaffen, wenn diese an den persönlichen Interessen anknüpfen.',
-            'ist durch intensive Begleitung bereit, Aufgaben kurzzeitig zu bearbeiten.',
-            'entwickelt nur durch intensive Begleitung und Zuwendung Lern- und Leistungsbereitschaft.'
+            'beginnt Aufgaben eigenständig und arbeitet auch bei Herausforderungen weiter.',
+            'beginnt Aufgaben nach kurzer Orientierung und zeigt überwiegend Arbeitsbereitschaft.',
+            'nimmt Lernaufgaben in bekannten Situationen an und bleibt mit Unterstützung arbeitsfähig.',
+            'beginnt Aufgaben nur bei klarer Struktur, persönlicher Ansprache oder enger Begleitung.',
+            'vermeidet Lernaufgaben häufig und benötigt intensive Unterstützung für den Einstieg.'
           ]
         },
         {
-          title: 'Erledigung schulischer Anforderungen',
+          title: 'Konzentration und Sorgfalt beim Lernen',
           questions: [
-            'erledigt die schulischen Anforderungen nach Ermutigung angemessen selbstständig.',
-            'bearbeitet schulische Anforderungen in strukturierten Kontexten und mit unterstützendem Input.',
-            'bearbeitet kurzzeitig schulische Anforderungen in strukturierten Kontexten.',
-            'erfüllt kurzzeitig individuell vereinbarte schulische Anforderungen durch intensive Begleitung.',
-            'schafft die Aufgaben noch nicht und erkennt schulische Anforderungen nur eingeschränkt als bedeutsam an.'
-          ]
-        },
-        {
-          title: 'Durchhaltevermögen bei schwierigen Aufgaben',
-          questions: [
-            'hält bei schwierigen Aufgaben durch. Schwierigkeiten werden konstruktiv bearbeitet.',
-            'hält in strukturierten Kontexten und mit unterstützendem Input bei schwierigen Aufgaben durch.',
-            'hält bei schwierigen Aufgaben durch, wenn auf persönlich erlebte Schwierigkeiten Rücksicht genommen wird.',
-            'lässt sich nur kurzfristig auf schwierige Aufgaben ein und fühlt sich durch Anforderungen schnell belastet.',
-            'hält bei jeglichen schulischen Anforderungen nicht durch. Die Teilnahme an Aufgaben gelingt kaum.'
-          ]
-        },
-        {
-          title: 'Aufmerksamkeit auf Aufgaben',
-          questions: [
-            'konzentriert sich ungeteilt und gezielt auf Aufgaben.',
-            'konzentriert sich über einen vorgesehenen Zeitraum auf differenzierte Aufgabenstellungen.',
-            'konzentriert sich mit Hilfe für eine vereinbarte Zeit auf differenzierte Aufgaben.',
-            'konzentriert sich unter Anleitung kurzzeitig auf differenzierte Aufgabenstellungen.',
-            'konzentriert sich, wenn überhaupt, nur mit Unterstützung kurzzeitig und phasenweise auf Aufgaben.'
-          ]
-        },
-        {
-          title: 'Erledigen von Aufgaben',
-          questions: [
-            'erledigt Aufgaben zügig und den Anforderungen entsprechend.',
-            'erledigt Aufgaben in einem angemessenen Tempo.',
-            'erledigt Aufgaben mit individueller Unterstützung angemessen und vollständig.',
-            'bearbeitet Aufgaben in Ansätzen und setzt sie nach Unterbrechung fort. Der Arbeitsprozess bleibt instabil.',
-            'erledigt mit individueller Unterstützung Aufgaben in Ansätzen. Der Arbeitsprozess benötigt enge Begleitung.'
-          ]
-        },
-        {
-          title: 'Umgang mit Materialien',
-          questions: [
-            'nutzt alle eigenen und fremden Materialien sorgfältig.',
-            'nutzt eigene Materialien angemessen und sorgfältig.',
-            'geht mit Materialien mit Unterstützung angemessen um.',
-            'entwickelt ein Bewusstsein für einen sachgerechten Umgang mit Materialien.',
-            'erachtet den sachgerechten Umgang mit Materialien als bedeutungslos.'
+            'arbeitet über einen vereinbarten Zeitraum konzentriert und kontrolliert Ergebnisse sorgfältig.',
+            'arbeitet meist konzentriert und nutzt Hinweise zur sorgfältigen Bearbeitung.',
+            'hält die Konzentration in überschaubaren Aufgabenphasen mit Unterstützung aufrecht.',
+            'ist leicht ablenkbar und benötigt wiederholte Strukturierungsschritte.',
+            'verliert den Arbeitsfokus schnell und kann Aufgaben ohne enge Begleitung kaum bearbeiten.'
           ]
         }
       ]
@@ -312,11 +264,10 @@
   const $$ = (selector, context = document) => Array.from(context.querySelectorAll(selector));
   const page = document.body.dataset.page || '';
   const root = document.body.dataset.root || '';
-  const topicKey = document.body.dataset.topic || '';
-  const TOUR_MODE_KEY = 'splintDemo.tourMode.v4';
-  const TOUR_DONE_PREFIX = 'splintDemo.tourDone.v4.';
 
-  function link(path) { return `${root}${path}`; }
+  function link(path) {
+    return `${root}${path}`;
+  }
 
   function read(key, fallback) {
     try {
@@ -328,7 +279,10 @@
     }
   }
 
-  function write(key, value) { localStorage.setItem(key, JSON.stringify(value)); }
+  function write(key, value) {
+    localStorage.setItem(key, JSON.stringify(value));
+  }
+
   function getStudents() { return read(STUDENTS_KEY, []); }
   function setStudents(students) { write(STUDENTS_KEY, students); }
   function getObservations() { return read(OBSERVATIONS_KEY, []); }
@@ -349,11 +303,10 @@
 
   function formatDateGerman(value) {
     if (!value) return '–';
-    const raw = String(value);
-    const parts = raw.split('-');
+    const parts = String(value).split('-');
     if (parts.length === 3) return `${parts[2]}.${parts[1]}.${parts[0]}`;
-    if (/^\d{2}\.\d{2}\.\d{4}$/.test(raw)) return raw;
-    return raw;
+    if (/^\d{2}\.\d{2}\.\d{4}$/.test(value)) return value;
+    return value;
   }
 
   function parseGermanDate(value) {
@@ -380,49 +333,28 @@
     return `${student.firstName || ''} ${student.lastName || ''}`.trim() || 'Unbenannte:r Schüler:in';
   }
 
-  function studentContext(student) {
-    if (!student) {
-      return {
-        name: 'die ausgewählte Person', displayName: 'Nicht zugeordnet', group: '–', grade: '–',
-        birthDate: '–', pronouns: '–', schoolYear: '–',
-        detailLine: 'Bitte zuerst eine:n Schüler:in auswählen oder anlegen.'
-      };
-    }
-    const name = studentName(student);
-    const details = [
-      student.group ? `Lerngruppe ${student.group}` : 'Lerngruppe nicht angegeben',
-      student.grade ? `Jahrgang ${student.grade}` : 'Jahrgang nicht angegeben',
-      student.schoolYear ? `Schulbesuchsjahr ${student.schoolYear}` : 'Schulbesuchsjahr nicht angegeben',
-      `Geburtsdatum ${formatDateGerman(student.birthDate)}`
-    ];
-    return {
-      name, displayName: name, group: student.group || '–', grade: student.grade || '–',
-      birthDate: formatDateGerman(student.birthDate), pronouns: student.pronouns || '–',
-      schoolYear: student.schoolYear || '–', detailLine: details.join(' · ')
-    };
-  }
-
   function activeStudentId() {
     const params = new URLSearchParams(window.location.search);
     const fromUrl = params.get('studentId');
-    const students = getStudents();
-    if (fromUrl && students.some(s => s.id === fromUrl)) {
+    if (fromUrl) {
       localStorage.setItem(ACTIVE_STUDENT_KEY, fromUrl);
       return fromUrl;
     }
-    if (fromUrl) localStorage.removeItem(ACTIVE_STUDENT_KEY);
     const stored = localStorage.getItem(ACTIVE_STUDENT_KEY);
+    const students = getStudents();
     if (stored && students.some(s => s.id === stored)) return stored;
     return students[0]?.id || '';
   }
 
-  function getStudentById(studentId) { return getStudents().find(student => student.id === studentId) || null; }
+  function getStudentById(studentId) {
+    return getStudents().find(student => student.id === studentId) || null;
+  }
 
   function setStatus(message, isError = false) {
     const status = $('#statusline');
     if (!status) return;
     status.textContent = message || '';
-    status.classList.toggle('is-error', Boolean(isError));
+    status.style.color = isError ? '#8a1d1d' : 'var(--blue-700)';
   }
 
   function renderStudentOptions(select, selectedId = '') {
@@ -444,78 +376,22 @@
     });
   }
 
-  function setStudentRequiredElementState(element, studentId, options = {}) {
-    if (!element) return;
-    const hasStudent = Boolean(studentId && getStudentById(studentId));
-    const hint = $('[data-tile-hint]', element);
-    element.classList.toggle('tile-disabled', !hasStudent);
-    element.classList.toggle('btn-disabled', !hasStudent && element.classList.contains('btn'));
-    element.setAttribute('aria-disabled', String(!hasStudent));
-    if (!hasStudent) {
-      element.dataset.disabledHref = options.href || element.getAttribute('href') || '';
-      element.removeAttribute('href');
-      if (hint) hint.textContent = options.emptyHint || 'Zuerst Schüler:innenprofil anlegen und auswählen.';
-      return;
-    }
-    if (options.href) element.setAttribute('href', options.href);
-    if (hint) hint.textContent = options.readyHint || '';
-  }
-
-  function countAnswered(observation) {
-    const answers = Object.values(observation.answers || {});
-    return answers.filter(answer => answer.value !== '').length;
-  }
-
-  function totalItems(topic) {
-    return (topic?.subtopics || []).reduce((sum, subtopic) => sum + subtopic.questions.length, 0);
-  }
-
-  function observationCard(observation) {
-    const student = getStudentById(observation.studentId);
-    const topic = TOPICS[observation.topicKey];
-    const topicTitle = topic?.title || observation.topicTitle || 'Beobachtungsbogen';
-    const answered = countAnswered(observation);
-    const total = totalItems(topic);
-    return `
-      <article class="card observation-card">
-        <span class="doc-icon" aria-hidden="true">▣</span>
-        <div class="observation-copy">
-          <h3>${escapeHtml(topicTitle)}</h3>
-          <p class="card-meta">${escapeHtml(studentName(student))} · ${escapeHtml(formatDateTime(observation.updatedAt))} · ${answered}${total ? `/${total}` : ''} Einträge · ${escapeHtml(observation.status || 'Entwurf')}</p>
-        </div>
-        <div class="observation-actions">
-          <a class="btn" href="${link(`beobachtung.html?studentId=${encodeURIComponent(observation.studentId || '')}`)}">Ansehen</a>
-        </div>
-      </article>
-    `;
-  }
-
   function renderDashboard() {
     const students = getStudents();
     const observations = getObservations();
-    $('#statsStudents') && ($('#statsStudents').textContent = students.length);
-    $('#statsObservations') && ($('#statsObservations').textContent = observations.length);
 
-    const selectedId = activeStudentId();
-    const selectedStudent = getStudentById(selectedId);
-    setStudentRequiredElementState($('#dashboardStartObservation'), selectedId, {
-      href: link(`mesk.html?studentId=${encodeURIComponent(selectedId || '')}`),
-      emptyHint: 'Erst Profil anlegen',
-      readyHint: selectedStudent ? `für ${studentName(selectedStudent)}` : ''
-    });
-    setStudentRequiredElementState($('#dashboardOpenProfile'), selectedId, {
-      href: link(`beobachtung.html?studentId=${encodeURIComponent(selectedId || '')}`),
-      emptyHint: 'Erst Profil anlegen',
-      readyHint: selectedStudent ? `Profil: ${studentName(selectedStudent)}` : ''
-    });
+    const statsStudents = $('#statsStudents');
+    const statsObservations = $('#statsObservations');
+    if (statsStudents) statsStudents.textContent = students.length;
+    if (statsObservations) statsObservations.textContent = observations.length;
 
     const studentList = $('#studentList');
     if (studentList) {
       if (!students.length) {
-        studentList.innerHTML = '<div class="empty-state">Noch keine Schüler:innen angelegt. Erstelle zuerst ein Profil, damit Beobachtungen eindeutig gespeichert werden können.</div>';
+        studentList.innerHTML = '<div class="empty-state">Noch keine Schüler:innen angelegt. Über „Schüler:in erstellen“ wird ein Datensatz im Browser gespeichert.</div>';
       } else {
         studentList.innerHTML = students.map(student => `
-          <article class="card compact-card ${student.id === selectedId ? 'is-active' : ''}">
+          <article class="card">
             <h3>${escapeHtml(studentName(student))}</h3>
             <p class="card-meta">${escapeHtml(student.group || 'Keine Lerngruppe')} · Jahrgang ${escapeHtml(student.grade || '–')} · Geburtsdatum ${escapeHtml(formatDateGerman(student.birthDate))}</p>
             <div class="card-actions">
@@ -538,39 +414,26 @@
     }
   }
 
-  function fillStudentFormWithPreset(form, preset) {
-    if (!form || !preset) return;
-    Object.entries({
-      firstName: preset.firstName, lastName: preset.lastName, birthDate: preset.birthDate,
-      pronouns: preset.pronouns, group: preset.group, grade: preset.grade, schoolYear: preset.schoolYear
-    }).forEach(([name, value]) => {
-      const field = form.elements[name];
-      if (field) field.value = value || '';
-    });
-    validateStudentForm(form);
-    setStatus(`Vorschlag ${preset.firstName} ${preset.lastName} wurde übernommen. Prüfe die Daten und speichere das Profil.`);
-    form.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  function countAnswered(observation) {
+    const answers = Object.values(observation.answers || {});
+    return answers.filter(answer => answer.value !== '').length;
   }
 
-  function initStudentPresetSlider(form) {
-    const container = $('#studentPresetSlider');
-    if (!container) return;
-    container.innerHTML = DEMO_STUDENT_PRESETS.map((preset, index) => `
-      <article class="preset-slide">
-        <strong>${escapeHtml(preset.firstName)} ${escapeHtml(preset.lastName)}</strong>
-        <span>${escapeHtml(preset.group)} · Jahrgang ${escapeHtml(preset.grade)} · ${escapeHtml(preset.birthDate)}</span>
-        <p>${escapeHtml(preset.note)}</p>
-        <button class="btn btn-secondary" type="button" data-preset-index="${index}">Übernehmen</button>
+  function observationCard(observation) {
+    const student = getStudentById(observation.studentId);
+    const topic = TOPICS[observation.topicKey];
+    const topicTitle = topic?.title || observation.topicTitle || 'Beobachtungsbogen';
+    const answered = countAnswered(observation);
+    return `
+      <article class="card observation-card">
+        <span class="doc-icon" aria-hidden="true">▣</span>
+        <div>
+          <h3>${escapeHtml(topicTitle)}</h3>
+          <p class="card-meta">${escapeHtml(studentName(student))} · ${escapeHtml(formatDateTime(observation.updatedAt))} · ${answered} Einträge · ${escapeHtml(observation.status || 'Entwurf')}</p>
+        </div>
+        <a class="btn" href="${link(`beobachtung.html?studentId=${encodeURIComponent(observation.studentId || '')}`)}">Ansehen</a>
       </article>
-    `).join('');
-    const count = $('#presetCount');
-    if (count) count.textContent = String(DEMO_STUDENT_PRESETS.length);
-    container.addEventListener('click', event => {
-      const button = event.target.closest('[data-preset-index]');
-      if (!button) return;
-      const preset = DEMO_STUDENT_PRESETS[Number(button.dataset.presetIndex)];
-      fillStudentFormWithPreset(form, preset);
-    });
+    `;
   }
 
   function validateStudentForm(form) {
@@ -584,12 +447,13 @@
   function initStudentForm() {
     const form = $('#studentForm');
     if (!form) return;
-    initStudentPresetSlider(form);
+
     const today = new Date();
     const fallback = new Intl.DateTimeFormat('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' }).format(today);
     if (form.elements.birthDate && !form.elements.birthDate.value) form.elements.birthDate.value = fallback;
-    ['firstName', 'lastName', 'birthDate'].forEach(name => {
-      const input = form.elements[name];
+
+    ['firstName', 'lastName', 'birthDate'].forEach(id => {
+      const input = $(`#${id}`, form);
       if (input) input.addEventListener('input', () => validateStudentForm(form));
     });
     validateStudentForm(form);
@@ -597,7 +461,7 @@
     form.addEventListener('submit', event => {
       event.preventDefault();
       if (!validateStudentForm(form)) {
-        setStatus('Bitte Vorname, Nachname und Geburtsdatum ausfüllen.', true);
+        setStatus('Bitte alle Pflichtfelder ausfüllen.', true);
         return;
       }
       const formData = new FormData(form);
@@ -616,6 +480,7 @@
       students.push(student);
       setStudents(students);
       localStorage.setItem(ACTIVE_STUDENT_KEY, student.id);
+
       const continueCreating = Boolean(formData.get('continueCreating'));
       if (continueCreating) {
         form.reset();
@@ -628,67 +493,6 @@
     });
   }
 
-  function renderStudentProfile(student) {
-    if (!student) {
-      return `
-        <div class="empty-state profile-empty">
-          <strong>Kein Schüler:innenprofil ausgewählt.</strong><br>
-          Lege zuerst ein Profil an. Erst dann können Beobachtungsbögen gestartet und gespeichert werden.
-          <div class="card-actions"><a class="btn btn-primary" href="${link('schueler-anlegen.html')}">Schüler:in anlegen</a></div>
-        </div>`;
-    }
-    return `
-      <article class="card profile-card" data-tour-target="profile-main">
-        <div class="profile-head">
-          <div>
-            <p class="upper tiny">Schüler:innenprofil</p>
-            <h2>${escapeHtml(studentName(student))}</h2>
-          </div>
-          <div class="profile-tools-inline"><a class="btn btn-secondary" href="${link(`mesk.html?studentId=${encodeURIComponent(student.id)}`)}">Beobachtung erstellen</a></div>
-        </div>
-        <div class="profile-body">
-          <dl class="profile-grid">
-            <div class="kv"><dt>Lerngruppe</dt><dd>${escapeHtml(student.group || '–')}</dd></div>
-            <div class="kv"><dt>Jahrgangsstufe</dt><dd>${escapeHtml(student.grade || '–')}</dd></div>
-            <div class="kv"><dt>Geburtsdatum</dt><dd>${escapeHtml(formatDateGerman(student.birthDate))}</dd></div>
-            <div class="kv"><dt>Schulbesuchsjahr</dt><dd>${escapeHtml(student.schoolYear || '–')}</dd></div>
-            <div class="kv"><dt>Pronomen</dt><dd>${escapeHtml(student.pronouns || '–')}</dd></div>
-          </dl>
-        </div>
-      </article>
-
-      <section class="profile-section" id="peopleSection" data-tour-target="people">
-        <h2>Beteiligte Personen <span aria-hidden="true">☻</span></h2>
-        <p>Verantwortliche Personen: 1<br>Unterstützer:innen: 0<br>Förderziel-Mentor:innen: 0</p>
-        <a href="#">Beteiligung verwalten ✎</a>
-      </section>
-
-      <section class="profile-section" id="strengthsSection" data-tour-target="strengths">
-        <h2>Stärken und Interessen</h2>
-        <p class="muted">Nicht vorhanden</p>
-        <a href="#">Stärken oder Interesse hinzufügen ✎</a>
-      </section>
-
-      <section class="profile-section" id="planningTabs" data-tour-target="planning">
-        <div class="tabbar"><button class="tab active" type="button">SPLINT Förderplanung</button><button class="tab" type="button">SPLINT Feedback</button></div>
-        <div class="icon-menu"><span class="icon-menu-item"><span class="circle-icon">▥</span>Ergebnisse</span><span class="icon-menu-item icon-muted"><span class="circle-icon">□</span>Förderplan</span></div>
-      </section>
-
-      <section class="profile-section" id="compensationSection" data-tour-target="compensation">
-        <h2>Nachteilsausgleich</h2>
-        <p class="muted">Nicht vorhanden</p>
-        <a href="#">Nachteilsausgleich hinzufügen ✎</a>
-      </section>
-
-      <section class="profile-section" id="agreementsSection" data-tour-target="agreements">
-        <h2>Vereinbarungen</h2>
-        <p>Hier kannst du getroffene Vereinbarungen zu ${escapeHtml(studentName(student))} vermerken. Sie sind für alle Verantwortlichen sichtbar.</p>
-        <div class="agreement-row"><input type="text" placeholder="Neue Vereinbarung"><button class="btn btn-secondary" type="button">＋</button></div>
-        <p class="muted">Für ${escapeHtml(studentName(student))} gibt es noch keine Vereinbarungen. Hinterlasse als erste:r eine Vereinbarung.</p>
-      </section>
-    `;
-  }
-
   function renderObservationPage() {
     const selectedId = activeStudentId();
     const select = $('#studentSelect');
@@ -699,25 +503,84 @@
         window.location.href = link(`beobachtung.html?studentId=${encodeURIComponent(select.value)}`);
       });
     }
-    const student = getStudentById(activeStudentId());
-    const createLink = $('#createObservationLink');
-    setStudentRequiredElementState(createLink, student?.id || '', {
-      href: link(`mesk.html?studentId=${encodeURIComponent(student?.id || '')}`),
-      emptyHint: 'Erst Profil anlegen'
-    });
-    const profile = $('#studentProfile');
-    if (profile) profile.innerHTML = renderStudentProfile(student);
 
-    const own = $('#ownObservations');
-    if (own) {
-      if (!student) {
-        own.innerHTML = `<a class="tile tile-primary" href="${link('schueler-anlegen.html')}"><span class="tile-icon">＋</span><span>Zuerst Schüler:in anlegen</span></a>`;
-      } else {
-        const observations = getObservations().filter(observation => observation.studentId === student.id);
-        own.innerHTML = `
-          <a class="tile tile-primary" id="profileObservationTile" data-tour-target="profile-observation" href="${link(`mesk.html?studentId=${encodeURIComponent(student.id)}`)}">
+    const student = getStudentById(selectedId);
+    const profile = $('#studentProfile');
+    const addLink = $('#createObservationLink');
+    if (addLink) addLink.href = link(`mesk.html?studentId=${encodeURIComponent(selectedId || '')}`);
+
+    if (!profile) return;
+    if (!student) {
+      profile.innerHTML = `
+        <div class="empty-state">
+          Für die Beobachtungsübersicht muss zuerst ein:e Schüler:in angelegt werden.
+          <div class="card-actions"><a class="btn btn-primary" href="${link('schueler-anlegen.html')}">Schüler:in erstellen</a></div>
+        </div>`;
+      const ownObs = $('#ownObservations');
+      if (ownObs) ownObs.innerHTML = '';
+      return;
+    }
+
+    profile.innerHTML = `
+      <article class="card profile-card">
+        <div class="profile-head">
+          <h2>${escapeHtml(studentName(student))}</h2>
+          <dl class="hero-meta">
+            <dt>Lerngruppe:</dt><dd>${escapeHtml(student.group || 'Nicht angegeben')}</dd>
+            <dt>Jahrgangsstufe:</dt><dd>${escapeHtml(student.grade || 'Nicht angegeben')}</dd>
+            <dt>Geburtsdatum:</dt><dd>${escapeHtml(formatDateGerman(student.birthDate))}</dd>
+          </dl>
+        </div>
+        <div class="profile-body">
+          <section class="section">
+            <h3>Beteiligte Personen <span aria-hidden="true">☻</span></h3>
+            <p>Verantwortliche Personen: 1<br>Unterstützer:innen: 0<br>Förderziel-Mentor:innen: 0</p>
+            <a href="#">Beteiligung verwalten ✎</a>
+          </section>
+          <section class="section">
+            <h3>Stärken und Interessen</h3>
+            <p class="muted">Nicht vorhanden</p>
+            <a href="#">Stärken oder Interesse hinzufügen ✎</a>
+          </section>
+          <div class="tabbar" role="tablist" aria-label="SPLINT Bereiche">
+            <span class="tab active">SPLINT Förderplanung</span>
+            <span class="tab">SPLINT Feedback</span>
+          </div>
+          <div class="icon-menu" aria-label="Werkzeuge">
+            <span class="icon-menu-item"><span class="circle-icon">▥</span>Ergebnisse</span>
+            <span class="icon-menu-item icon-muted"><span class="circle-icon">□</span>Förderplan</span>
+          </div>
+          <section class="section">
+            <h3>Nachteilsausgleich</h3>
+            <p class="muted">Nicht vorhanden</p>
+            <a href="#">Nachteilsausgleich hinzufügen ✎</a>
+          </section>
+          <section class="section">
+            <h3>Vereinbarungen</h3>
+            <p>Hier kannst du getroffene Vereinbarungen zu ${escapeHtml(studentName(student))} vermerken. Sie sind für alle Verantwortlichen sichtbar und erscheinen auf dem Förderplan.</p>
+            <div class="button-row">
+              <input type="text" aria-label="Neue Vereinbarung" placeholder="Neue Vereinbarung">
+              <button class="btn btn-disabled" type="button">＋</button>
+            </div>
+            <p class="muted">Für ${escapeHtml(studentName(student))} gibt es noch keine Vereinbarungen.<br>Hinterlasse als erste:r eine Vereinbarung.</p>
+          </section>
+        </div>
+      </article>
+    `;
+
+    const ownObs = $('#ownObservations');
+    if (ownObs) {
+      const observations = getObservations().filter(obs => obs.studentId === selectedId);
+      if (!observations.length) {
+        ownObs.innerHTML = `
+          <a class="tile tile-primary" href="${link(`mesk.html?studentId=${encodeURIComponent(selectedId)}`)}">
             <span class="tile-icon">＋</span>
-            <span>Weitere Beobachtung erstellen</span>
+            <span>Beobachtung erstellen</span>
+          </a>`;
+      } else {
+        ownObs.innerHTML = `
+          <a class="tile" href="${link(`mesk.html?studentId=${encodeURIComponent(selectedId)}`)}">
+            <span class="tile-icon">＋</span><span>Weitere Beobachtung erstellen</span>
           </a>
           ${observations.map(observationCard).join('')}
         `;
@@ -732,141 +595,73 @@
     if (select) {
       select.addEventListener('change', () => {
         localStorage.setItem(ACTIVE_STUDENT_KEY, select.value);
-        renderMeskPage();
-      }, { once: true });
+        renderTopicLinks(select.value);
+      });
     }
-    const studentId = $('#studentSelect')?.value || activeStudentId();
-    const selectedStudent = getStudentById(studentId);
+    renderTopicLinks(selectedId);
+  }
+
+  function renderTopicLinks(studentId) {
     const list = $('#topicList');
     if (!list) return;
-    if (!selectedStudent) {
-      setStatus('Der MeSK-Bogen wird erst freigeschaltet, wenn ein Schüler:innenprofil angelegt und ausgewählt wurde.', true);
-      list.innerHTML = `
-        <div class="empty-state topic-lock" data-tour-target="topic-list">
-          <strong>Beobachtung noch gesperrt.</strong><br>
-          Lege zuerst eine:n Schüler:in an oder wähle ein vorhandenes Profil aus.
-          <div class="card-actions"><a class="btn btn-primary" href="${link('schueler-anlegen.html')}">Schüler:in anlegen</a></div>
-        </div>
-        ${TOPIC_ORDER.map(key => topicRowHtml(key, '', true)).join('')}
+    list.innerHTML = TOPIC_ORDER.map(key => {
+      const topic = TOPICS[key];
+      const itemCount = topic.subtopics.reduce((sum, subtopic) => sum + subtopic.questions.length, 0);
+      return `
+        <a class="topic-row" href="${link(`themen/${key}.html?studentId=${encodeURIComponent(studentId || '')}`)}">
+          <span class="topic-chevron" aria-hidden="true">›</span>
+          <span class="topic-radio" aria-hidden="true"></span>
+          <span>${escapeHtml(topic.title)}<br><small>${escapeHtml(topic.description)}</small></span>
+          <small>${topic.subtopics.length} Themen · ${itemCount} Items</small>
+        </a>
       `;
-      return;
-    }
-    setStatus(`Ausgewählt: ${studentName(selectedStudent)}. Wähle jetzt einen Beobachtungsbereich.`, false);
-    list.innerHTML = TOPIC_ORDER.map((key, index) => topicRowHtml(key, studentId, false, index)).join('');
+    }).join('');
   }
 
-  function topicRowHtml(key, studentId, disabled = false, index = 0) {
-    const topic = TOPICS[key];
-    const itemCount = totalItems(topic);
-    const attrs = index === 0 ? ' data-tour-target="topic-first"' : '';
-    const inner = `
-      <span class="topic-chevron" aria-hidden="true">›</span>
-      <span class="topic-radio" aria-hidden="true"></span>
-      <span class="topic-main"><strong>${escapeHtml(topic.title)}</strong><small>${escapeHtml(topic.description)}</small></span>
-      <small class="topic-count">${topic.subtopics.length} Themen · ${itemCount} Items</small>
-    `;
-    if (disabled) return `<div class="topic-row topic-row-disabled" aria-disabled="true"${attrs}>${inner}</div>`;
-    return `<a class="topic-row" href="${link(`themen/${key}.html?studentId=${encodeURIComponent(studentId || '')}`)}"${attrs}>${inner}</a>`;
-  }
-
-  function topicNav(currentKey) {
-    const index = TOPIC_ORDER.indexOf(currentKey);
+  function topicNav(topicKey) {
+    const index = TOPIC_ORDER.indexOf(topicKey);
     const prevKey = TOPIC_ORDER[(index - 1 + TOPIC_ORDER.length) % TOPIC_ORDER.length];
     const nextKey = TOPIC_ORDER[(index + 1) % TOPIC_ORDER.length];
     const selectedId = activeStudentId();
     return `
       <div class="topic-screenbar" aria-label="Bereichsnavigation">
         <a href="${link(`themen/${prevKey}.html?studentId=${encodeURIComponent(selectedId || '')}`)}" aria-label="Vorheriger Bereich">‹</a>
-        <strong>${escapeHtml(TOPICS[currentKey].title)}</strong>
+        <strong>${escapeHtml(TOPICS[topicKey].title)}</strong>
         <a href="${link(`themen/${nextKey}.html?studentId=${encodeURIComponent(selectedId || '')}`)}" aria-label="Nächster Bereich">›</a>
-      </div>`;
-  }
-
-  function caseCopy(key, ctx) {
-    const name = ctx.name;
-    const examples = {
-      selbstkompetenz: {
-        focus: ['Selbstregulation bei Wut, Angst und Traurigkeit', 'Wahrnehmung eigener Gefühle', 'Verständnis für Gefühle anderer'],
-        paragraphs: [
-          `${name} wird in ${ctx.detailLine} beobachtet. In der Demo-Situation arbeitet die Lerngruppe an einer Aufgabe, bei der Wartezeiten, Rückmeldungen und kleine Misserfolge entstehen. Dabei kann sichtbar werden, wie ${name} eigene emotionale Reaktionen wahrnimmt und ob bereits hilfreiche Strategien zur Regulation genutzt werden.`,
-          `Besonders relevant ist, ob ${name} bei Wut, Angst oder Traurigkeit passende Unterstützung annimmt, eigene Gefühle benennen kann und nach einer kurzen Stabilisierung wieder handlungsfähig wird. Beobachte auch, ob Ursachen für die eigenen Reaktionen erkannt werden oder ob die Reaktion erst mit zeitlichem Abstand eingeordnet werden kann.`,
-          `Für den Bogen kann außerdem notiert werden, ob ${name} emotionale Signale anderer Kinder erkennt. Ein geeignetes Beispiel wäre eine Partnerarbeit, in der ein anderes Kind unsicher, traurig oder verärgert reagiert und ${name} darauf entweder angemessen, verzögert oder gar nicht eingeht.`
-        ]
-      },
-      sozialkompetenz: {
-        focus: ['Hilfsbereitschaft', 'Toleranz und Einigung', 'Gesprächsbeteiligung und Kontaktaufnahme', 'Handlungs- und Lösungsstrategien'],
-        paragraphs: [
-          `${name} wird in ${ctx.detailLine} innerhalb einer kooperativen Unterrichtssituation beobachtet. Die Gruppe erhält eine gemeinsame Aufgabe, bei der Material geteilt, Rollen abgesprochen und unterschiedliche Vorschläge ausgehandelt werden müssen.`,
-          `Achte darauf, ob ${name} wahrnimmt, wenn andere Unterstützung benötigen, und ob Hilfe eigeninitiativ, nach Aufforderung oder nur in stark strukturierten Situationen angeboten wird. Ebenso wichtig ist, wie ${name} auf andere Meinungen reagiert: Werden Kompromisse möglich, werden Beiträge anderer gehört oder dominiert die eigene Sichtweise?`,
-          `Für die Einschätzung sind konkrete Gesprächsanteile hilfreich. Notiere, ob ${name} Kontakt sozial angemessen aufnimmt, Gesprächsregeln einhält, eigene Interessen zeitweise zurückstellen kann und ob aus der Gruppe heraus eigene Lösungsvorschläge entstehen.`
-        ]
-      },
-      konfliktverhalten: {
-        focus: ['Problemlösefähigkeit', 'Hilfe annehmen', 'Konflikte beenden', 'Wiedergutmachung'],
-        paragraphs: [
-          `${name} wird in ${ctx.detailLine} in einer kontrollierten Konfliktsituation beobachtet, zum Beispiel bei einer Uneinigkeit über Material, Reihenfolge, Spielregeln oder Zuständigkeiten in einer Gruppenarbeit.`,
-          `Im Mittelpunkt steht, ob ${name} eigene Anteile am Konflikt erkennen kann und ob angebotene Hilfen angenommen werden. Beobachte, ob verbale Interventionen, vertrauliche Ansprache oder eine klare Struktur dazu führen, dass ${name} aus der Eskalation herausfindet und wieder ansprechbar wird.`,
-          `Für den Bogen ist bedeutsam, wie der Konflikt endet. Hält die Entlastung an, zieht sich ${name} zunächst zurück, entsteht erneute Spannung oder gelingt eine Wiedergutmachung? Formuliere Notizen möglichst konkret, damit die Einschätzung später nachvollziehbar bleibt.`
-        ]
-      },
-      regelverhalten: {
-        focus: ['Klassen- und Schulregeln', 'Einsicht bei Regelverstoß', 'Reaktion auf Konsequenzen'],
-        paragraphs: [
-          `${name} wird in ${ctx.detailLine} während wiederkehrender Unterrichtsabläufe beobachtet. Geeignet sind Situationen wie Arbeitsbeginn, Übergänge, Partnerarbeit, Pausenrückkehr oder der Umgang mit vereinbarten Gesprächs- und Bewegungsregeln.`,
-          `Achte darauf, ob ${name} Regeln aus eigener Orientierung einhält oder ob klare Erinnerung, persönliche Ansprache, Belohnungsaussicht oder eindeutige Konsequenzen nötig sind. Entscheidend ist nicht nur der Regelverstoß selbst, sondern auch die Einsicht danach.`,
-          `Für eine aussagekräftige Beobachtung sollte festgehalten werden, ob ${name} Fehlverhalten erkennt, Verantwortung übernimmt und das Verhalten anschließend anpasst. Die Demo zeigt damit, wie Regelakzeptanz und Reflexionsfähigkeit systematisch dokumentiert werden können.`
-        ]
-      },
-      lernkompetenz: {
-        focus: ['Motivation zur eigenständigen Arbeit', 'Erledigung schulischer Anforderungen', 'Durchhaltevermögen', 'Aufmerksamkeit und Materialumgang'],
-        paragraphs: [
-          `${name} wird in ${ctx.detailLine} während einer schulischen Arbeitsphase beobachtet. Die Aufgabe sollte einen klaren Arbeitsauftrag, Materialnutzung, eine Bearbeitungszeit und mindestens eine schwierigere Anforderung enthalten.`,
-          `Beobachte, ob ${name} von sich aus beginnt, ob Motivation durch Interessen, Ermutigung oder intensive Begleitung entsteht und wie lange die Aufmerksamkeit aufrechterhalten wird. Relevant ist auch, ob Aufgaben vollständig, zügig und den Anforderungen entsprechend bearbeitet werden.`,
-          `Für die Notizen eignen sich konkrete Hinweise zum Arbeitsprozess: Wie geht ${name} mit Unterbrechungen um? Werden Materialien sorgfältig genutzt? Werden schwierige Aufgaben fortgesetzt oder abgebrochen? Dadurch lässt sich die Lernkompetenz differenziert und präsentationsnah darstellen.`
-        ]
-      }
-    };
-    return examples[key] || { focus: ['Beobachtungsinhalt', 'Situation', 'Dokumentation'], paragraphs: [`Für ${name} wird ein passendes Fallbeispiel angezeigt.`] };
-  }
-
-  function renderCaseExample(key, student) {
-    const container = $('#caseExample');
-    if (!container) return;
-    const ctx = studentContext(student);
-    const copy = caseCopy(key, ctx);
-    container.innerHTML = `
-      <p class="upper tiny">Automatisch aus Schülerdaten generiert</p>
-      <h2 id="case-title">Fallbeispiel: ${escapeHtml(TOPICS[key]?.title || 'Beobachtung')}</h2>
-      <dl class="case-meta-grid">
-        <div><dt>Schüler:in</dt><dd>${escapeHtml(ctx.displayName)}</dd></div>
-        <div><dt>Lerngruppe</dt><dd>${escapeHtml(ctx.group)}</dd></div>
-        <div><dt>Jahrgang</dt><dd>${escapeHtml(ctx.grade)}</dd></div>
-        <div><dt>Schulbesuchsjahr</dt><dd>${escapeHtml(ctx.schoolYear)}</dd></div>
-        <div><dt>Geburtsdatum</dt><dd>${escapeHtml(ctx.birthDate)}</dd></div>
-        <div><dt>Pronomen</dt><dd>${escapeHtml(ctx.pronouns)}</dd></div>
-      </dl>
-      <div class="case-copy">${copy.paragraphs.map(p => `<p>${escapeHtml(p)}</p>`).join('')}</div>
-      <div class="case-focus"><strong>Im Bogen besonders prüfen:</strong><ul>${copy.focus.map(i => `<li>${escapeHtml(i)}</li>`).join('')}</ul></div>
+      </div>
     `;
   }
 
   function renderTopicPage() {
+    const topicKey = document.body.dataset.topic;
     const topic = TOPICS[topicKey];
     if (!topic) return;
-    $('#topicTitle') && ($('#topicTitle').textContent = topic.title);
-    $('#topicDescription') && ($('#topicDescription').textContent = topic.description);
-    $('#topicToolbar') && ($('#topicToolbar').innerHTML = topicNav(topicKey));
+
+    const title = $('#topicTitle');
+    const description = $('#topicDescription');
+    const toolbar = $('#topicToolbar');
+    if (toolbar) toolbar.innerHTML = topicNav(topicKey);
+    if (title) title.textContent = topic.title;
+    if (description) description.textContent = topic.description;
 
     const selectedId = activeStudentId();
     const select = $('#studentSelect');
     renderStudentOptions(select, selectedId);
-    const student = getStudentById(select?.value || selectedId);
-    $('#selectedStudentName') && ($('#selectedStudentName').textContent = studentName(student));
-    renderCaseExample(topicKey, student);
+    if (select) {
+      select.addEventListener('change', () => {
+        localStorage.setItem(ACTIVE_STUDENT_KEY, select.value);
+        const label = $('#selectedStudentName');
+        if (label) label.textContent = studentName(getStudentById(select.value));
+      });
+    }
+
+    const studentNameField = $('#selectedStudentName');
+    if (studentNameField) studentNameField.textContent = studentName(getStudentById(selectedId));
 
     const form = $('#topicForm');
     const container = $('#questionContainer');
     if (!form || !container) return;
+
     container.innerHTML = `
       <div class="rubric-panel">
         ${topic.subtopics.map((subtopic, subIndex) => `
@@ -876,12 +671,12 @@
               ${subtopic.questions.map((question, questionIndex) => {
                 const name = `q_${subIndex}_${questionIndex}`;
                 return `
-                  <div class="rubric-row" data-question-row role="group" aria-labelledby="${name}_statement">
-                    <div class="rubric-statement" id="${name}_statement">
+                  <fieldset class="rubric-row">
+                    <legend>
                       <span class="rubric-blur" aria-hidden="true"></span>
-                      <span class="rubric-question">${escapeHtml(question)}</span>
-                    </div>
-                    <div class="rubric-scale" role="radiogroup" aria-label="Einschätzung zu: ${escapeHtml(question)}">
+                      <span>${escapeHtml(question)}</span>
+                    </legend>
+                    <div class="rubric-scale" role="radiogroup" aria-label="Einschätzung">
                       ${SCALE.map(item => `
                         <label class="rubric-choice">
                           <input type="radio" name="${name}" value="${item.value}" data-label="${escapeHtml(item.label)}">
@@ -889,80 +684,20 @@
                         </label>
                       `).join('')}
                     </div>
-                  </div>`;
+                  </fieldset>
+                `;
               }).join('')}
             </div>
           </section>
         `).join('')}
-      </div>`;
-
-    let hasScrolledToNotes = false;
-    const updateTopicStudentState = () => {
-      const currentId = $('#studentSelect')?.value || '';
-      const selectedStudent = getStudentById(currentId);
-      const hasStudent = Boolean(selectedStudent);
-      $('#selectedStudentName') && ($('#selectedStudentName').textContent = hasStudent ? studentName(selectedStudent) : 'Keine Schüler:in ausgewählt');
-      renderCaseExample(topicKey, selectedStudent);
-      $$('#questionContainer input, #notes').forEach(field => { field.disabled = !hasStudent; });
-      $('#questionContainer')?.classList.toggle('is-disabled', !hasStudent);
-      if (!hasStudent) setStatus('Bitte zuerst eine:n Schüler:in anlegen und im Auswahlfeld aktiv auswählen.', true);
-      else setStatus(`Beobachtung für ${studentName(selectedStudent)} vorbereitet. Beantworte jedes Item.`, false);
-      updateTopicCompletion(false);
-    };
-
-    const answerNames = topic.subtopics.flatMap((subtopic, subIndex) => subtopic.questions.map((question, questionIndex) => `q_${subIndex}_${questionIndex}`));
-    function incompleteNames() {
-      return answerNames.filter(name => !form.elements[name]?.value);
-    }
-    function updateTopicCompletion(allowAutoScroll = true) {
-      const studentId = $('#studentSelect')?.value || selectedId;
-      const hasStudent = Boolean(getStudentById(studentId));
-      const missing = incompleteNames();
-      const complete = hasStudent && missing.length === 0;
-      const save = $('#saveObservation');
-      if (save) save.classList.toggle('btn-ready', complete);
-      $('#completionCount') && ($('#completionCount').textContent = `${answerNames.length - missing.length}/${answerNames.length} beantwortet`);
-      if (complete) {
-        setStatus('Alle Items sind beantwortet. Du kannst optional eine Notiz eintragen und die Beobachtung speichern.', false);
-        if (allowAutoScroll && !hasScrolledToNotes) {
-          hasScrolledToNotes = true;
-          window.setTimeout(() => $('#notesBlock')?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 80);
-        }
-      }
-      return complete;
-    }
-
-    if (select) {
-      select.addEventListener('change', () => {
-        localStorage.setItem(ACTIVE_STUDENT_KEY, select.value);
-        updateTopicStudentState();
-      });
-    }
-    container.addEventListener('change', event => {
-      if (!event.target.matches('input[type="radio"]')) return;
-      const row = event.target.closest('[data-question-row]');
-      if (row) row.classList.remove('is-missing');
-      updateTopicCompletion(true);
-    });
-
-    updateTopicStudentState();
+      </div>
+    `;
 
     form.addEventListener('submit', event => {
       event.preventDefault();
       const studentId = $('#studentSelect')?.value || selectedId;
-      if (!studentId || !getStudentById(studentId)) {
-        setStatus('Bitte zuerst eine:n Schüler:in anlegen und auswählen. Ohne Profil kann keine Beobachtung gespeichert werden.', true);
-        return;
-      }
-      const missing = incompleteNames();
-      $$('#questionContainer [data-question-row]').forEach(row => row.classList.remove('is-missing'));
-      if (missing.length) {
-        const firstMissing = form.elements[missing[0]]?.[0]?.closest('[data-question-row]') || form.elements[missing[0]]?.closest?.('[data-question-row]');
-        if (firstMissing) {
-          firstMissing.classList.add('is-missing');
-          firstMissing.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }
-        setStatus(`Noch ${missing.length} Item${missing.length === 1 ? '' : 's'} offen. Bitte wähle in jeder Zeile eine Einschätzung.`, true);
+      if (!studentId) {
+        setStatus('Bitte zuerst eine:n Schüler:in anlegen oder auswählen.', true);
         return;
       }
       const answers = {};
@@ -970,19 +705,35 @@
         subtopic.questions.forEach((question, questionIndex) => {
           const name = `q_${subIndex}_${questionIndex}`;
           const value = form.elements[name]?.value || '';
-          answers[name] = { subtopic: subtopic.title, question, value, scaleLabel: SCALE.find(item => item.value === value)?.label || '' };
+          const scaleLabel = SCALE.find(item => item.value === value)?.label || '';
+          answers[name] = {
+            subtopic: subtopic.title,
+            question,
+            value,
+            scaleLabel
+          };
         });
       });
       const observations = getObservations();
       const now = new Date().toISOString();
       observations.push({
-        id: id('obs'), studentId, type: 'MeSK', topicKey, topicTitle: topic.title,
-        answers, notes: String($('#notes')?.value || '').trim(), status: 'Gespeichert', createdAt: now, updatedAt: now
+        id: id('obs'),
+        studentId,
+        type: 'MeSK',
+        topicKey,
+        topicTitle: topic.title,
+        answers,
+        notes: String($('#notes')?.value || '').trim(),
+        status: 'Entwurf gespeichert',
+        createdAt: now,
+        updatedAt: now
       });
       setObservations(observations);
       localStorage.setItem(ACTIVE_STUDENT_KEY, studentId);
-      setStatus('Beobachtungsbogen wurde lokal gespeichert. Weiterleitung zur Hauptseite …');
-      window.setTimeout(() => { window.location.href = link('index.html'); }, 650);
+      setStatus('Beobachtungsbogen wurde lokal gespeichert. Weiterleitung zur Übersicht …');
+      window.setTimeout(() => {
+        window.location.href = link(`beobachtung.html?studentId=${encodeURIComponent(studentId)}`);
+      }, 650);
     });
   }
 
@@ -997,219 +748,41 @@
         window.location.reload();
       });
     }
+
     const seed = $('#seedDemo');
     if (seed) {
       seed.addEventListener('click', () => {
         const existingStudents = getStudents();
         if (existingStudents.length && !confirm('Es sind bereits Daten vorhanden. Demo-Daten ergänzen?')) return;
         const studentId = id('student');
-        const student = { id: studentId, firstName: 'Mika', lastName: 'Schneider', birthDate: '2016-06-20', pronouns: 'Xier / Xies', group: '4a', grade: '4', schoolYear: '5', createdAt: new Date().toISOString() };
-        const obs = { id: id('obs'), studentId, type: 'MeSK', topicKey: 'selbstkompetenz', topicTitle: 'Selbstkompetenz', answers: {}, notes: 'Demo-Beobachtung für die Präsentation.', status: 'Entwurf', createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
+        const student = {
+          id: studentId,
+          firstName: 'Mika',
+          lastName: 'Schneider',
+          birthDate: '2016-06-20',
+          pronouns: 'Xier / Xies',
+          group: '4a',
+          grade: '4',
+          schoolYear: '5',
+          createdAt: new Date().toISOString()
+        };
+        const obs = {
+          id: id('obs'),
+          studentId,
+          type: 'MeSK',
+          topicKey: 'selbstkompetenz',
+          topicTitle: 'Selbstkompetenz',
+          answers: {},
+          notes: 'Demo-Beobachtung für die Präsentation.',
+          status: 'Entwurf gespeichert',
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        };
         setStudents([...existingStudents, student]);
         setObservations([...getObservations(), obs]);
         localStorage.setItem(ACTIVE_STUDENT_KEY, studentId);
         window.location.reload();
       });
-    }
-  }
-
-  function pageTourKey() {
-    if (page === 'topic') return `topic-${topicKey}`;
-    return page || 'page';
-  }
-
-  function getTourSteps() {
-    const steps = {
-      dashboard: [
-        { target: '#dashboardStudentTile', title: 'Schritt 1: Schüler:innenprofil anlegen', text: 'Eine Beobachtung ist erst sinnvoll und speicherbar, wenn ein Profil existiert. Beginne hier mit dem Anlegen einer Schüler:in.' },
-        { target: '#dashboardStartObservation', title: 'Schritt 2: Beobachtung starten', text: 'Sobald ein Profil vorhanden ist, führt diese Kachel zur MeSK-Auswahl. Ohne ausgewählte Schüler:in bleibt sie gesperrt.' },
-        { target: '#dashboardStats', title: 'Übersicht', text: 'Diese Kacheln zeigen, wie viele Profile und Beobachtungsbögen lokal im Browser gespeichert sind.' },
-        { target: '#dashboardSide', title: 'Gespeicherte Inhalte', text: 'Rechts erscheinen angelegte Schüler:innen und gespeicherte Beobachtungsbögen. Nach dem Speichern eines Bogens kommst du hierher zurück.' }
-      ],
-      'student-form': [
-        { target: '#studentPresetPanel', title: 'Demo-Vorschläge', text: 'Links kannst du eines von fünf Beispielprofilen übernehmen. Das ist für eine Präsentation schneller als freie Eingabe.' },
-        { target: '#studentFormPanel', title: 'Profilformular', text: 'Hier werden die relevanten Schüler:innendaten erfasst. Pflichtfelder sind Vorname, Nachname und Geburtsdatum.' },
-        { target: '#saveStudent', title: 'Profil speichern', text: 'Nach dem Prüfen der Angaben speicherst du das Profil. Danach ist diese Person automatisch ausgewählt und Beobachtungen werden freigeschaltet.' }
-      ],
-      observation: [
-        { target: '#studentSelect', title: 'Schüler:in auswählen', text: 'Alle Profilinformationen und Beobachtungsbögen beziehen sich auf die hier ausgewählte Person.' },
-        { target: '#studentProfile', title: 'Profilbereich', text: 'Hier werden Grunddaten und SPLINT-nahe Bereiche des Profils angezeigt.' },
-        { target: '#peopleSection', title: 'Beteiligte Personen', text: 'Dieser Bereich steht für Verantwortliche, Unterstützer:innen und weitere Beteiligte am Förderprozess.' },
-        { target: '#strengthsSection', title: 'Stärken und Interessen', text: 'Hier könnten Stärken, Interessen und Ressourcen der Schüler:in ergänzt werden.' },
-        { target: '#planningTabs', title: 'Förderplanung und Feedback', text: 'Die Tabs stehen beispielhaft für Förderplanung, Ergebnisse und Feedbackfunktionen in SPLINT.' },
-        { target: '#compensationSection', title: 'Nachteilsausgleich', text: 'Hier könnte ein Nachteilsausgleich dokumentiert oder ergänzt werden.' },
-        { target: '#agreementsSection', title: 'Vereinbarungen', text: 'Vereinbarungen machen Absprachen für beteiligte Personen nachvollziehbar.' },
-        { target: '#profileObservationTile', title: 'Beobachtungsbogen erstellen', text: 'Über diese Kachel wechselst du zur MeSK-Auswahl und startest einen neuen Beobachtungsbogen.' }
-      ],
-      mesk: [
-        { target: '#meskBox', title: 'MeSK-Fragebogen', text: 'In dieser Demo wird im Seminar mit dem MeSK-Fragebogen gearbeitet. Er dient der Einschätzung emotionaler und sozialer Kompetenzen.' },
-        { target: '#studentSelect', title: 'Profilzuordnung', text: 'Wähle die Schüler:in aus, für die der Bogen angelegt werden soll. Ohne Auswahl sind die Bereiche gesperrt.' },
-        { target: '#topicList', title: 'Kompetenzbereiche', text: 'Die Oberkategorien führen zu eigenen Beobachtungsbögen. Für die Demo wählst du einen Bereich aus und füllst ihn aus.' },
-        { target: '[data-tour-target="topic-first"]', title: 'Bereich auswählen', text: 'Klicke nach dem Tutorial auf einen Kompetenzbereich, zum Beispiel Selbstkompetenz oder Sozialkompetenz.' }
-      ],
-      'topic-selbstkompetenz': topicSteps('Selbstkompetenz'),
-      'topic-sozialkompetenz': topicSteps('Sozialkompetenz'),
-      'topic-konfliktverhalten': topicSteps('Konfliktverhalten'),
-      'topic-regelverhalten': topicSteps('Regelverhalten'),
-      'topic-lernkompetenz': topicSteps('Lernkompetenz')
-    };
-    return steps[pageTourKey()] || [];
-  }
-
-  function topicSteps(label) {
-    return [
-      { target: '#caseExample', title: 'Fallbeispiel zur ausgewählten Person', text: `Links wird aus dem ausgewählten Schüler:innenprofil ein ausführliches Fallbeispiel für ${label} generiert. Es hilft, die Items in eine konkrete Beobachtungssituation einzuordnen.` },
-      { target: '#studentSelect', title: 'Schüler:innenbezug', text: 'Prüfe, ob die richtige Person ausgewählt ist. Die gespeicherte Beobachtung wird diesem Profil zugeordnet.' },
-      { target: '#questionContainer', title: 'Beobachtungsitems', text: 'Im Bogen sind verschiedene Teilbereiche aufgeführt. Wähle je Aussage genau eine Einschätzung.' },
-      { target: '#notesBlock', title: 'Notizen', text: 'Wenn alle Items beantwortet sind, kannst du hier konkrete Beobachtungssituationen oder Kontextinformationen ergänzen.' },
-      { target: '#saveObservation', title: 'Speichern', text: 'Die Beobachtung kann nur gespeichert werden, wenn jedes Item beantwortet wurde. Danach wirst du zur Hauptseite zurückgeführt.' }
-    ];
-  }
-
-  let activeTour = null;
-
-  function showWelcomeChoice() {
-    if (localStorage.getItem(TOUR_MODE_KEY)) return;
-    const wrapper = document.createElement('div');
-    wrapper.className = 'tour-choice-backdrop';
-    wrapper.innerHTML = `
-      <div class="tour-choice-card" role="dialog" aria-modal="true" aria-labelledby="tour-choice-title">
-        <p class="upper tiny">SPLINT One Demo</p>
-        <h2 id="tour-choice-title">So nutzt du diese Demo</h2>
-        <p>Dieses Demo-Tool zeigt vereinfacht, wie in SPLINT ein Schüler:innenprofil angelegt, ein MeSK-Beobachtungsbogen ausgewählt, ausgefüllt und anschließend lokal gespeichert wird. Die Demo kann im Seminar genutzt werden, um den Ablauf nachzuvollziehen und exemplarisch über mögliche Dokumentation und Weitergabe im Kollegium zu sprechen.</p>
-        <div class="choice-grid">
-          <button class="choice-card" type="button" data-choice="guided"><strong>Tutorial-Tour starten</strong><span>Die wichtigsten Bereiche werden nacheinander mit Spotlight und kurzer Erklärung gezeigt.</span></button>
-          <button class="choice-card" type="button" data-choice="free"><strong>Frei entdecken</strong><span>Alle Tutorial-Overlays werden deaktiviert. Du kannst die Demo selbstständig ausprobieren.</span></button>
-        </div>
-      </div>`;
-    document.body.appendChild(wrapper);
-    wrapper.addEventListener('click', event => {
-      const choice = event.target.closest('[data-choice]');
-      if (!choice) return;
-      const mode = choice.dataset.choice === 'guided' ? 'guided' : 'free';
-      localStorage.setItem(TOUR_MODE_KEY, mode);
-      wrapper.remove();
-      if (mode === 'guided') startTour(false);
-    });
-  }
-
-  function startTour(force = true) {
-    const steps = getTourSteps().filter(step => $(step.target));
-    if (!steps.length) return;
-    if (!force && localStorage.getItem(TOUR_DONE_PREFIX + pageTourKey()) === 'true') return;
-    activeTour = { steps, index: 0, overlay: null, tooltip: null, highlight: null };
-    document.body.classList.add('tour-active');
-    activeTour.overlay = document.createElement('div');
-    activeTour.overlay.className = 'tour-overlay';
-    activeTour.overlay.setAttribute('aria-hidden', 'true');
-    activeTour.tooltip = document.createElement('div');
-    activeTour.tooltip.className = 'tour-tooltip';
-    activeTour.tooltip.setAttribute('role', 'dialog');
-    activeTour.tooltip.setAttribute('aria-live', 'polite');
-    document.body.append(activeTour.overlay, activeTour.tooltip);
-    renderTourStep();
-  }
-
-  function renderTourStep() {
-    if (!activeTour) return;
-    const step = activeTour.steps[activeTour.index];
-    const target = $(step.target);
-    if (!target) { finishTour(); return; }
-    if (activeTour.highlight) activeTour.highlight.classList.remove('tour-highlight');
-    activeTour.highlight = target;
-    target.classList.add('tour-highlight');
-    target.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' });
-    window.setTimeout(() => positionTourTooltip(step, target), 260);
-  }
-
-  function positionTourTooltip(step, target) {
-    if (!activeTour) return;
-    const finalStep = activeTour.index === activeTour.steps.length - 1;
-    const tooltip = activeTour.tooltip;
-    tooltip.innerHTML = `
-      <p class="tour-step-count">Schritt ${activeTour.index + 1} von ${activeTour.steps.length}</p>
-      <h2>${escapeHtml(step.title)}</h2>
-      <p>${escapeHtml(step.text)}</p>
-      <div class="tour-controls">
-        <button class="btn btn-ghost" type="button" data-tour-close>Freies Entdecken</button>
-        <div class="tour-control-right">
-          ${activeTour.index > 0 ? '<button class="btn" type="button" data-tour-prev>Zurück</button>' : ''}
-          <button class="btn btn-primary" type="button" data-tour-next>${finalStep ? 'Verstanden' : 'Weiter'}</button>
-        </div>
-      </div>`;
-    const rect = target.getBoundingClientRect();
-    const tipRect = tooltip.getBoundingClientRect();
-    const margin = 18;
-    const viewportW = window.innerWidth;
-    const viewportH = window.innerHeight;
-    let left;
-    let top;
-    let placement = 'bottom';
-    if (viewportW >= 900 && rect.right + tipRect.width + margin < viewportW) {
-      left = rect.right + margin; top = Math.max(margin, Math.min(rect.top, viewportH - tipRect.height - margin)); placement = 'left';
-    } else if (viewportW >= 900 && rect.left - tipRect.width - margin > 0) {
-      left = rect.left - tipRect.width - margin; top = Math.max(margin, Math.min(rect.top, viewportH - tipRect.height - margin)); placement = 'right';
-    } else {
-      left = Math.max(margin, Math.min((viewportW - tipRect.width) / 2, viewportW - tipRect.width - margin));
-      if (rect.bottom + tipRect.height + margin < viewportH) top = rect.bottom + margin;
-      else top = Math.max(margin, rect.top - tipRect.height - margin);
-      placement = top < rect.top ? 'bottom' : 'top';
-    }
-    tooltip.style.left = `${left}px`;
-    tooltip.style.top = `${top}px`;
-    tooltip.dataset.placement = placement;
-  }
-
-  function finishTour() {
-    if (!activeTour) return;
-    if (activeTour.highlight) activeTour.highlight.classList.remove('tour-highlight');
-    activeTour.overlay?.remove();
-    activeTour.tooltip?.remove();
-    activeTour = null;
-    document.body.classList.remove('tour-active');
-    localStorage.setItem(TOUR_DONE_PREFIX + pageTourKey(), 'true');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }
-
-  document.addEventListener('click', event => {
-    if (!activeTour) return;
-    if (event.target.closest('[data-tour-next]')) {
-      event.preventDefault();
-      if (activeTour.index >= activeTour.steps.length - 1) finishTour();
-      else { activeTour.index += 1; renderTourStep(); }
-    } else if (event.target.closest('[data-tour-prev]')) {
-      event.preventDefault();
-      activeTour.index = Math.max(0, activeTour.index - 1);
-      renderTourStep();
-    } else if (event.target.closest('[data-tour-close]')) {
-      event.preventDefault();
-      localStorage.setItem(TOUR_MODE_KEY, 'free');
-      finishTour();
-    }
-  });
-
-  window.addEventListener('resize', () => {
-    if (!activeTour) return;
-    const step = activeTour.steps[activeTour.index];
-    const target = $(step.target);
-    if (target) positionTourTooltip(step, target);
-  });
-
-  function initTourSystem() {
-    const restart = $('#restartTour');
-    if (restart) {
-      restart.addEventListener('click', () => {
-        localStorage.setItem(TOUR_MODE_KEY, 'guided');
-        localStorage.removeItem(TOUR_DONE_PREFIX + pageTourKey());
-        startTour(true);
-      });
-    }
-    if (!localStorage.getItem(TOUR_MODE_KEY)) {
-      showWelcomeChoice();
-      return;
-    }
-    if (localStorage.getItem(TOUR_MODE_KEY) === 'guided') {
-      window.setTimeout(() => startTour(false), 250);
     }
   }
 
@@ -1220,6 +793,5 @@
     if (page === 'observation') renderObservationPage();
     if (page === 'mesk') renderMeskPage();
     if (page === 'topic') renderTopicPage();
-    initTourSystem();
   });
 })();
