@@ -23,3 +23,7 @@ Die Demo speichert Schüler:innen, aktive Auswahl und Beobachtungsbögen lokal i
 ## Nutzung auf GitHub Pages
 
 Repository erstellen, Dateien hochladen und GitHub Pages für den Branch aktivieren. Einstiegspunkt ist `index.html`.
+
+## Update: Querformat-Hinweis für mobile Fragebögen
+
+Auf Themen-/Fragebogenseiten erscheint auf Handy und Tablet im Hochformat ein Hinweis, das Gerät ins Querformat zu drehen. Im Querformat werden Fallbeispiel und Fragebogen nebeneinander angezeigt und können unabhängig voneinander gescrollt werden. Der Hinweis verschwindet automatisch nach dem Drehen oder kann über „OK, Hinweis schließen“ manuell ausgeblendet werden.

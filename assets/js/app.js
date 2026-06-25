@@ -1410,6 +1410,60 @@
     if (target) positionTourTooltip(step, target);
   });
 
+
+
+  function shouldShowOrientationPrompt() {
+    if (page !== 'topic') return false;
+    const portrait = window.matchMedia && window.matchMedia('(orientation: portrait)').matches;
+    const compactViewport = window.innerWidth <= 1250;
+    const touchLike = navigator.maxTouchPoints > 0 || (window.matchMedia && window.matchMedia('(hover: none) and (pointer: coarse)').matches);
+    return portrait && compactViewport && touchLike && sessionStorage.getItem('splint_demo_orientation_ok') !== pageTourKey();
+  }
+
+  function removeOrientationPrompt() {
+    const existing = $('#orientationPrompt');
+    if (existing) existing.remove();
+    document.body.classList.remove('orientation-prompt-open');
+    if (page === 'topic') {
+      window.setTimeout(() => {
+        const workspace = $('.topic-workspace');
+        if (workspace) workspace.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 80);
+    }
+  }
+
+  function showOrientationPrompt() {
+    if ($('#orientationPrompt') || !shouldShowOrientationPrompt()) return;
+    const overlay = document.createElement('div');
+    overlay.id = 'orientationPrompt';
+    overlay.className = 'orientation-prompt-overlay';
+    overlay.innerHTML = `
+      <section class="orientation-prompt-card" role="dialog" aria-modal="true" aria-labelledby="orientation-title">
+        <div class="orientation-icon" aria-hidden="true">↻</div>
+        <p class="upper tiny">Optimale Ansicht für den Fragebogen</p>
+        <h2 id="orientation-title">Bitte Gerät horizontal drehen</h2>
+        <p>Auf Handy und Tablet lässt sich der Beobachtungsbogen am besten im Querformat bearbeiten. Links bleibt das Fallbeispiel lesbar, rechts kann der Fragebogen separat ausgefüllt werden.</p>
+        <button class="btn btn-primary" type="button" id="orientationOk">OK, Hinweis schließen</button>
+      </section>`;
+    document.body.appendChild(overlay);
+    document.body.classList.add('orientation-prompt-open');
+    $('#orientationOk')?.addEventListener('click', () => {
+      sessionStorage.setItem('splint_demo_orientation_ok', pageTourKey());
+      removeOrientationPrompt();
+    });
+  }
+
+  function initOrientationPrompt() {
+    if (page !== 'topic') return;
+    const evaluate = () => {
+      if (shouldShowOrientationPrompt()) showOrientationPrompt();
+      else removeOrientationPrompt();
+    };
+    window.addEventListener('resize', evaluate);
+    window.addEventListener('orientationchange', () => window.setTimeout(evaluate, 180));
+    window.setTimeout(evaluate, 180);
+  }
+
   function initTourSystem() {
     const restart = $('#restartTour');
     if (restart) {
@@ -1435,6 +1489,7 @@
     if (page === 'observation') renderObservationPage();
     if (page === 'mesk') renderMeskPage();
     if (page === 'topic') renderTopicPage();
+    initOrientationPrompt();
     initTourSystem();
   });
 })();
