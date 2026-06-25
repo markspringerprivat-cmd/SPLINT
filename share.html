@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SPLINT One Demo · Teilen</title>
+  <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="assets/css/styles.css">
+  <script defer src="assets/js/app.js"></script>
+</head>
+<body data-page="share" data-root="">
+  <a class="skip-link" href="#content">Zum Inhalt springen</a>
+  <header class="topbar">
+    <a class="brand" href="index.html" aria-label="SPLINT One Demo Startseite">
+      <img class="brand-mark" src="assets/img/logo.svg" alt="">
+      <span class="brand-text"><strong>SPLINT One</strong><small>Probelizenz · Demo</small></span>
+    </a>
+    <nav class="nav-actions" aria-label="Hauptnavigation">
+      <a class="install-btn" href="#">Installieren</a>
+      <a class="nav-pill" href="index.html">Hauptseite</a>
+      <button class="nav-pill" id="restartTour" type="button">Tutorial</button>
+      <span class="avatar" aria-label="Benutzerkürzel">MS</span>
+    </nav>
+  </header>
+
+  <main class="page page-share" id="content">
+    <section class="card share-landing-card" aria-labelledby="share-title">
+      <p class="upper tiny">Zwischenseite für Seminar und Präsentation</p>
+      <h1 class="page-title" id="share-title">SPLINT Demo teilen</h1>
+      <p class="muted share-intro">Diese Zwischenseite ist dafür gedacht, die Demo schnell auf ein anderes Gerät zu bringen. Der QR-Code und die Teilen-Funktionen verweisen auf diese Seite. Von hier kann die Demo auf dem jeweiligen Gerät geöffnet werden.</p>
+
+      <div class="share-layout">
+        <section class="share-qr-panel" id="shareQrPanel" aria-labelledby="share-qr-title">
+          <h2 id="share-qr-title">QR-Code zur Teilenseite</h2>
+          <div class="qr-frame">
+            <img id="shareQrImage" data-qr-target="share" data-qr-size="420" alt="QR-Code zur SPLINT Demo Teilenseite">
+          </div>
+          <p class="share-url" id="shareUrl" aria-live="polite"></p>
+          <p class="muted small">Der QR-Code wird aus der aktuell geöffneten Adresse erzeugt. Nach dem Hochladen auf GitHub Pages führt er automatisch auf diese Teilenseite.</p>
+        </section>
+
+        <section class="share-action-panel" id="shareActionPanel" aria-labelledby="share-actions-title">
+          <h2 id="share-actions-title">Link weitergeben</h2>
+          <p>Teile die Demo über die Möglichkeiten, die das Gerät unterstützt. Auf Smartphones öffnet der erste Button in der Regel das native Teilen-Menü.</p>
+          <div class="share-button-grid">
+            <button class="btn btn-primary" id="nativeShare" type="button">System-Teilen öffnen</button>
+            <button class="btn" id="copyShareLink" type="button">Link kopieren</button>
+            <a class="btn" id="emailShare" href="#">Per E-Mail teilen</a>
+            <a class="btn" id="whatsappShare" href="#" target="_blank" rel="noopener">Über WhatsApp teilen</a>
+            <a class="btn" id="telegramShare" href="#" target="_blank" rel="noopener">Über Telegram teilen</a>
+          </div>
+          <div class="share-open-box" id="shareOpenBox">
+            <h3>Auf diesem Gerät weiterarbeiten</h3>
+            <p class="muted">Dieser Button öffnet die Startseite der Demo auf dem aktuell verwendeten Gerät.</p>
+            <a class="btn btn-primary btn-large" id="openDemoHere" href="index.html">SPLINT Demo auf diesem Gerät öffnen</a>
+          </div>
+          <div class="statusline" id="shareStatus" aria-live="polite"></div>
+        </section>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

@@ -633,3 +633,59 @@ body.orientation-prompt-open {
     padding-inline: 2px;
   }
 }
+
+/* Teilen-Seite und QR-Kachel */
+.qr-action-tile { gap: 10px; }
+.qr-mini {
+  width: 82px;
+  height: 82px;
+  border: 1px solid var(--soft-line);
+  border-radius: 10px;
+  background: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px;
+  box-shadow: inset 0 0 0 1px rgba(0,42,85,.04);
+}
+.qr-mini img { width: 100%; height: 100%; object-fit: contain; display: block; }
+.qr-mini:empty::before,
+.qr-frame:empty::before { content: 'QR'; color: var(--muted); font-weight: 700; }
+
+.page-share { width: min(100% - 48px, 1440px); padding-top: 42px; }
+.share-landing-card { padding: clamp(20px, 3vw, 34px); border-top: 5px solid var(--amber); }
+.share-intro { max-width: 880px; font-size: 17px; }
+.share-layout { display: grid; grid-template-columns: minmax(300px, 520px) minmax(420px, 1fr); gap: 28px; align-items: stretch; margin-top: 26px; }
+.share-qr-panel,
+.share-action-panel { border: 1px solid var(--soft-line); border-radius: 12px; background: var(--blue-070); padding: 20px; }
+.share-qr-panel h2,
+.share-action-panel h2 { margin-top: 0; color: #071d36; }
+.qr-frame { min-height: 300px; background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 18px; display: grid; place-items: center; box-shadow: var(--shadow-soft); }
+.qr-frame img { width: min(100%, 360px); aspect-ratio: 1 / 1; object-fit: contain; display: block; }
+.share-url { word-break: break-all; background: #fff; border: 1px solid var(--soft-line); border-radius: 8px; padding: 10px 12px; font-size: 13px; }
+.share-button-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin: 18px 0 22px; }
+.share-button-grid .btn { width: 100%; }
+.share-open-box { border: 1.5px solid var(--blue-900); border-radius: 12px; background: #fff; padding: 18px; margin-top: 16px; }
+.share-open-box h3 { margin-top: 0; }
+.btn-large { min-height: 52px; font-size: 17px; width: 100%; }
+
+@media (min-width: 1480px) {
+  .dashboard-actions { grid-template-columns: repeat(4, minmax(180px, 1fr)); }
+}
+
+@media (max-width: 1180px) {
+  .dashboard-actions { grid-template-columns: repeat(2, minmax(220px, 1fr)); }
+  .share-layout { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 900px) {
+  .dashboard-actions { grid-template-columns: 1fr; }
+  .page-share { width: min(100% - 28px, 100%); padding-top: 24px; }
+  .share-button-grid { grid-template-columns: 1fr; }
+  .qr-frame { min-height: 240px; }
+  .share-landing-card { padding: 18px; }
+}
+
+@media (min-width: 1181px) {
+  .dashboard-actions { grid-template-columns: repeat(4, minmax(180px, 1fr)); }
+}

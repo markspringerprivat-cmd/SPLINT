@@ -318,6 +318,122 @@
 
   function link(path) { return `${root}${path}`; }
 
+  function absoluteLink(path) {
+    return new URL(link(path), window.location.href).href;
+  }
+
+  function pageUrlWithoutHash() {
+    const url = new URL(window.location.href);
+    url.hash = '';
+    return url.href;
+  }
+
+  function shareLandingUrl() {
+    return absoluteLink('share.html');
+  }
+
+  function demoHomeUrl() {
+    return absoluteLink('index.html');
+  }
+
+  function qrImageEndpoint(url, size = 360) {
+    const safeSize = Math.max(120, Math.min(Number(size) || 360, 800));
+    return `https://quickchart.io/qr?margin=1&size=${safeSize}&text=${encodeURIComponent(url)}`;
+  }
+
+  function copyToClipboard(text) {
+    if (navigator.clipboard && window.isSecureContext) {
+      return navigator.clipboard.writeText(text);
+    }
+    return new Promise((resolve, reject) => {
+      try {
+        const textarea = document.createElement('textarea');
+        textarea.value = text;
+        textarea.setAttribute('readonly', '');
+        textarea.style.position = 'fixed';
+        textarea.style.left = '-9999px';
+        document.body.appendChild(textarea);
+        textarea.select();
+        const ok = document.execCommand('copy');
+        textarea.remove();
+        ok ? resolve() : reject(new Error('copy failed'));
+      } catch (error) {
+        reject(error);
+      }
+    });
+  }
+
+  function initQrElements() {
+    $$('[data-qr-target]').forEach(element => {
+      const target = element.dataset.qrTarget || 'current';
+      const size = element.dataset.qrSize || '360';
+      const targetUrl = target === 'share' ? shareLandingUrl() : target === 'home' ? demoHomeUrl() : pageUrlWithoutHash();
+      if (element.tagName === 'IMG') {
+        element.src = qrImageEndpoint(targetUrl, size);
+        element.alt = element.alt || `QR-Code für ${targetUrl}`;
+      } else {
+        element.innerHTML = `<img src="${qrImageEndpoint(targetUrl, size)}" alt="QR-Code für ${escapeHtml(targetUrl)}">`;
+      }
+    });
+  }
+
+  function initSharePage() {
+    initQrElements();
+    if (page !== 'share') return;
+
+    const shareUrl = shareLandingUrl();
+    const homeUrl = demoHomeUrl();
+    const title = 'SPLINT One Demo';
+    const text = 'Hier kannst du die SPLINT Demo öffnen und teilen.';
+    const status = $('#shareStatus');
+    const setShareStatus = (message, isError = false) => {
+      if (!status) return;
+      status.textContent = message;
+      status.classList.toggle('is-error', Boolean(isError));
+    };
+
+    $('#shareUrl') && ($('#shareUrl').textContent = shareUrl);
+    const openDemo = $('#openDemoHere');
+    if (openDemo) openDemo.href = homeUrl;
+
+    const body = `${text}
+
+Teilenseite: ${shareUrl}
+Demo direkt öffnen: ${homeUrl}`;
+    const email = $('#emailShare');
+    if (email) email.href = `mailto:?subject=${encodeURIComponent(title)}&body=${encodeURIComponent(body)}`;
+    const whatsapp = $('#whatsappShare');
+    if (whatsapp) whatsapp.href = `https://wa.me/?text=${encodeURIComponent(`${title}: ${shareUrl}`)}`;
+    const telegram = $('#telegramShare');
+    if (telegram) telegram.href = `https://t.me/share/url?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(title)}`;
+
+    const nativeShare = $('#nativeShare');
+    if (nativeShare) {
+      if (!navigator.share) {
+        nativeShare.textContent = 'System-Teilen nicht verfügbar';
+        nativeShare.disabled = true;
+      }
+      nativeShare.addEventListener('click', async () => {
+        try {
+          if (!navigator.share) return;
+          await navigator.share({ title, text, url: shareUrl });
+          setShareStatus('Teilen-Menü wurde geöffnet.');
+        } catch (error) {
+          setShareStatus('Teilen wurde abgebrochen oder ist auf diesem Gerät nicht verfügbar.', true);
+        }
+      });
+    }
+
+    $('#copyShareLink')?.addEventListener('click', async () => {
+      try {
+        await copyToClipboard(shareUrl);
+        setShareStatus('Link zur Teilenseite wurde kopiert.');
+      } catch (error) {
+        setShareStatus('Der Link konnte nicht automatisch kopiert werden. Markiere die Adresse und kopiere sie manuell.', true);
+      }
+    });
+  }
+
   function read(key, fallback) {
     try {
       const raw = localStorage.getItem(key);
@@ -1239,6 +1355,7 @@
         { target: '#dashboardStudentTile', title: 'Schritt 1: Schüler:innenprofil anlegen', text: 'Eine Beobachtung ist erst sinnvoll und speicherbar, wenn ein Profil existiert. Beginne hier mit dem Anlegen einer Schüler:in.' },
         { target: '#dashboardStartObservation', title: 'Schritt 2: Beobachtung starten', text: 'Sobald ein Profil vorhanden ist, führt diese Kachel zur MeSK-Auswahl. Ohne ausgewählte Schüler:in bleibt sie gesperrt.' },
         { target: '#dashboardStats', title: 'Übersicht', text: 'Diese Kacheln zeigen, wie viele Profile und Beobachtungsbögen lokal im Browser gespeichert sind.' },
+        { target: '#dashboardShareTile', title: 'QR-Code und Teilenseite', text: 'Über diese Kachel öffnest du eine Zwischenseite mit QR-Code und Link-Optionen. Damit kann die Demo schnell auf einem anderen Gerät geöffnet werden.' },
         { target: '#dashboardSide', title: 'Gespeicherte Inhalte', text: 'Rechts erscheinen angelegte Schüler:innen und gespeicherte Beobachtungsbögen. Nach dem Speichern eines Bogens kommst du hierher zurück.' }
       ],
       'student-form': [
@@ -1261,6 +1378,11 @@
         { target: '#studentSelect', title: 'Profilzuordnung', text: 'Wähle die Schüler:in aus, für die der Bogen angelegt werden soll. Ohne Auswahl sind die Bereiche gesperrt.' },
         { target: '#topicList', title: 'Kompetenzbereiche', text: 'Die Oberkategorien führen zu eigenen Beobachtungsbögen. Für die Demo wählst du einen Bereich aus und füllst ihn aus.' },
         { target: '[data-tour-target="topic-first"]', title: 'Bereich auswählen', text: 'Klicke nach dem Tutorial auf einen Kompetenzbereich, zum Beispiel Selbstkompetenz oder Sozialkompetenz.' }
+      ],
+      share: [
+        { target: '#shareQrPanel', title: 'QR-Code zur Teilenseite', text: 'Dieser QR-Code verweist auf die aktuell geöffnete Teilenseite. Nach dem Upload auf GitHub Pages kann er mit Handy oder Tablet gescannt werden.' },
+        { target: '#shareActionPanel', title: 'Link weitergeben', text: 'Hier kann der Link über das System-Teilen-Menü, per Kopieren, E-Mail, WhatsApp oder Telegram weitergegeben werden.' },
+        { target: '#shareOpenBox', title: 'Demo auf diesem Gerät öffnen', text: 'Dieser Button führt vom geteilten Zwischenlink zur Startseite der SPLINT Demo auf dem aktuellen Gerät.' }
       ],
       'topic-selbstkompetenz': topicSteps('Selbstkompetenz'),
       'topic-sozialkompetenz': topicSteps('Sozialkompetenz'),
@@ -1474,6 +1596,7 @@
       });
     }
     if (!localStorage.getItem(TOUR_MODE_KEY)) {
+      if (page === 'share') return;
       showWelcomeChoice();
       return;
     }
@@ -1489,6 +1612,7 @@
     if (page === 'observation') renderObservationPage();
     if (page === 'mesk') renderMeskPage();
     if (page === 'topic') renderTopicPage();
+    initSharePage();
     initOrientationPrompt();
     initTourSystem();
   });
