@@ -19,43 +19,57 @@
       <a class="install-btn" href="#">Installieren</a>
       <a class="nav-pill" href="../mesk.html">MeSK Auswahl</a>
       <a class="nav-pill" href="../index.html">Hauptseite</a>
+      <button class="nav-pill" id="restartTour" type="button">Tutorial</button>
       <span class="avatar" aria-label="Benutzerkürzel">MS</span>
     </nav>
   </header>
 
-  <main class="page page-wide topic-page" id="content">
+  <main class="page topic-page-wide" id="content">
     <div id="topicToolbar"></div>
-    <p><a href="../mesk.html">‹ Zur Bereichsauswahl</a></p>
-    <h1 class="page-title" id="topicTitle">Konfliktverhalten</h1>
-    <p class="muted" id="topicDescription"></p>
-
-    <div class="mesk-box">▣ MeSK-Fragebogen · Beobachtungsbereich: <span id="selectedStudentName">–</span></div>
-
-    <form id="topicForm">
-      <section class="section">
-        <div class="form-row">
-          <label for="studentSelect">Schüler:in</label>
-          <select id="studentSelect"></select>
-        </div>
-      </section>
-
-      <section class="section" aria-labelledby="questions-title">
-        <h2 id="questions-title">Beobachtung ausfüllen</h2>
-        <p class="muted">Die Items sind aus den bereitgestellten Screenshots als Demo-Rubrik nachgebaut. Wähle je Zeile eine Einschätzung und speichere den Bogen lokal.</p>
-        <div id="questionContainer"></div>
-      </section>
-
-      <section class="section">
-        <label for="notes">Notizen zur Beobachtung</label>
-        <textarea id="notes" name="notes" placeholder="Beobachtungskontext, Situation, konkrete Beispiele …"></textarea>
-      </section>
-
-      <div class="button-row">
-        <button class="btn btn-primary" type="submit">▣ Beobachtung speichern</button>
-        <a class="btn" href="../mesk.html">Abbrechen</a>
+    <p class="backline"><a href="../mesk.html">‹ Zur Bereichsauswahl</a></p>
+    <div class="topic-intro">
+      <div>
+        <h1 class="page-title" id="topicTitle">Konfliktverhalten</h1>
+        <p class="muted" id="topicDescription"></p>
       </div>
-      <div class="statusline" id="statusline" aria-live="polite"></div>
-    </form>
+      <div class="mesk-box">▣ MeSK-Fragebogen · Beobachtungsbereich: <span id="selectedStudentName">–</span></div>
+    </div>
+
+    <div class="topic-workspace">
+      <aside class="case-column" aria-labelledby="case-title" data-tour-target="case-example">
+        <article class="card case-example-card" id="caseExample">
+          <h2 id="case-title">Fallbeispiel</h2>
+          <p class="muted">Wähle eine:n Schüler:in aus, damit ein passendes Beispiel angezeigt wird.</p>
+        </article>
+      </aside>
+
+      <form id="topicForm" class="topic-form-panel">
+        <section class="section student-select-section">
+          <div class="form-row">
+            <label for="studentSelect">Schüler:in</label>
+            <select id="studentSelect"></select>
+          </div>
+          <div class="completion-chip" id="completionCount">0/0 beantwortet</div>
+        </section>
+
+        <section class="section" aria-labelledby="questions-title">
+          <h2 id="questions-title">Beobachtung ausfüllen</h2>
+          <p class="muted">Wähle je Aussage eine Einschätzung. Aussagen und Antwortskala sind für Desktop, iPad und Smartphone sauber untereinander ausgerichtet.</p>
+          <div id="questionContainer"></div>
+        </section>
+
+        <section class="section" id="notesBlock">
+          <label for="notes">Notizen zur Beobachtung</label>
+          <textarea id="notes" name="notes" placeholder="Beobachtungskontext, Situation, konkrete Beispiele …"></textarea>
+        </section>
+
+        <div class="button-row form-actions-sticky">
+          <button class="btn btn-primary" id="saveObservation" type="submit">▣ Beobachtung speichern</button>
+          <a class="btn" href="../mesk.html">Abbrechen</a>
+        </div>
+        <div class="statusline" id="statusline" aria-live="polite"></div>
+      </form>
+    </div>
   </main>
 </body>
 </html>

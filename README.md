@@ -1,36 +1,25 @@
-# SPLINT One Demo-Webseitenadaption
+# SPLINT One Demo
 
-Statische Demo zur Präsentation eines SPLINT-ähnlichen Workflows. Die Demo besteht aus HTML, CSS und JavaScript und kann direkt in ein GitHub-Repository gelegt und über GitHub Pages veröffentlicht werden.
+Statische HTML/CSS/JavaScript-Demo zur Präsentation eines SPLINT-ähnlichen Ablaufs.
 
-## Enthaltene Seiten
+## Inhalt
 
-- `index.html` – Hauptseite mit Kacheln, Schüler:innenliste und gespeicherten Beobachtungen
-- `schueler-anlegen.html` – Formular „Schüler:in erstellen“ nach Screenshot-Vorlage
-- `beobachtung.html` – Profil-/Übersichtsseite mit Beobachtungsbogen-Kachel
-- `mesk.html` – MeSK-Auswahlseite mit Oberkategorien
-- `themen/selbstkompetenz.html`
-- `themen/sozialkompetenz.html`
-- `themen/konfliktverhalten.html`
-- `themen/regelverhalten.html`
-- `themen/lernkompetenz.html`
+- `index.html` – Hauptseite mit Aktionen, Übersicht, Schüler:innen und Beobachtungen
+- `schueler-anlegen.html` – Schüler:innenprofil anlegen, inklusive Demo-Vorschlägen
+- `beobachtung.html` – Schüler:innenprofil/Beobachtungsübersicht
+- `mesk.html` – Auswahl der MeSK-Oberkategorien
+- `themen/*.html` – ausfüllbare Beobachtungsbögen je Oberkategorie
+- `assets/css/styles.css` – Layout und responsive Darstellung
+- `assets/js/app.js` – Demo-Logik, lokale Speicherung, Tutorial-Modus
+
+## Aktuelle Korrektur
+
+Die Themen-Seiten zeigen das ausführliche Fallbeispiel wieder dauerhaft links neben dem Fragebogen an. Zusätzlich erzeugt JavaScript die Fallbeispiel-Spalte automatisch, falls eine Themen-HTML versehentlich ohne diese Spalte geladen wird.
 
 ## Speicherung
 
-Die Demo speichert angelegte Schüler:innen und ausgefüllte Beobachtungsbögen lokal im Browser über `localStorage`.
-Es gibt keinen Server, keine Datenbank und keine externe API. Dadurch ist die Demo für Präsentationen und GitHub Pages geeignet.
+Die Demo speichert Schüler:innen, aktive Auswahl und Beobachtungsbögen lokal im Browser über `localStorage`. Es gibt kein Backend.
 
-## Start
+## Nutzung auf GitHub Pages
 
-1. ZIP entpacken.
-2. Dateien in ein GitHub-Repository kopieren.
-3. `index.html` im Browser öffnen oder GitHub Pages für das Repository aktivieren.
-
-## Anpassung
-
-- Farben und Layout: `assets/css/styles.css`
-- Logik, Demo-Daten und MeSK-Themen: `assets/js/app.js`
-- Logo/Favicon: `assets/img/logo.svg` und `assets/img/favicon.svg`
-
-## Hinweis
-
-Dies ist eine eigenständige Demo-Adaption für Präsentationszwecke und keine offizielle SPLINT-Anwendung. Die enthaltenen Fragebogen-Items sind als Demo-Rubrik aus den bereitgestellten Screenshots nachgebildet. Für eine echte Nutzung sollten Formulierungen, Datenschutz und fachliche Kriterien geprüft werden.
+Repository erstellen, Dateien hochladen und GitHub Pages für den Branch aktivieren. Einstiegspunkt ist `index.html`.
